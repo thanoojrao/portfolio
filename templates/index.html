@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>MY BLOG</title>
+</head>
+<body>
+    <div id="top-img">
+        <nav id="nav">
+         <div class="nav-items">
+            <div class="nav-heading">MY BLOG</div>
+            <div class="nav-links">
+               <a href="http:#">Home</a>
+               <a href="http:#">Events</a>
+               <a href="http:#" onclick="autoScrollTo('projects')">Projects</a>
+               <a href="http:#" onclick="autoScrollTo('alumni')">alumni</a>
+               <a href="http:#">contact</a>
+            </div>
+          </div> 
+        </nav>
+        <p class="heading-1">MY BLOG</p>
+    </div>
+    <div id="projects">
+        <P class="section-heading" >MY PROJECTS</P>    
+        <div class="project">
+          <p class="heading">
+             PRJ-1
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>   
+          <a class="try-it-btn"href="/predict">Try out</a>
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-2
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-3
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-4
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>   
+    </div>
+    <div id="events" >
+      <P class="section-heading" >EVENTS</P>
+      
+    </div>
+    <div id="alumni">
+      <P class="section-heading" >ALUMNI</P>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">AYUSH</p>
+            <p class="position">Company</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">SRIMAN CHAKRI</p>
+            <p class="position">Qualcomm</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">CHITRITA</p>
+            <p class="position">SEO Amazon</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">YASH SHAW</p>
+            <p class="position">Google</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">THANOOJ</p>
+            <p class="position">Dev</p>
+       </div>
+    </div>
+    <div class="contact"></div>
+    <div id="bottom-img"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
 
+</html>
