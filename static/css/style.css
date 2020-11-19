@@ -51,7 +51,7 @@ ul{
 .nav .toggle-collapse{
     position:absolute;
     top:0%;
-    width:90%;
+    width:85%;
     cursor:pointer;
     display: none;
 }
@@ -182,7 +182,9 @@ ul{
 }
 #projects .project .try-it-btn{
     text-decoration: none;
-    background-color: #D94F30;
+    padding: 4px 10px 4px 10px;
+    background-color: rgb(177, 197, 104);
+    border-radius: 5px;
 }
 @media only screen and (max-width:811px){
     #projects{
@@ -284,7 +286,7 @@ ul{
 
     }
     .nav{
-        min-height: 20px;
+        min-height: 50px;
     }
     .nav .toggle-collapse{
         display: initial;
