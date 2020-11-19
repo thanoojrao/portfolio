@@ -1,68 +1,136 @@
-*{
-    overflow-x: hidden;
+@import url('./fonts.css');
+html,body{
+           margin:0%;
+           box-sizing: border-box;
+           overflow-x: hidden;
+           max-width: 100vw;
+
 }
-body{
-    scroll-behavior: smooth;
-    max-width: 100vw;
-    display: block;
-    margin: 0;
-    background-color:white;
-   
-    
+:root{
+    /*------------fonts--------------------*/
+    --Abel:'Abel',cursive;
+    --Anton:'Anton',cursive;
+    --Josefin_Sans:'Josefin_Sans',cursive;
+    --Lexend_Deca:'Lexend_Deca',cursive;
+    --Livvic:'Livvic',cursive;
+    /*------------colors------------------*/
+    --text-gray:#3f4954;
+    --text-light:#686666da;
+    --bg-color:#0f0f0f;
+    --white:#ffffff;
+    --midnight:rgba(18, 87, 94,0.9);
+
 }
-#top-img{
-    top: 0px;
-    width: 100vw;
-    height: 120vh;
-    background-image:url("../assets/Background-image.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-    display: block;
-    margin-left: 0px;
-    padding: 0px;
+/*------------------universal elements--------------------*/
+a{
+    text-decoration: none;
+    color: var(--white);
 }
-#top-img #nav{
+.flex-row{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+ul{
+    list-style-type: none;
+}
+/*-------*----------universal elements--------*-----------*/
+/*------------------navigation--------------------*/
+.nav{
+    background:rgba(9, 11, 13,0.9);
+    padding: 0 2rem;
+    height: 0rem;
+    min-height: 9vh;
     overflow: hidden;
-    width: 100vw;
-    height: 10vh;
-    font-size: 2rem;
-    margin: 0;
-    top: 0;
+    border-bottom: solid 3px rgba(80, 77, 77,1);
 }
-#nav .nav-items{ 
-    display:flex;
-    justify-content: space-around;
-}
-#nav .nav-links{ 
-    display:flex;
+.nav .nav-menu{
     justify-content: space-between;
+
 }
- #nav .nav-heading{
-     padding: 5px 10px 5px 10px;
-     display: block;
-     color: white;
-     font-weight: bold;
- }
- #nav a{
-     padding: 5px 10px 5px 10px;
-     display: block;
-     text-decoration: none;
-     color: white;
- }
- #nav a:hover{
-     background-color: rgba(107, 109, 105, 0.6);
- }
- #top-img .heading-1{
+.nav .toggle-collapse{
+    position:absolute;
+    top:0%;
+    width:90%;
+    cursor:pointer;
+    display: none;
+}
+.nav .toggle-collapse .toggle-icons{
+    display: flex;
+    justify-content: flex-end;
+    padding: 1.7rem 0;
+
+}
+.nav .toggle-collapse .toggle-icons i{
+   color:var(--white);
+   font-size:1.4rem;
+}
+.nav .nav-brand a{
+              
+    font-size: 1.6rem;
+    padding: 1rem 0;
+    display: block;
+    font-family: var(--Lexend_Deca);
+
     
-    font-size: 18rem;
-    margin:auto;
-    margin-top: 70PX;
+}
+.nav .nav-items{
+    display: flex;
+    margin: 0;
+    
+}
+.nav .nav-items .nav-link{
+    padding: 1.6rem 1rem;
+    font-size:1.1rem; 
+    position: relative;
+    font-family: var(--Abel);
+}
+.nav .nav-items .nav-link:hover{
+    background-color:var(--midnight);
+    
+}
+.nav .nav-items .nav-link:hover a{
+    color:var(--white);
+}
+.nav .social{
+    padding:1.4rem 0;
+}
+.nav .social i{
+    padding: 0 0.8rem;
+}
+.nav .social i:hover{
+    color:#08c0f8;
+}
+.nav .social  a:hover{
+     color: #08c0f8;
+}
+.collapse{
+    height: 30rem;
+}
+/*----------*-------navigation--------*-----------*/
+/*------------------top banner--------------------*/
+.topbanner{
+    display: block;
+    background-color:#090B0D ;
+    width: 100vw;
+    height: 50vh;
+}
+.topbanner .topbanner-brand{
+    position: relative;
     text-align: center;
-    color:rgba(233, 228, 228, 0.7);
-    z-index: 1;
-    
- 
+    top: 50%;
+    width: 90vw;
+    margin-left: 5vw;
+    transform: translateY(-50%);
+    color: white;
+    font-family: var(--Abel);
+    font-size: 11rem;
+    border: solid 4px;
+    font-weight: bold;
+    text-shadow: 6px 4px #D97904;
 }
+
+/*----------*-------top banner--------*-----------*/
 /*projects section styling*/
 #projects{
     display: flex;
@@ -166,8 +234,8 @@ body{
 #alumni .clubMember{
     display: flexbox;
     overflow: hidden;
-    height: 35vh;  
-    max-width: 50vw;
+    height: auto;  
+    max-width: 60vw;
     width: 15vw;
     background-color:#D94F30;
     margin: 10vh;
@@ -180,7 +248,7 @@ body{
 } 
 #alumni .clubMember img{
     width: 15vw;  
-    max-width: 50vw;
+    max-width: 60vw;
     background-size: cover;
 }  
 #alumni .clubMember .name{
@@ -193,13 +261,33 @@ body{
     color: white;
     text-align: center;
 } 
+@media only screen and (max-width:900px){
+    #alumni{
+        flex-direction: column;
+        align-items: center;
+    }
+    #alumni .clubMember{
+        width: 40vw;
+    }
+    #alumni .clubMember img{
+        width: 40vw;  
+    }  
+}
 
-/*bottom image styling*/
-#bottom-img{
-    display: block;
-    height: 150vh;
-    width: 100vw;
-    background-image: url("../assets/Background-image-2.png");
-    background-repeat: no-repeat;
-    background-size: cover;
+/*view port less than or equal to 811px*/
+@media only screen and (max-width:811px){
+    .nav .nav-menu,.nav .nav-items{
+        flex-direction: column;
+
+    }
+    .nav .toggle-collapse{
+        display: initial;
+    }
+
+    .topbanner .topbanner-brand{
+         font-size: 4rem;
+         text-shadow: none;
+         text-align: center;
+         margin: auto;
+    }
 }
