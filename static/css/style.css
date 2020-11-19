@@ -184,10 +184,13 @@ ul{
     text-decoration: none;
     background-color: #D94F30;
 }
-@media only screen and (max-width:700px){
+@media only screen and (max-width:811px){
     #projects{
         flex-direction: column;
         align-items: center;
+    }
+    #projects .project{
+        height: auto;
     }
 }
 /*events section styling*/
@@ -279,6 +282,9 @@ ul{
     .nav .nav-menu,.nav .nav-items{
         flex-direction: column;
 
+    }
+    .nav{
+        min-height: 20px;
     }
     .nav .toggle-collapse{
         display: initial;
