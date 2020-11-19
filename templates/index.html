@@ -1,37 +1,100 @@
 <!DOCTYPE html>
-<html >
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CO2 Emission Predictor</title>
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/project1.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://use.fontawesome.com/0050a00bc6.js"></script>
+    <title>MY BLOG</title>
 </head>
-
 <body>
- <div class="login">
-	<h1>Predict CO2 Emission of Vehicles</h1>
-     <h3> Enter the following values to predict the CO2 emission from the vehicle</h3>
-
-     <!-- Main Input For Receiving Query to our ML -->
-    <form action="{{ url_for('predict')}}"method="post">
-    	<input type="text" name="enginesize" placeholder="Engine Size" required="required" />
-        <input type="text" name="cylinders" placeholder="Cylinders" required="required" />
-		<input type="text" name="fuel" placeholder="Fuel" required="required" />
-
-        <button type="submit" class="btn">Predict</button>
-    </form>
-
-   <br>
-   <br>
-   {{ prediction_text }}
-
- </div>
-
-
+  <nav class="nav">
+    <div class="nav-menu flex-row">
+        <div class="nav-brand"><a class="text-gray" href="#">Welcome </a></div>
+        <div class="toggle-collapse">
+            <div class="toggle-icons"><i class="fa fa-bars"></i></div>
+        </div>
+        <div>
+            <ul class="nav-items">
+                <li class="nav-link"><a>Home</a></li>
+                <li class="nav-link"><a  onclick="autoScrollTo('projects')">Projects</a></li>
+                <li class="nav-link"><a  onclick="autoScrollTo('alumni')">Alumni</a></li>
+                <li class="nav-link"><a >Contact us</a></li>
+            </ul>
+        </div>
+        <div class="social text-gray"><a href=""><i class="fa fa-facebook"></i></a><a href=""><i class="fa fa-instagram"></i></a>
+            <a
+                href=""><i class="fa fa-linkedin"></i></a><a href="#"><i class="fa fa-youtube"> </i></a><a href="/">  signout  </a></div>
+    </div>
+</nav>
+    <div class="topbanner">
+       <div class="topbanner-brand">MY BLOG</div>
+    </div>
+    <div id="projects">
+        <P class="section-heading" >MY PROJECTS</P>    
+        <div class="project">
+          <p class="heading">
+             PRJ-1
+          <p>
+          <p class="content">This ia a demo project. You can calculate the amount of CO2 emmited by entering few parameters try it by clicking the button below </p>   
+          <a class="try-it-btn"href="/predict">Try it</a>
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-2
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-3
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>    
+        <div class="project">
+          <p class="heading">
+             PRJ-4
+          <p>
+          <p class="content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem, eius! Explicabo nihil ea doloremque? Iusto quia consectetur nemo nihil aliquid quam optio aspernatur. Eius ad, aliquam unde architecto magnam in!</p>    
+        </div>   
+    </div>
+    <div id="events" >
+      <P class="section-heading" >EVENTS</P>
+      
+    </div>
+    <div id="alumni">
+      <P class="section-heading" >ALUMNI</P>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">AYUSH</p>
+            <p class="position">Company</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">SRIMAN CHAKRI</p>
+            <p class="position">Qualcomm</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">CHITRITA</p>
+            <p class="position">SEO Amazon</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">YASH SHAW</p>
+            <p class="position">Google</p>
+       </div>
+       <div class="clubMember">
+            <img src="../static/assets/Blog-post/post-4.png" alt="" srcset="">
+            <p class="name">THANOOJ</p>
+            <p class="position">Dev</p>
+       </div>
+    </div>
+    <div class="contact"></div>
+    <div id="bottom-img"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.3.5.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/layout.js') }}"></script>
 </body>
+
 </html>
