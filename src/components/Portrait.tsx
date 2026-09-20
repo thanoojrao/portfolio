@@ -112,10 +112,10 @@ export default function Portrait() {
       for (const d of dots) {
         const hx = d.gx * cell + half;
         const hy = d.gy * cell + half;
-        if (d.val < 0.06) {
-          // unlit lattice node
-          ctx.fillStyle = "rgba(42,53,46,1)";
-          ctx.fillRect(hx - 0.8, hy - 0.8, 1.6, 1.6);
+        if (d.val < 0.05) {
+          // unlit lattice node, kept faint so the face reads against it
+          ctx.fillStyle = "rgba(42,53,46,0.55)";
+          ctx.fillRect(hx - 0.6, hy - 0.6, 1.2, 1.2);
           continue;
         }
         // scatter + drift while scattered
@@ -136,8 +136,8 @@ export default function Portrait() {
         // ease toward the computed position so motion is smooth
         d.x += (x - d.x) * 0.25;
         d.y += (y - d.y) * 0.25;
-        const r = 0.7 + 2.4 * d.val * (cell / 8);
-        const a = 0.35 + 0.65 * d.val;
+        const r = cell * (0.08 + 0.34 * d.val);
+        const a = 0.3 + 0.7 * d.val;
         ctx.beginPath();
         ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${rgb},${a * (1 - k * 0.35)})`;
