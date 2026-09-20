@@ -105,3 +105,6 @@ input[type="range"].eps::-moz-range-thumb { width: 18px; height: 18px; border-ra
 }
 
 .group:hover .hover-accent { color: var(--accent); }
+
+/* custom cursor active: hide the native pointer everywhere */
+html.custom-cursor, html.custom-cursor * { cursor: none !important; }

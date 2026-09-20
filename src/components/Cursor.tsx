@@ -4,33 +4,50 @@ import { useStore } from "@nanostores/react";
 import { mode } from "../store/policy";
 
 /**
- * The cursor as an agent walking the grid. A spring-lagged accent dot follows the
- * pointer, and each 32px grid cell it visits lights up and fades, leaving a trajectory.
+ * The cursor as an agent walking the grid.
+ * - The native pointer is hidden. A small accent dot IS the pointer (no lag).
+ * - A thin ring follows with a spring lag; it grows over interactive elements.
+ * - Each 32px grid cell the pointer visits lights up and fades, leaving a trajectory.
  * Explore mode keeps a longer trail. Disabled on touch devices and under reduced motion.
  */
 
 const CELL = 32;
 const OFF = -1; // matches body background-position
+const INTERACTIVE = "a, button, input, label, [role='radio'], [role='button'], svg g[style*='cursor']";
 
 export default function Cursor() {
   const reduce = useReducedMotion();
   const m = useStore(mode);
   const [enabled, setEnabled] = useState(false);
+  const [hot, setHot] = useState(false); // over something clickable
+  const [shown, setShown] = useState(false); // pointer inside the window
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modeRef = useRef(m);
   modeRef.current = m;
 
+  // exact pointer position (the dot) and a lagged copy (the ring)
   const mx = useMotionValue(-100);
   const my = useMotionValue(-100);
-  const sx = useSpring(mx, { stiffness: 320, damping: 26, mass: 0.6 });
-  const sy = useSpring(my, { stiffness: 320, damping: 26, mass: 0.6 });
+  const rx = useSpring(mx, { stiffness: 260, damping: 24, mass: 0.7 });
+  const ry = useSpring(my, { stiffness: 260, damping: 24, mass: 0.7 });
 
+  // 1. decide whether to run at all (mouse present, motion allowed)
   useEffect(() => {
     if (reduce) return;
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (!fine) return;
-    setEnabled(true);
+    setEnabled(fine);
+  }, [reduce]);
 
+  // 2. hide the native cursor while active
+  useEffect(() => {
+    if (!enabled) return;
+    document.documentElement.classList.add("custom-cursor");
+    return () => document.documentElement.classList.remove("custom-cursor");
+  }, [enabled]);
+
+  // 3. once the canvas is in the DOM, wire the pointer and the draw loop
+  useEffect(() => {
+    if (!enabled) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -54,12 +71,13 @@ export default function Cursor() {
     type Cell = { cx: number; cy: number; t: number };
     const cells: Cell[] = [];
     let lastKey = "";
-    let visible = false;
 
     const onMove = (e: PointerEvent) => {
       mx.set(e.clientX);
       my.set(e.clientY);
-      visible = true;
+      setShown(true);
+      const target = e.target as Element | null;
+      setHot(!!target?.closest?.(INTERACTIVE));
       const cx = Math.floor((e.clientX - OFF) / CELL);
       const cy = Math.floor((e.clientY - OFF) / CELL);
       const key = `${cx},${cy}`;
@@ -70,13 +88,11 @@ export default function Cursor() {
         if (cells.length > max) cells.splice(0, cells.length - max);
       }
     };
-    const onLeave = () => {
-      visible = false;
-      mx.set(-100);
-      my.set(-100);
-    };
+    const onLeave = () => setShown(false);
+    const onEnter = () => setShown(true);
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onLeave);
+    document.documentElement.addEventListener("mouseenter", onEnter);
 
     let raf = 0;
     const loop = () => {
@@ -102,7 +118,6 @@ export default function Cursor() {
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL);
       }
-      void visible;
     };
     loop();
 
@@ -111,27 +126,38 @@ export default function Cursor() {
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("mouseleave", onLeave);
+      document.documentElement.removeEventListener("mouseenter", onEnter);
     };
-  }, [reduce, mx, my]);
+  }, [enabled, mx, my]);
 
   if (!enabled) return null;
   return (
     <>
       <canvas ref={canvasRef} aria-hidden="true" className="fixed inset-0 z-0 pointer-events-none" />
+      {/* lagged ring */}
       <motion.div
         aria-hidden="true"
-        className="fixed z-[55] pointer-events-none rounded-full mix-blend-screen"
+        className="fixed z-[55] pointer-events-none rounded-full"
+        style={{ x: rx, y: ry, left: -16, top: -16, width: 32, height: 32, border: "1px solid var(--accent)" }}
+        animate={{ scale: shown ? (hot ? 1.5 : 1) : 0, opacity: shown ? (hot ? 0.9 : 0.55) : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      />
+      {/* the pointer */}
+      <motion.div
+        aria-hidden="true"
+        className="fixed z-[56] pointer-events-none rounded-full"
         style={{
-          x: sx,
-          y: sy,
-          left: -5,
-          top: -5,
-          width: 10,
-          height: 10,
+          x: mx,
+          y: my,
+          left: -4,
+          top: -4,
+          width: 8,
+          height: 8,
           background: "var(--accent)",
-          boxShadow: "0 0 14px 2px rgb(var(--accent-rgb) / 0.55)",
-          transition: "background .5s, box-shadow .5s",
+          boxShadow: "0 0 12px 2px rgb(var(--accent-rgb) / 0.5)",
         }}
+        animate={{ scale: shown ? (hot ? 0.5 : 1) : 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 26 }}
       />
     </>
   );
