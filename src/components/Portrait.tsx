@@ -113,10 +113,14 @@ export default function Portrait() {
         const hx = d.gx * cell + half;
         const hy = d.gy * cell + half;
         if (d.val <= 0) continue; // unlit: the page lattice shows through
+        // a slow diagonal wave runs through the lattice
+        const wave = Math.sin(t * 1.6 + d.gx * 0.22 + d.gy * 0.14);
+        const wx = wave * cell * 0.16;
+        const wy = Math.cos(t * 1.3 + d.gy * 0.18 - d.gx * 0.08) * cell * 0.22;
         // scatter + drift while scattered
         const drift = k * 0.6 * Math.sin(t * 2 + d.ph);
-        let x = hx + (d.sx * cell * k + drift * cell) * 1;
-        let y = hy + (d.sy * cell * k + drift * cell * 0.7) * 1;
+        let x = hx + wx + d.sx * cell * k + drift * cell;
+        let y = hy + wy + d.sy * cell * k + drift * cell * 0.7;
         // pointer repulsion
         const dx = x - px;
         const dy = y - py;
@@ -131,8 +135,12 @@ export default function Portrait() {
         // ease toward the computed position so motion is smooth
         d.x += (x - d.x) * 0.25;
         d.y += (y - d.y) * 0.25;
-        const r = cell * (0.08 + 0.34 * d.val);
-        const a = 0.3 + 0.7 * d.val;
+        // a brightness sweep passes down the face every few seconds
+        const sweepPos = ((t * 0.35) % 1.6) * rows - rows * 0.3;
+        const sweep = Math.max(0, 1 - Math.abs(d.gy - sweepPos) / 6);
+        const glow = 1 + 0.45 * sweep * sweep;
+        const r = cell * (0.08 + 0.34 * d.val) * (1 + 0.12 * sweep);
+        const a = Math.min(1, (0.3 + 0.7 * d.val) * glow);
         ctx.beginPath();
         ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${rgb},${a * (1 - k * 0.35)})`;
