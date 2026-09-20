@@ -36,9 +36,8 @@ html {
 body {
   min-height: 100dvh;
   background-color: var(--color-ink);
-  background-image:
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  /* dot lattice, one node every 32px; the cursor trail snaps to these nodes */
+  background-image: radial-gradient(circle, #2a352e 1.1px, transparent 1.6px);
   background-size: 32px 32px;
   background-position: -1px -1px;
   background-attachment: fixed;

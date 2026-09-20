@@ -6,8 +6,8 @@ import { mode } from "../store/policy";
 /**
  * The cursor as an agent walking the grid.
  * - The native pointer is hidden. A small accent dot IS the pointer (no lag).
- * - A trail of dots shrinks and fades behind it, like a sampled trajectory.
- * - Each 32px grid cell the pointer visits lights up faintly and fades.
+ * - A trail of dots is sampled behind it; each dot flies to the nearest node of the
+ *   background lattice, glows there, then fades back. The path lights up the lattice.
  * - Over clickable elements a square reticle with corner brackets wraps the pointer.
  * Explore mode keeps a longer trail. Disabled on touch devices and under reduced motion.
  */
@@ -67,11 +67,10 @@ export default function Cursor() {
     resize();
     window.addEventListener("resize", resize);
 
-    type Cell = { cx: number; cy: number; t: number };
-    type Pt = { x: number; y: number; t: number };
-    const cells: Cell[] = [];
+    // a trail point starts at the pointer and settles onto the nearest lattice node
+    type Pt = { x0: number; y0: number; nx: number; ny: number; t: number };
     const trail: Pt[] = [];
-    let lastKey = "";
+    const byNode = new Map<string, Pt>();
     let lastX = -1e9;
     let lastY = -1e9;
 
@@ -89,17 +88,21 @@ export default function Cursor() {
       if (dx * dx + dy * dy > 144) {
         lastX = e.clientX;
         lastY = e.clientY;
-        trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-        if (trail.length > 140) trail.splice(0, trail.length - 140);
-      }
-      const cx = Math.floor((e.clientX - OFF) / CELL);
-      const cy = Math.floor((e.clientY - OFF) / CELL);
-      const key = `${cx},${cy}`;
-      if (key !== lastKey) {
-        lastKey = key;
-        cells.push({ cx, cy, t: performance.now() });
-        const max = modeRef.current === "explore" ? 60 : 28;
-        if (cells.length > max) cells.splice(0, cells.length - max);
+        const nx = Math.round((e.clientX - OFF) / CELL) * CELL + OFF;
+        const ny = Math.round((e.clientY - OFF) / CELL) * CELL + OFF;
+        const key = `${nx},${ny}`;
+        const existing = byNode.get(key);
+        if (existing) {
+          existing.t = performance.now(); // re-light a node we just visited
+        } else {
+          const p: Pt = { x0: e.clientX, y0: e.clientY, nx, ny, t: performance.now() };
+          trail.push(p);
+          byNode.set(key, p);
+          if (trail.length > 140) {
+            const gone = trail.splice(0, trail.length - 140);
+            for (const g of gone) byNode.delete(`${g.nx},${g.ny}`);
+          }
+        }
       }
     };
     const onLeave = () => setShown(false);
@@ -112,41 +115,39 @@ export default function Cursor() {
     const loop = () => {
       raf = requestAnimationFrame(loop);
       ctx.clearRect(0, 0, w, h);
-      if (!cells.length && !trail.length) return;
+      if (!trail.length) return;
       const now = performance.now();
       const explore = modeRef.current === "explore";
-      const life = explore ? 1700 : 900;
       const rgb = explore ? "245,185,66" : "61,220,132";
-      for (let i = cells.length - 1; i >= 0; i--) {
-        const c = cells[i];
-        const age = (now - c.t) / life;
-        if (age >= 1) {
-          cells.splice(i, 1);
-          continue;
-        }
-        const a = (1 - age) * (1 - age) * 0.14;
-        const x = c.cx * CELL + OFF;
-        const y = c.cy * CELL + OFF;
-        ctx.fillStyle = `rgba(${rgb},${a})`;
-        ctx.fillRect(x + 1, y + 1, CELL - 1, CELL - 1);
-        ctx.strokeStyle = `rgba(${rgb},${a * 1.6})`;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL);
-      }
-      // trailing dots: newest is largest and brightest, older ones shrink and fade
-      const dotLife = explore ? 1800 : 1000;
+      const life = explore ? 1800 : 1000;
+      const settle = 0.28; // fraction of life spent flying to the node
       for (let i = trail.length - 1; i >= 0; i--) {
         const p = trail[i];
-        const age = (now - p.t) / dotLife;
+        const age = (now - p.t) / life;
         if (age >= 1) {
           trail.splice(i, 1);
+          byNode.delete(`${p.nx},${p.ny}`);
           continue;
         }
-        const k = 1 - age;
+        // ease-out flight from the pointer position to the lattice node
+        const f = Math.min(1, age / settle);
+        const e = 1 - (1 - f) * (1 - f) * (1 - f);
+        const x = p.x0 + (p.nx - p.x0) * e;
+        const y = p.y0 + (p.ny - p.y0) * e;
+        // brightness: peaks as it lands, then fades
+        const glow = age < settle ? 0.55 + 0.45 * f : 1 - (age - settle) / (1 - settle);
+        const r = 1.2 + 2.2 * glow;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 0.8 + 2.6 * k * k, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${rgb},${0.85 * k * k})`;
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb},${0.9 * glow})`;
         ctx.fill();
+        if (age >= settle) {
+          // soft halo on the node
+          ctx.beginPath();
+          ctx.arc(x, y, r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb},${0.18 * glow})`;
+          ctx.fill();
+        }
       }
     };
     loop();
