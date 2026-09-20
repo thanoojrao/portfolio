@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { booted, hydrate } from "../store/policy";
+import { projects } from "../data/site";
 
 const LINES = [
   "[ ok ] loading policy ............ done",
   "[ ok ] epsilon=0.10 (greedy)",
-  "[ ok ] arms detected: 7",
+  `[ ok ] arms detected: ${projects.length}`,
   "[ ok ] mounting /home/thanooj",
   "$ ./portfolio --mode exploit",
 ];

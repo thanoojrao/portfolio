@@ -62,14 +62,14 @@ export const experience: Experience[] = [
     role: "MS Computer Science, AI",
     period: "2023 — 2025",
     kind: "school",
-    lines: ["Coursework and projects in ML, RL, and data-intensive systems."],
+    lines: ["Reinforcement learning, MLOps, and data-intensive systems."],
   },
   {
     org: "NIT Durgapur",
     role: "BTech",
     period: "",
     kind: "school",
-    lines: [],
+    lines: ["Robocell, the robotics club."],
   },
 ];
 
@@ -177,120 +177,133 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "citi-bike",
-    title: "Citi Bike demand forecasting",
+    slug: "citi-bike-mlops",
+    title: "Citi Bike demand forecasting, end to end",
     org: "University at Buffalo",
-    period: "2025",
-    mode: "explore",
-    exploit: 0.4,
-    explore: 0.6,
-    reward: "unknown",
-    rewardKnown: false,
+    period: "Spring 2025",
+    mode: "exploit",
+    exploit: 0.8,
+    explore: 0.4,
+    reward: "MAE 139 → 34.4",
+    rewardKnown: true,
     summary:
-      "Forecasting station-level demand for New York's bike share from trip history and weather, with a feature pipeline and model comparison.",
-    tags: ["Python", "pandas", "time series", "notebooks"],
+      "Station-level demand for New York's bike share in six-hour buckets, as a scheduled pipeline with a feature store, model registry and a monitoring dashboard, not a notebook.",
+    tags: ["LightGBM", "Hopsworks", "GitHub Actions", "MLflow", "Streamlit"],
     links: [{ label: "github", href: "https://github.com/thanoojrao/citi_bike" }],
     sections: [
       {
-        heading: "What it is",
+        heading: "Problem",
         body: [
-          "A grad-school project on the Citi Bike open dataset: cleaning trip records, building hourly and station-level features, and comparing forecasting models.",
+          "Predict how many rides start at each Citi Bike station in the next six hours, and keep the prediction fresh every day without anyone running a notebook.",
         ],
       },
       {
-        heading: "Why it's in Explore",
+        heading: "What I built",
         body: [
-          "It was a learning project. The interesting part was the feature engineering and the honest model comparison, not a production result.",
+          "Feature pipeline: raw monthly trip files from the public S3 bucket, cleaned and aggregated per station and time bucket, written to a Hopsworks feature group on a schedule.",
+          "Training pipeline: LightGBM on lagged demand features, tracked with MLflow, with the winning model pushed to the Hopsworks model registry.",
+          "Inference pipeline: pulls the latest features, writes predictions back to a feature group, and a Streamlit monitor plots error by hour against what actually happened.",
+          "All three run as chained GitHub Actions workflows, so the whole thing is reproducible from a clean checkout.",
+        ],
+      },
+      {
+        heading: "Result",
+        body: [
+          "Mean absolute error went from 139 rides for a naive baseline, to 45 for a last-four-weeks average, to 34.8 for LightGBM, to 34.4 after tuning. The tuning step mattered less than the feature work.",
+        ],
+      },
+      {
+        heading: "Honest note",
+        body: [
+          "This started from a course template for NYC taxi demand. The adaptation to a different dataset, the station-level features, the zone geometry and the monitoring are mine; the pipeline shape is the course's.",
         ],
       },
     ],
   },
   {
-    slug: "sp25-taxi",
-    title: "NYC taxi demand, end to end",
+    slug: "quadruped-locomotion",
+    title: "Teaching a quadruped to walk with PPO",
     org: "University at Buffalo",
     period: "Spring 2025",
     mode: "explore",
-    exploit: 0.45,
-    explore: 0.55,
+    exploit: 0.35,
+    explore: 0.95,
     reward: "unknown",
     rewardKnown: false,
     summary:
-      "An end-to-end ML pipeline on NYC taxi data: ingestion, feature store, training, and a served prediction, built as a course project.",
-    tags: ["Python", "MLOps", "feature pipeline", "notebooks"],
-    links: [{ label: "github", href: "https://github.com/thanoojrao/sp25_taxi-main" }],
+      "The ANYmal C robot in MuJoCo, wrapped as a Gymnasium environment and trained from scratch with PPO. It walks. Not well yet. That is the point.",
+    tags: ["MuJoCo", "Gymnasium", "PPO", "Stable-Baselines3", "robotics"],
+    links: [{ label: "github", href: "https://github.com/thanoojrao/RL_quadruped_locomotion" }],
     sections: [
       {
         heading: "What it is",
         body: [
-          "The full lifecycle rather than one model: raw data to features to a trained model to a small serving layer, with the plumbing that usually gets skipped in notebooks.",
+          "A custom environment around the ANYbotics ANYmal C model from the MuJoCo Menagerie. Observations are joint positions and velocities, actions are the twelve actuator torques, and an episode ends when the body drops below 20 cm.",
+          "Reward is forward velocity, plus a bonus for keeping the body up, minus a small penalty on action magnitude. Trained with PPO from Stable-Baselines3, with TensorBoard logs and video captured every ten thousand steps so the gait can be watched improving.",
+        ],
+      },
+      {
+        heading: "Where it stands",
+        body: [
+          "After 100k timesteps the policy averages a few hundred reward per episode with a wide spread between runs. That is an early, wobbly gait, not a controller. Next steps are a longer run, a reward that cares about posture and energy, and domain randomisation.",
+        ],
+      },
+      {
+        heading: "Why it is here",
+        body: [
+          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work.",
         ],
       },
     ],
   },
   {
-    slug: "rl-environment",
-    title: "A custom reinforcement learning environment",
-    period: "2025",
+    slug: "warehouse-rl",
+    title: "A warehouse robot environment, solved with Q-learning and SARSA",
+    org: "University at Buffalo",
+    period: "Spring 2025",
     mode: "explore",
-    exploit: 0.3,
-    explore: 0.85,
+    exploit: 0.4,
+    explore: 0.8,
     reward: "unknown",
     rewardKnown: false,
     summary:
-      "Building an environment from scratch to understand what an agent actually observes, and how reward shaping changes what it learns.",
-    tags: ["RL", "Gymnasium", "Python"],
+      "A 2D grid world I designed from scratch: a robot picks up objects and delivers them around obstacles, in deterministic and stochastic versions, then tabular RL learns to do it.",
+    tags: ["RL", "Gymnasium", "Q-learning", "SARSA"],
     links: [{ label: "github", href: "https://github.com/thanoojrao/rl_environment" }],
     sections: [
       {
         heading: "What it is",
         body: [
-          "A hand-built environment with its own observation and action spaces, used to train and compare simple agents. This is also where the theme of this site comes from.",
+          "Building the environment, not just the agent: observation and action spaces, reward shaping for pickup and delivery, obstacles, and a stochastic variant where actions sometimes slip.",
+          "Q-learning and SARSA with a sweep over discount factor and epsilon decay, so the difference between the two algorithms shows up in the plots rather than being asserted. A bonus multi-pickup version reaches about 215 average reward over a thousand episodes.",
         ],
       },
-    ],
-  },
-  {
-    slug: "perplexity",
-    title: "Perplexity experiments",
-    period: "2025",
-    mode: "explore",
-    exploit: 0.25,
-    explore: 0.8,
-    reward: "unknown",
-    rewardKnown: false,
-    summary:
-      "Small experiments around language-model perplexity: measuring it, and seeing what it does and does not tell you about output quality.",
-    tags: ["LLMs", "evaluation", "notebooks"],
-    links: [{ label: "github", href: "https://github.com/thanoojrao/perplexity" }],
-    sections: [
       {
-        heading: "What it is",
-        body: ["Notebook-scale experiments. Low reward so far, high information."],
-      },
-    ],
-  },
-  {
-    slug: "robotics",
-    title: "Robotics and embodied AI",
-    period: "ongoing",
-    mode: "explore",
-    exploit: 0.1,
-    explore: 1.0,
-    reward: "unknown",
-    rewardKnown: false,
-    summary:
-      "The arm I keep pulling outside work. Agents that act in the physical world have the same problems as software agents, with worse failure modes.",
-    tags: ["robotics", "embodied AI", "reading"],
-    links: [],
-    sections: [
-      {
-        heading: "Status",
+        heading: "Why it is here",
         body: [
-          "An open arm. Reading, small experiments, no shipped result yet. If you work on this, I would like to talk.",
+          "This is where the theme of this site comes from. Watching epsilon decay change what the agent found was the first time explore versus exploit felt like a real decision rather than a formula.",
         ],
       },
     ],
+  },
+];
+
+/** smaller things, listed in one line each under the cards */
+export const alsoPulled: { title: string; note: string; href?: string }[] = [
+  {
+    title: "NYC taxi demand pipeline",
+    note: "the course template the Citi Bike project was adapted from; hourly demand, same stack, a map of predictions by zone",
+    href: "https://github.com/thanoojrao/sp25_taxi-main",
+  },
+  {
+    title: "Group video calling app",
+    note: "Express, socket.io and PeerJS with Postgres accounts and in-browser face detection, deployed on Heroku",
+    href: "https://github.com/thanoojrao/webrtc",
+  },
+  {
+    title: "Vehicle counter",
+    note: "a small Flask app that runs YOLOv3 through OpenCV on an uploaded image and counts vehicles",
+    href: "https://github.com/thanoojrao/web-traffic",
   },
 ];
 
