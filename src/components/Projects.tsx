@@ -3,6 +3,7 @@ import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
 import { epsilon, hoverArm, hydrate, mode, pull, pulls, steps, useHydratedStore } from "../store/policy";
 import { projects, type Project } from "../data/site";
+import PolicyGraph from "./PolicyGraph";
 
 function useJitter() {
   // per-visit randomness so Explore ordering differs between visits
@@ -80,6 +81,8 @@ export default function Projects() {
 
   return (
     <section id="projects" className="mx-auto max-w-6xl px-4 md:px-8 py-14 md:py-20">
+      <div className="md:grid md:grid-cols-[1fr_300px] md:gap-10 md:items-center">
+      <div>
       <div className="prompt text-sm md:text-base">
         <span className="text-text">$</span> ls projects/ <span className="text-muted">--sort=policy --epsilon={eps.toFixed(2)}</span>
       </div>
@@ -97,6 +100,14 @@ export default function Projects() {
             </span>
           </>
         )}
+      </div>
+      <p className="mt-4 text-sm text-muted max-w-md hidden md:block">
+        The policy on the right pulls an arm every tick: with probability ε a random one, otherwise the best. Hover an arm or a card to pull it yourself.
+      </p>
+      </div>
+      <div className="hidden md:block">
+        <PolicyGraph />
+      </div>
       </div>
 
       <LayoutGroup>

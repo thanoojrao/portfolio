@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
 import { booted, epsilon, hydrate, mode, setEpsilon, setMode, useHydratedStore, type Mode } from "../store/policy";
 import { profile } from "../data/site";
-import PolicyGraph from "./PolicyGraph";
+import Portrait from "./Portrait";
 
 const CMD = "policy --epsilon";
 
@@ -184,9 +184,9 @@ export default function Hero() {
           initial={reduce ? false : { opacity: 0, scale: 0.96 }}
           animate={outputVisible ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 0.7, delay: 0.5 }}
-          className="hidden md:block"
+          className="order-first md:order-none max-w-[220px] md:max-w-none mx-auto w-full"
         >
-          <PolicyGraph />
+          <Portrait />
         </motion.div>
       </div>
     </section>
