@@ -60,9 +60,12 @@ export const experience: Experience[] = [
   {
     org: "University at Buffalo",
     role: "MS Computer Science, AI",
-    period: "2023 — 2025",
+    period: "Aug 2023 — Jan 2025",
     kind: "school",
-    lines: ["Reinforcement learning, MLOps, and data-intensive systems."],
+    lines: [
+      "Reinforcement Learning · Machine Learning · Pattern Recognition · NLP · Computer Vision & Image Processing",
+      "Data-Intensive Computing · Algorithm Analysis & Design · Numerical Methods · Fundamentals of AI",
+    ],
   },
   {
     org: "NIT Durgapur",
