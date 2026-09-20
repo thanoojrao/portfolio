@@ -19,7 +19,7 @@ const ARMS = projects.map((p, i) => {
   const a = -Math.PI / 2 + (i / projects.length) * Math.PI * 2;
   return {
     slug: p.slug,
-    label: p.slug.split("-")[0].slice(0, 7),
+    label: p.short ?? p.slug.split("-")[0].slice(0, 7),
     value: p.exploit,
     x: C.x + Math.cos(a) * R,
     y: C.y + Math.sin(a) * R,

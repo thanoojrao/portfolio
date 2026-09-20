@@ -6,25 +6,33 @@ export const profile = {
   title: "Founding AI Engineer",
   org: { name: "Dottr", url: "https://dottr.ai" },
   tagline:
-    "I build the unglamorous parts of production agents: failure semantics, context budgeting, cost/latency routing, tool permissioning, prompt-injection defenses, and trajectory-level evals.",
-  location: "Buffalo, NY",
+    "First engineer at an AI contract-intelligence startup. I own the Claude agent loop, its honesty guards and evals, signature-field detection, and the AWS infrastructure under it. I build the unglamorous parts that keep agents honest in production.",
+  location: "New York, NY · open to relocating, San Francisco preferred",
   email: "thanoojlingampally@gmail.com",
   github: "https://github.com/thanoojrao",
   linkedin: "https://linkedin.com/in/thanooj-lingampally",
-  resume: null as string | null, // set to "/resume.pdf" once the file is in public/
+  resume: "/resume.pdf" as string | null,
 };
 
 export const stack = [
   "Python",
+  "Claude / Amazon Bedrock",
   "LangGraph",
-  "LangChain",
-  "Claude (Bedrock)",
-  "LiteLLM",
+  "FastAPI",
+  "PostgreSQL",
   "pgvector",
+  "DynamoDB",
+  "SQS",
+  "ECS Fargate",
+  "Terraform",
+  "Docker",
+  "GitHub Actions",
+  "PyTorch",
+  "ONNX",
+  "MLflow",
   "Cohere embeddings",
   "Docling / Textract",
-  "PostgreSQL",
-  "TypeScript",
+  "TypeScript / Next.js",
 ];
 
 export type Experience = {
@@ -39,28 +47,38 @@ export const experience: Experience[] = [
   {
     org: "Dottr",
     role: "Founding AI Engineer",
-    period: "2025 — present",
+    period: "Jan 2026 — present",
     kind: "work",
     lines: [
-      "Own the agentic layer of an e-signing platform, from tool design to evals.",
-      "Failure semantics, context budgeting, cost/latency routing across Claude models on Bedrock via LiteLLM.",
-      "Tool permissioning and prompt-injection defenses for agents that act on customer documents.",
+      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product with paying customers. Over half the commits across seven deployed services.",
+      "Claude-on-Bedrock agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a five-layer honesty guard, and an eval harness that replays recorded production flows against every prompt and model change.",
+      "Cut perceived chat latency from a 23s median to under 2s to first token by streaming while the guard audits concurrently and retracts on failure.",
+      "Audited the e-signing pipeline end to end, found seven critical defects, led the fixes, and gated deploys on the test suite.",
+      "Multilingual ingestion, alert triage that collapsed 222 open issues into 42 root causes, and the AWS cost audit.",
     ],
   },
   {
     org: "Tata Consultancy Services",
     role: "ML Engineer",
-    period: "before grad school",
+    period: "Dec 2022 — Aug 2024",
     kind: "work",
     lines: [
-      "Built a LangGraph-based RAG system for enterprise documents.",
-      "Retrieval, chunking, and evaluation for question answering over internal corpora.",
+      "Scoped and built a customer-facing RAG platform for 10K+ enterprise users, working directly with business stakeholders under corporate security and compliance requirements.",
+      "Spring Boot microservices connecting legacy enterprise databases to ML pipelines.",
+      "Led the MLflow-based MLOps pipeline for model versioning, tracking, and promotion to production.",
     ],
   },
   {
+    org: "Counselit",
+    role: "Software Engineering Intern",
+    period: "Apr 2021 — Aug 2021",
+    kind: "work",
+    lines: ["Node.js and Express REST APIs and React interfaces for client pilots, with JWT auth and role-based access control."],
+  },
+  {
     org: "University at Buffalo",
-    role: "MS Computer Science, AI",
-    period: "Aug 2023 — Jan 2025",
+    role: "MS Computer Science, Artificial Intelligence",
+    period: "Aug 2024 — Dec 2025",
     kind: "school",
     lines: [
       "Reinforcement Learning · Machine Learning · Pattern Recognition · NLP · Computer Vision & Image Processing",
@@ -69,15 +87,17 @@ export const experience: Experience[] = [
   },
   {
     org: "NIT Durgapur",
-    role: "BTech",
-    period: "",
+    role: "BTech Mechanical Engineering",
+    period: "2019 — 2023",
     kind: "school",
-    lines: ["Robocell, the robotics club."],
+    lines: ["Robocell, the robotics club. The mechanical background is where the robotics interest comes from."],
   },
 ];
 
 export type Project = {
   slug: string;
+  /** short label for the bandit graph */
+  short?: string;
   title: string;
   org?: string;
   period: string;
@@ -97,78 +117,121 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    slug: "dottr-agentic-layer",
-    title: "Agentic layer for an e-signing platform",
+    slug: "dottr-agent",
+    short: "agent",
+    title: "An agent that has to be honest about what it did",
     org: "Dottr",
-    period: "2025 — present",
+    period: "2026 — present",
     mode: "exploit",
-    exploit: 0.96,
+    exploit: 0.97,
     explore: 0.3,
     reward: "in production",
     rewardKnown: true,
     summary:
-      "The agent runtime behind Dottr: how agents read, fill, route and sign documents without doing something expensive, slow or unsafe.",
-    tags: ["LangGraph", "Claude on Bedrock", "LiteLLM", "pgvector", "evals"],
+      "The Claude-on-Bedrock agent behind Dottr's chat and email: 40+ tools, a five-layer honesty guard, an eval harness of replayed production flows, and a 23s to under 2s latency fix.",
+    tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
       {
         heading: "Problem",
         body: [
-          "An e-signing product wants agents that can understand a contract, fill it, route it to the right people and act on it. The demo is easy. The hard part is everything that happens when the model is wrong, slow, over budget, or being manipulated by the document it is reading.",
+          "A contract-intelligence agent that reads, fills, routes and signs documents for paying customers. The demo is easy. The hard part is an agent that claims it sent a document when it did not, or takes an action the user never authorised, or takes 23 seconds to say anything at all.",
         ],
       },
       {
-        heading: "What I own",
+        heading: "What I built",
         body: [
-          "Failure semantics: every tool call has a defined outcome for timeout, partial success and refusal, so the graph never ends in an ambiguous state.",
-          "Context budgeting: a token budget per step and per trajectory, with summarisation and retrieval that degrade gracefully instead of overflowing.",
-          "Cost and latency routing: requests are routed across Claude models on Bedrock through LiteLLM based on task difficulty and SLA, with fallbacks.",
-          "Tool permissioning: agents get scoped capabilities per document and per user, enforced outside the prompt.",
-          "Prompt-injection defenses: untrusted document text is isolated from instructions, and actions with side effects require a verified intent.",
-          "Trajectory-level evals: we grade whole runs, not single responses, so regressions in planning show up before customers see them.",
+          "Tool dispatch across more than forty tools, with prompt-cache-aware context assembly so long conversations stay cheap and fast.",
+          "A five-layer honesty guard: every action the agent claims is checked against records the system actually owns before the user sees the claim.",
+          "An eval harness of recorded production flows, replayed against every prompt and model change, so regressions show up in CI rather than in a customer's inbox.",
+          "Streaming replies while the guard audits concurrently and retracts on failure. Perceived latency went from a 23-second median to under two seconds to first token.",
+        ],
+      },
+      {
+        heading: "Also in this codebase",
+        body: [
+          "Audited the e-signing pipeline end to end and found seven critical defects, including one that could complete a contract with a required signer never contacted. Led the fixes and gated deploys on the test suite.",
+          "Multilingual ingestion: benchmarked four OCR vendors on scanned Indian legal filings, built a Textract-first router that detects garbled output and re-routes, and moved to Cohere multilingual embeddings after measuring that the previous model could not bridge English queries to Telugu text. Backfilled 11k chunks in production with no downtime.",
+          "Alert triage that fingerprints log signatures, collapsing 222 open issues into 42 root causes and cutting auto-filed noise by over 80%.",
         ],
       },
       {
         heading: "Decisions I would defend",
         body: [
-          "Treat the document as an adversary by default. It costs a little latency and removes an entire class of incidents.",
-          "Grade trajectories, not answers. A correct final answer reached through a dangerous path is still a failure.",
-        ],
-      },
-      {
-        heading: "Outcome",
-        body: [
-          "Running in production for real customers. Specific numbers are private; ask me in an interview and I will walk through the eval dashboards.",
+          "Guard after, not before. Blocking on the audit made the product feel broken. Streaming and retracting made it feel fast and still kept it honest.",
+          "Replay real flows, not synthetic prompts. The failures that matter come from what customers actually do.",
         ],
       },
     ],
   },
   {
-    slug: "tcs-langgraph-rag",
-    title: "LangGraph RAG for enterprise documents",
+    slug: "signature-field-detection",
+    short: "sigdet",
+    title: "Finding where to sign: a detector proposes, Claude selects",
+    org: "Dottr",
+    period: "2026",
+    mode: "exploit",
+    exploit: 0.9,
+    explore: 0.45,
+    reward: "in production",
+    rewardKnown: true,
+    summary:
+      "Signature-field detection rebuilt as a propose-then-select pipeline: a 37 MB int8 ONNX detector finds candidates, Claude picks the right ones. The eval harness came first and caught a bug that put 30% of candidates off the page.",
+    tags: ["ONNX", "object detection", "Claude", "evals", "computer vision"],
+    links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
+    sections: [
+      {
+        heading: "Problem",
+        body: [
+          "Contracts arrive as scanned PDFs of every layout imaginable. The product has to know where each party signs, initials and dates, and getting it wrong means a document goes out with a field in the wrong place.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "A small, quantised object detector, 37 MB int8 in ONNX, that proposes candidate boxes fast and cheaply on CPU.",
+          "Claude selects among the proposals using the document's text and structure, which is what the detector cannot see.",
+          "The eval harness first: 793 documents and 6,567 human-reviewed boxes. It immediately exposed a coordinate-transform bug that had placed 30% of candidates off the page.",
+          "Vendor benchmarks alongside it: document parsing (Docling beat Reducto on table fidelity, 2.2s versus 3.4s median), signature detection vendors, and placement models, so every choice had a number behind it.",
+        ],
+      },
+      {
+        heading: "What I learned",
+        body: [
+          "Build the measuring stick before the thing you measure. The harness paid for itself on day one and now guards every model swap.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "tcs-rag-platform",
+    short: "rag",
+    title: "A RAG platform for ten thousand enterprise users",
     org: "Tata Consultancy Services",
-    period: "ML Engineer",
+    period: "2022 — 2024",
     mode: "exploit",
     exploit: 0.82,
-    explore: 0.35,
+    explore: 0.3,
     reward: "shipped",
     rewardKnown: true,
     summary:
-      "A retrieval-augmented question answering system over internal corpora, built as a LangGraph state machine rather than a single chain.",
-    tags: ["LangGraph", "RAG", "embeddings", "evaluation"],
+      "A customer-facing retrieval-augmented question answering platform over enterprise documents, scoped with business stakeholders and built to corporate security and compliance requirements.",
+    tags: ["RAG", "LangGraph", "Spring Boot", "MLflow", "MLOps"],
     links: [],
     sections: [
       {
         heading: "Problem",
         body: [
-          "Enterprise document collections are large, messy and full of near-duplicates. A single retrieve-then-answer chain gave confident wrong answers whenever retrieval missed.",
+          "Enterprise document collections are large, messy and full of near-duplicates, and the people who need answers from them are not engineers. A single retrieve-then-answer chain gave confident wrong answers whenever retrieval missed.",
         ],
       },
       {
         heading: "What I did",
         body: [
-          "Modelled the pipeline as a graph with explicit nodes for query rewriting, retrieval, grading of retrieved chunks and a fallback path when nothing relevant was found.",
-          "Built the chunking and embedding pipeline and an evaluation set so retrieval quality could be measured, not guessed.",
+          "Scoped the platform directly with business stakeholders and built it to their security and compliance requirements, for a user base of over ten thousand.",
+          "Modelled the pipeline as a LangGraph state machine with explicit nodes for query rewriting, retrieval, grading of retrieved chunks and a fallback path when nothing relevant was found.",
+          "Spring Boot microservices with secure REST endpoints connecting legacy enterprise databases to the ML pipelines.",
+          "Led the MLflow-based MLOps pipeline for model versioning, tracking and promotion to production.",
         ],
       },
       {
@@ -181,11 +244,12 @@ export const projects: Project[] = [
   },
   {
     slug: "citi-bike-mlops",
+    short: "citibike",
     title: "Citi Bike demand forecasting, end to end",
     org: "University at Buffalo",
     period: "Spring 2025",
     mode: "exploit",
-    exploit: 0.8,
+    exploit: 0.75,
     explore: 0.4,
     reward: "MAE 139 → 34.4",
     rewardKnown: true,
@@ -225,42 +289,39 @@ export const projects: Project[] = [
   },
   {
     slug: "quadruped-locomotion",
-    title: "Teaching a quadruped to walk with PPO",
+    short: "anymal",
+    title: "Goal-conditioned quadruped navigation with a Mixture-of-Experts policy",
     org: "University at Buffalo",
-    period: "Spring 2025",
+    period: "2025",
     mode: "explore",
-    exploit: 0.35,
+    exploit: 0.5,
     explore: 0.95,
-    reward: "unknown",
-    rewardKnown: false,
+    reward: "92% success",
+    rewardKnown: true,
     summary:
-      "The ANYmal C robot in MuJoCo, wrapped as a Gymnasium environment and trained from scratch with PPO. It walks. Not well yet. That is the point.",
-    tags: ["MuJoCo", "Gymnasium", "PPO", "Stable-Baselines3", "robotics"],
-    links: [{ label: "github", href: "https://github.com/thanoojrao/RL_quadruped_locomotion" }],
+      "The ANYmal C robot in MuJoCo, first taught to walk with PPO, then to reach targets with a Mixture-of-Experts policy in PyTorch: 92% success on target-reaching within 200 timesteps.",
+    tags: ["MuJoCo", "PyTorch", "Mixture-of-Experts", "PPO", "robotics"],
+    links: [{ label: "github (checkpoint)", href: "https://github.com/thanoojrao/RL_quadruped_locomotion" }],
     sections: [
       {
         heading: "What it is",
         body: [
-          "A custom environment around the ANYbotics ANYmal C model from the MuJoCo Menagerie. Observations are joint positions and velocities, actions are the twelve actuator torques, and an episode ends when the body drops below 20 cm.",
-          "Reward is forward velocity, plus a bonus for keeping the body up, minus a small penalty on action magnitude. Trained with PPO from Stable-Baselines3, with TensorBoard logs and video captured every ten thousand steps so the gait can be watched improving.",
-        ],
-      },
-      {
-        heading: "Where it stands",
-        body: [
-          "After 100k timesteps the policy averages a few hundred reward per episode with a wide spread between runs. That is an early, wobbly gait, not a controller. Next steps are a longer run, a reward that cares about posture and energy, and domain randomisation.",
+          "A custom Gymnasium environment around the ANYbotics ANYmal C model from the MuJoCo Menagerie. Observations are joint positions and velocities, actions are the twelve actuator torques, and an episode ends when the body drops below 20 cm.",
+          "Stage one: locomotion. A reward of forward velocity plus a posture bonus minus an action-cost penalty, trained with PPO from Stable-Baselines3, with video captured every ten thousand steps so the gait can be watched improving from falling over to an early walk.",
+          "Stage two: goal-conditioned navigation. The observation gains a target, and the policy becomes a Mixture-of-Experts network in PyTorch, with a gating network choosing among specialist experts per step. It reaches 92% success on target-reaching tasks within 200 timesteps.",
         ],
       },
       {
         heading: "Why it is here",
         body: [
-          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work.",
+          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work, and the mechanical engineering degree is where it started.",
         ],
       },
     ],
   },
   {
     slug: "warehouse-rl",
+    short: "warehse",
     title: "A warehouse robot environment, solved with Q-learning and SARSA",
     org: "University at Buffalo",
     period: "Spring 2025",
