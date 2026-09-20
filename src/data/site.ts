@@ -7,7 +7,7 @@ export const profile = {
   org: { name: "Dottr", url: "https://dottr.ai" },
   tagline:
     "First engineer at an AI contract-intelligence startup. I own the Claude agent loop, its honesty guards and evals, signature-field detection, and the AWS infrastructure under it. I build the unglamorous parts that keep agents honest in production.",
-  location: "New York, NY · open to relocating, San Francisco preferred",
+  location: "New York, NY",
   email: "thanoojlingampally@gmail.com",
   github: "https://github.com/thanoojrao",
   linkedin: "https://linkedin.com/in/thanooj-lingampally",
