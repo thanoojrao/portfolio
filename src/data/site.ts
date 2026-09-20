@@ -87,10 +87,10 @@ export const experience: Experience[] = [
   },
   {
     org: "NIT Durgapur",
-    role: "BTech Mechanical Engineering",
+    role: "BTech",
     period: "2019 — 2023",
     kind: "school",
-    lines: ["Robocell, the robotics club. The mechanical background is where the robotics interest comes from."],
+    lines: ["Robocell, the robotics club."],
   },
 ];
 
@@ -308,7 +308,7 @@ export const projects: Project[] = [
       {
         heading: "Why it is here",
         body: [
-          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work, and the mechanical engineering degree is where it started.",
+          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work.",
         ],
       },
     ],
