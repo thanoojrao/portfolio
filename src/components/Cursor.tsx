@@ -90,7 +90,7 @@ export default function Cursor() {
         lastX = e.clientX;
         lastY = e.clientY;
         trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-        if (trail.length > 80) trail.splice(0, trail.length - 80);
+        if (trail.length > 140) trail.splice(0, trail.length - 140);
       }
       const cx = Math.floor((e.clientX - OFF) / CELL);
       const cy = Math.floor((e.clientY - OFF) / CELL);
@@ -134,7 +134,7 @@ export default function Cursor() {
         ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL);
       }
       // trailing dots: newest is largest and brightest, older ones shrink and fade
-      const dotLife = explore ? 1100 : 600;
+      const dotLife = explore ? 1800 : 1000;
       for (let i = trail.length - 1; i >= 0; i--) {
         const p = trail[i];
         const age = (now - p.t) / dotLife;
