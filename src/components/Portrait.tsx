@@ -114,9 +114,9 @@ export default function Portrait() {
         const hy = d.gy * cell + half;
         if (d.val <= 0) continue; // unlit: the page lattice shows through
         // a slow diagonal wave runs through the lattice
-        const wave = Math.sin(t * 1.6 + d.gx * 0.22 + d.gy * 0.14);
+        const wave = Math.sin(t * 2.6 + d.gx * 0.22 + d.gy * 0.14);
         const wx = wave * cell * 0.3;
-        const wy = Math.cos(t * 1.3 + d.gy * 0.18 - d.gx * 0.08) * cell * 0.42;
+        const wy = Math.cos(t * 2.1 + d.gy * 0.18 - d.gx * 0.08) * cell * 0.42;
         // scatter + drift while scattered
         const drift = k * 0.6 * Math.sin(t * 2 + d.ph);
         let x = hx + wx + d.sx * cell * k + drift * cell;
