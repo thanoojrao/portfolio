@@ -86,7 +86,7 @@ export default function Cursor() {
       // sample a trail point every few pixels of travel
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
-      if (dx * dx + dy * dy > 36) {
+      if (dx * dx + dy * dy > 144) {
         lastX = e.clientX;
         lastY = e.clientY;
         trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
