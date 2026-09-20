@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
-import { epsilon, hydrate, mode, pull, pulls, steps } from "../store/policy";
+import { epsilon, hoverArm, hydrate, mode, pull, pulls, steps, useHydratedStore } from "../store/policy";
 import { projects, type Project } from "../data/site";
 
 function useJitter() {
@@ -60,10 +60,11 @@ function Reward({ p, onPolicy }: { p: Project; onPolicy: boolean }) {
 
 export default function Projects() {
   const reduce = useReducedMotion();
-  const m = useStore(mode);
-  const eps = useStore(epsilon);
-  const p = useStore(pulls);
-  const s = useStore(steps);
+  const m = useHydratedStore(mode, "exploit");
+  const eps = useHydratedStore(epsilon, 0.1);
+  const p = useHydratedStore(pulls, {} as Record<string, number>);
+  const s = useHydratedStore(steps, 0);
+  const hovered = useStore(hoverArm);
   const jitter = useJitter();
   const [ready, setReady] = useState(false);
 
@@ -101,22 +102,28 @@ export default function Projects() {
           {ordered.map((proj, i) => {
             const onPolicy = proj.mode === m;
             const count = p[proj.slug] ?? 0;
+            const lit = hovered === proj.slug;
             return (
               <motion.li
                 key={proj.slug}
                 layout
                 transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 }}
-                animate={{ opacity: onPolicy ? 1 : 0.55, scale: onPolicy ? 1 : 0.985 }}
-                whileHover={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: onPolicy || lit ? 1 : 0.55, scale: lit ? 1.015 : onPolicy ? 1 : 0.985 }}
+                whileHover={{ opacity: 1, scale: 1.015 }}
+                onMouseEnter={() => hoverArm.set(proj.slug)}
+                onMouseLeave={() => hoverArm.set(null)}
                 className="list-none"
               >
                 <a
                   href={`/projects/${proj.slug}/`}
                   onClick={() => pull(proj.slug)}
-                  className={`group block h-full panel rounded-md p-5 border transition-colors duration-500 ${
-                    onPolicy ? "accent-border/40" : "border-grid"
+                  className={`group block h-full panel rounded-md p-5 border transition-[border-color,box-shadow] duration-300 ${
+                    onPolicy ? "" : "border-grid"
                   } hover:accent-border`}
-                  style={{ borderColor: onPolicy ? "rgb(var(--accent-rgb) / 0.45)" : undefined }}
+                  style={{
+                    borderColor: lit ? "var(--accent)" : onPolicy ? "rgb(var(--accent-rgb) / 0.45)" : undefined,
+                    boxShadow: lit ? "0 0 0 1px rgb(var(--accent-rgb) / 0.35), 0 0 28px rgb(var(--accent-rgb) / 0.18)" : undefined,
+                  }}
                 >
                   <div className="flex items-start justify-between gap-3 text-[11px] text-muted">
                     <span className="shrink-0 whitespace-nowrap">

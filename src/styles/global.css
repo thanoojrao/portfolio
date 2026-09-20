@@ -41,6 +41,7 @@ body {
     linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
   background-size: 32px 32px;
   background-position: -1px -1px;
+  background-attachment: fixed;
   font-size: 15px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;

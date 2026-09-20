@@ -1,4 +1,17 @@
-import { atom, map } from "nanostores";
+import { atom, map, type ReadableAtom } from "nanostores";
+import { useEffect, useState } from "react";
+import { useStore } from "@nanostores/react";
+
+/**
+ * Like useStore, but returns `fallback` (the server-rendered default) on the first
+ * client render so hydration matches, then the live value after mount.
+ */
+export function useHydratedStore<T>(store: ReadableAtom<T>, fallback: T): T {
+  const v = useStore(store);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? v : fallback;
+}
 
 export type Mode = "exploit" | "explore";
 
@@ -52,8 +65,22 @@ function save() {
   } catch {}
 }
 
-/** Call once on the client after mount. Reads persisted policy, then starts syncing. */
+let scheduled = false;
+
+/**
+ * Call from any island after mount. The persisted policy is applied only after the
+ * page has fully loaded, so every island first hydrates against the server-rendered
+ * defaults (no React hydration mismatch), then all of them update together.
+ */
 export function hydrate() {
+  if (hydrated.get() || scheduled) return;
+  scheduled = true;
+  const run = () => window.setTimeout(applyPersisted, 0);
+  if (document.readyState === "complete") run();
+  else window.addEventListener("load", run, { once: true });
+}
+
+function applyPersisted() {
   if (hydrated.get()) return;
   try {
     const raw = localStorage.getItem(KEY);
@@ -74,3 +101,6 @@ export function hydrate() {
   pulls.subscribe(save);
   steps.subscribe(save);
 }
+
+/** slug of the arm currently hovered in the graph or the card grid, or null */
+export const hoverArm = atom<string | null>(null);

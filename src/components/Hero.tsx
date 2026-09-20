@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
-import { booted, epsilon, hydrate, mode, setEpsilon, setMode, type Mode } from "../store/policy";
+import { booted, epsilon, hydrate, mode, setEpsilon, setMode, useHydratedStore, type Mode } from "../store/policy";
 import { profile } from "../data/site";
 import PolicyGraph from "./PolicyGraph";
 
@@ -28,8 +28,8 @@ type Sweep = { id: number; x: number; y: number; color: string };
 
 export default function Hero() {
   const reduce = useReducedMotion();
-  const m = useStore(mode);
-  const eps = useStore(epsilon);
+  const m = useHydratedStore(mode, "exploit");
+  const eps = useHydratedStore(epsilon, 0.1);
   const isBooted = useStore(booted);
   const [sweeps, setSweeps] = useState<Sweep[]>([]);
   const sweepId = useRef(0);

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
-import { epsilon, mode, booted } from "../store/policy";
+import { epsilon, mode, booted, hoverArm, useHydratedStore } from "../store/policy";
 import { projects } from "../data/site";
 
 /**
@@ -31,8 +31,8 @@ type Pulse = { id: number; to: number };
 
 export default function PolicyGraph() {
   const reduce = useReducedMotion();
-  const eps = useStore(epsilon);
-  const m = useStore(mode);
+  const eps = useHydratedStore(epsilon, 0.1);
+  const m = useHydratedStore(mode, "exploit");
   const isBooted = useStore(booted);
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [counts, setCounts] = useState<number[]>(() => ARMS.map(() => 0));
@@ -41,25 +41,42 @@ export default function PolicyGraph() {
   const epsRef = useRef(eps);
   epsRef.current = eps;
 
+  const hovered = useStore(hoverArm);
+  const hoveredIdx = ARMS.findIndex((a) => a.slug === hovered);
+
+  const fire = useCallback((to: number) => {
+    const id = ++idRef.current;
+    setPulses((p) => [...p.slice(-6), { id, to }]);
+    setLast(to);
+    window.setTimeout(() => {
+      setCounts((c) => c.map((v, i) => (i === to ? v + 1 : v)));
+      setPulses((p) => p.filter((x) => x.id !== id));
+    }, 620);
+  }, []);
+
+  // the policy's own ε-greedy ticks
   useEffect(() => {
     if (reduce || !isBooted) return;
     const tick = () => {
       if (document.visibilityState !== "visible") return;
+      if (hoverArm.get()) return; // a hovered arm takes over
       const explore = Math.random() < epsRef.current;
       const to = explore
         ? Math.floor(Math.random() * ARMS.length)
         : ARMS.findIndex((a) => a.slug === BEST.slug);
-      const id = ++idRef.current;
-      setPulses((p) => [...p.slice(-6), { id, to }]);
-      setLast(to);
-      window.setTimeout(() => {
-        setCounts((c) => c.map((v, i) => (i === to ? v + 1 : v)));
-        setPulses((p) => p.filter((x) => x.id !== id));
-      }, 620);
+      fire(to);
     };
     const iv = window.setInterval(tick, m === "explore" ? 520 : 720);
     return () => clearInterval(iv);
-  }, [reduce, isBooted, m]);
+  }, [reduce, isBooted, m, fire]);
+
+  // hovering an arm (here or on a card) pulls it repeatedly
+  useEffect(() => {
+    if (reduce || hoveredIdx < 0) return;
+    fire(hoveredIdx);
+    const iv = window.setInterval(() => fire(hoveredIdx), 380);
+    return () => clearInterval(iv);
+  }, [hoveredIdx, reduce, fire]);
 
   const maxCount = useMemo(() => Math.max(1, ...counts), [counts]);
 
@@ -107,22 +124,34 @@ export default function PolicyGraph() {
         {ARMS.map((a, i) => {
           const ring = 8 + (counts[i] / maxCount) * 12;
           const isBest = a.slug === BEST.slug;
+          const isHover = i === hoveredIdx;
           return (
-            <g key={a.slug}>
+            <g
+              key={a.slug}
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => hoverArm.set(a.slug)}
+              onMouseLeave={() => hoverArm.set(null)}
+              onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              {/* generous hit area */}
+              <circle cx={a.x} cy={a.y} r={26} fill="transparent" />
               <motion.circle
                 cx={a.x}
                 cy={a.y}
                 fill="url(#glow)"
-                animate={{ r: ring + 6, opacity: 0.25 + (counts[i] / maxCount) * 0.5 }}
+                animate={{
+                  r: ring + (isHover ? 14 : 6),
+                  opacity: isHover ? 0.9 : 0.25 + (counts[i] / maxCount) * 0.5,
+                }}
                 transition={{ type: "spring", stiffness: 120, damping: 18 }}
               />
               <motion.circle
                 cx={a.x}
                 cy={a.y}
                 fill="var(--color-ink)"
-                stroke={isBest && m === "exploit" ? "var(--accent)" : "var(--color-muted)"}
-                strokeWidth={isBest ? 1.6 : 1}
-                animate={{ r: ring }}
+                stroke={isHover || (isBest && m === "exploit") ? "var(--accent)" : "var(--color-muted)"}
+                strokeWidth={isHover ? 2 : isBest ? 1.6 : 1}
+                animate={{ r: ring + (isHover ? 3 : 0) }}
                 transition={{ type: "spring", stiffness: 120, damping: 18 }}
                 style={{ transition: "stroke .5s" }}
               />
@@ -131,8 +160,9 @@ export default function PolicyGraph() {
                 y={a.y + ring + 14}
                 textAnchor="middle"
                 fontSize="10"
-                fill="var(--color-muted)"
+                fill={isHover ? "var(--accent)" : "var(--color-muted)"}
                 fontFamily="inherit"
+                style={{ transition: "fill .3s" }}
               >
                 {a.label}
               </text>
