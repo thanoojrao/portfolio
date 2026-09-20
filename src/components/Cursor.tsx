@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
 import { mode } from "../store/policy";
 
 /**
  * The cursor as an agent walking the grid.
  * - The native pointer is hidden. A small accent dot IS the pointer (no lag).
- * - A thin ring follows with a spring lag; it grows over interactive elements.
- * - Each 32px grid cell the pointer visits lights up and fades, leaving a trajectory.
+ * - A trail of dots shrinks and fades behind it, like a sampled trajectory.
+ * - Each 32px grid cell the pointer visits lights up faintly and fades.
+ * - Over clickable elements a square reticle with corner brackets wraps the pointer.
  * Explore mode keeps a longer trail. Disabled on touch devices and under reduced motion.
  */
 
@@ -25,11 +26,9 @@ export default function Cursor() {
   const modeRef = useRef(m);
   modeRef.current = m;
 
-  // exact pointer position (the dot) and a lagged copy (the ring)
+  // exact pointer position
   const mx = useMotionValue(-100);
   const my = useMotionValue(-100);
-  const rx = useSpring(mx, { stiffness: 260, damping: 24, mass: 0.7 });
-  const ry = useSpring(my, { stiffness: 260, damping: 24, mass: 0.7 });
 
   // 1. decide whether to run at all (mouse present, motion allowed)
   useEffect(() => {
@@ -69,8 +68,12 @@ export default function Cursor() {
     window.addEventListener("resize", resize);
 
     type Cell = { cx: number; cy: number; t: number };
+    type Pt = { x: number; y: number; t: number };
     const cells: Cell[] = [];
+    const trail: Pt[] = [];
     let lastKey = "";
+    let lastX = -1e9;
+    let lastY = -1e9;
 
     const onMove = (e: PointerEvent) => {
       mx.set(e.clientX);
@@ -80,6 +83,15 @@ export default function Cursor() {
       const labelled = target?.closest?.("[data-cursor]") as HTMLElement | null;
       if (labelled) setHot(labelled.dataset.cursor || "click");
       else setHot(target?.closest?.(INTERACTIVE) ? "click" : null);
+      // sample a trail point every few pixels of travel
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      if (dx * dx + dy * dy > 36) {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+        if (trail.length > 80) trail.splice(0, trail.length - 80);
+      }
       const cx = Math.floor((e.clientX - OFF) / CELL);
       const cy = Math.floor((e.clientY - OFF) / CELL);
       const key = `${cx},${cy}`;
@@ -100,10 +112,11 @@ export default function Cursor() {
     const loop = () => {
       raf = requestAnimationFrame(loop);
       ctx.clearRect(0, 0, w, h);
-      if (!cells.length) return;
+      if (!cells.length && !trail.length) return;
       const now = performance.now();
-      const life = modeRef.current === "explore" ? 1700 : 900;
-      const rgb = modeRef.current === "explore" ? "245,185,66" : "61,220,132";
+      const explore = modeRef.current === "explore";
+      const life = explore ? 1700 : 900;
+      const rgb = explore ? "245,185,66" : "61,220,132";
       for (let i = cells.length - 1; i >= 0; i--) {
         const c = cells[i];
         const age = (now - c.t) / life;
@@ -111,7 +124,7 @@ export default function Cursor() {
           cells.splice(i, 1);
           continue;
         }
-        const a = (1 - age) * (1 - age) * 0.22;
+        const a = (1 - age) * (1 - age) * 0.14;
         const x = c.cx * CELL + OFF;
         const y = c.cy * CELL + OFF;
         ctx.fillStyle = `rgba(${rgb},${a})`;
@@ -119,6 +132,21 @@ export default function Cursor() {
         ctx.strokeStyle = `rgba(${rgb},${a * 1.6})`;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL);
+      }
+      // trailing dots: newest is largest and brightest, older ones shrink and fade
+      const dotLife = explore ? 1100 : 600;
+      for (let i = trail.length - 1; i >= 0; i--) {
+        const p = trail[i];
+        const age = (now - p.t) / dotLife;
+        if (age >= 1) {
+          trail.splice(i, 1);
+          continue;
+        }
+        const k = 1 - age;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 0.8 + 2.6 * k * k, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb},${0.85 * k * k})`;
+        ctx.fill();
       }
     };
     loop();
@@ -136,29 +164,16 @@ export default function Cursor() {
   return (
     <>
       <canvas ref={canvasRef} aria-hidden="true" className="fixed inset-0 z-0 pointer-events-none" />
-      {/* lagged ring, becomes a square reticle over clickable things */}
+      {/* square reticle on the pointer, only over clickable things */}
       <motion.div
         aria-hidden="true"
         className="fixed z-[55] pointer-events-none"
-        style={{ x: rx, y: ry, left: -16, top: -16, width: 32, height: 32 }}
-        animate={{
-          scale: shown ? (hot ? 1.35 : 1) : 0,
-          opacity: shown ? (hot ? 1 : 0.55) : 0,
-          rotate: hot ? 0 : 45,
-          borderRadius: hot ? "2px" : "50%",
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 22 }}
+        style={{ x: mx, y: my, left: -18, top: -18, width: 36, height: 36 }}
+        animate={{ scale: shown && hot ? 1 : 0.4, opacity: shown && hot ? 1 : 0, rotate: shown && hot ? 0 : 45 }}
+        transition={{ type: "spring", stiffness: 380, damping: 24 }}
       >
-        {/* full ring when idle */}
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          style={{ border: "1px solid var(--accent)" }}
-          animate={{ opacity: hot ? 0 : 1 }}
-          transition={{ duration: 0.15 }}
-        />
-        {/* corner brackets when hot */}
         {(["tl", "tr", "bl", "br"] as const).map((c) => (
-          <motion.span
+          <span
             key={c}
             className="absolute w-2.5 h-2.5"
             style={{
@@ -171,8 +186,6 @@ export default function Cursor() {
               borderLeft: c[1] === "l" ? "2px solid var(--accent)" : undefined,
               borderRight: c[1] === "r" ? "2px solid var(--accent)" : undefined,
             }}
-            animate={{ opacity: hot ? 1 : 0 }}
-            transition={{ duration: 0.15 }}
           />
         ))}
       </motion.div>
