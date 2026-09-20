@@ -159,7 +159,7 @@ export const projects: Project[] = [
   },
   {
     slug: "signature-field-detection",
-    short: "sigdet",
+    short: "signature",
     title: "Finding where to sign: a detector proposes, Claude selects",
     org: "Dottr",
     period: "2026",
@@ -315,7 +315,7 @@ export const projects: Project[] = [
   },
   {
     slug: "warehouse-rl",
-    short: "warehse",
+    short: "warehouse",
     title: "A warehouse robot environment, solved with Q-learning and SARSA",
     org: "University at Buffalo",
     period: "Spring 2025",

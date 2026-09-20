@@ -39,9 +39,7 @@ function Reward({ p, onPolicy }: { p: Project; onPolicy: boolean }) {
     <div className="mt-4 text-xs">
       <div className="flex justify-between text-muted mb-1.5">
         <span>reward</span>
-        <span className="text-text">
-          {p.reward} <span className="accent">?</span>
-        </span>
+        <span className="text-muted">{p.reward}</span>
       </div>
       <div className="h-1.5 w-full rounded-sm overflow-hidden relative bg-grid">
         <motion.div
@@ -90,11 +88,15 @@ export default function Projects() {
           mode=<span className="accent">{m}</span>
         </span>
         <span>arms={projects.length}</span>
-        <span>pulls={ready ? totalPulls : 0}</span>
-        <span>steps={ready ? s : 0}</span>
-        <span>
-          regret=<span className="text-text">unknown</span>
-        </span>
+        {ready && totalPulls > 0 && (
+          <>
+            <span>pulls={totalPulls}</span>
+            <span>steps={s}</span>
+            <span>
+              regret=<span className="text-text">unknown</span>
+            </span>
+          </>
+        )}
       </div>
 
       <LayoutGroup>
@@ -148,7 +150,7 @@ export default function Projects() {
                   </div>
                   <Reward p={proj} onPolicy={onPolicy} />
                   <div className="mt-3 flex justify-between text-[11px] text-muted">
-                    <span>pulled ×{ready ? count : 0}</span>
+                    <span>{ready && count > 0 ? `pulled ×${count}` : ""}</span>
                     <span className="hover-accent transition-colors">open →</span>
                   </div>
                 </a>
