@@ -19,7 +19,7 @@ export default function Cursor() {
   const reduce = useReducedMotion();
   const m = useStore(mode);
   const [enabled, setEnabled] = useState(false);
-  const [hot, setHot] = useState(false); // over something clickable
+  const [hot, setHot] = useState<string | null>(null); // label of the clickable thing under the pointer, or null
   const [shown, setShown] = useState(false); // pointer inside the window
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modeRef = useRef(m);
@@ -77,7 +77,9 @@ export default function Cursor() {
       my.set(e.clientY);
       setShown(true);
       const target = e.target as Element | null;
-      setHot(!!target?.closest?.(INTERACTIVE));
+      const labelled = target?.closest?.("[data-cursor]") as HTMLElement | null;
+      if (labelled) setHot(labelled.dataset.cursor || "click");
+      else setHot(target?.closest?.(INTERACTIVE) ? "click" : null);
       const cx = Math.floor((e.clientX - OFF) / CELL);
       const cy = Math.floor((e.clientY - OFF) / CELL);
       const key = `${cx},${cy}`;
@@ -134,14 +136,60 @@ export default function Cursor() {
   return (
     <>
       <canvas ref={canvasRef} aria-hidden="true" className="fixed inset-0 z-0 pointer-events-none" />
-      {/* lagged ring */}
+      {/* lagged ring, becomes a square reticle over clickable things */}
       <motion.div
         aria-hidden="true"
-        className="fixed z-[55] pointer-events-none rounded-full"
-        style={{ x: rx, y: ry, left: -16, top: -16, width: 32, height: 32, border: "1px solid var(--accent)" }}
-        animate={{ scale: shown ? (hot ? 1.5 : 1) : 0, opacity: shown ? (hot ? 0.9 : 0.55) : 0 }}
+        className="fixed z-[55] pointer-events-none"
+        style={{ x: rx, y: ry, left: -16, top: -16, width: 32, height: 32 }}
+        animate={{
+          scale: shown ? (hot ? 1.35 : 1) : 0,
+          opacity: shown ? (hot ? 1 : 0.55) : 0,
+          rotate: hot ? 0 : 45,
+          borderRadius: hot ? "2px" : "50%",
+        }}
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
-      />
+      >
+        {/* full ring when idle */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ border: "1px solid var(--accent)" }}
+          animate={{ opacity: hot ? 0 : 1 }}
+          transition={{ duration: 0.15 }}
+        />
+        {/* corner brackets when hot */}
+        {(["tl", "tr", "bl", "br"] as const).map((c) => (
+          <motion.span
+            key={c}
+            className="absolute w-2.5 h-2.5"
+            style={{
+              top: c[0] === "t" ? 0 : undefined,
+              bottom: c[0] === "b" ? 0 : undefined,
+              left: c[1] === "l" ? 0 : undefined,
+              right: c[1] === "r" ? 0 : undefined,
+              borderTop: c[0] === "t" ? "2px solid var(--accent)" : undefined,
+              borderBottom: c[0] === "b" ? "2px solid var(--accent)" : undefined,
+              borderLeft: c[1] === "l" ? "2px solid var(--accent)" : undefined,
+              borderRight: c[1] === "r" ? "2px solid var(--accent)" : undefined,
+            }}
+            animate={{ opacity: hot ? 1 : 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        ))}
+      </motion.div>
+      {/* action label */}
+      <motion.div
+        aria-hidden="true"
+        className="fixed z-[56] pointer-events-none text-[11px] font-medium whitespace-nowrap"
+        style={{ x: mx, y: my, left: 18, top: 10, color: "var(--accent)" }}
+      >
+        <motion.span
+          className="inline-block"
+          animate={{ opacity: shown && hot ? 1 : 0, x: shown && hot ? 0 : -6 }}
+          transition={{ duration: 0.15 }}
+        >
+          <span className="text-muted">▸</span> {hot ?? ""}
+        </motion.span>
+      </motion.div>
       {/* the pointer */}
       <motion.div
         aria-hidden="true"

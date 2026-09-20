@@ -139,6 +139,7 @@ export default function Hero() {
                             role="radio"
                             aria-checked={active}
                             onClick={(e) => switchMode(opt, e)}
+                            data-cursor="set"
                             className={`relative z-10 px-4 py-1.5 rounded transition-colors duration-300 ${
                               active ? "text-ink font-semibold" : "text-muted hover:text-text"
                             }`}
@@ -169,6 +170,7 @@ export default function Hero() {
                     </div>
                     <input
                       id="eps"
+                      data-cursor="set"
                       className="eps"
                       type="range"
                       min={0}

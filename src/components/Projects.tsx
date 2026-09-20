@@ -117,6 +117,7 @@ export default function Projects() {
                 <a
                   href={`/projects/${proj.slug}/`}
                   onClick={() => pull(proj.slug)}
+                  data-cursor="open"
                   className={`group block h-full panel rounded-md p-5 border transition-[border-color,box-shadow] duration-300 ${
                     onPolicy ? "" : "border-grid"
                   } hover:accent-border`}

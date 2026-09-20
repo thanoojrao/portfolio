@@ -129,6 +129,7 @@ export default function PolicyGraph() {
             <g
               key={a.slug}
               style={{ cursor: "pointer" }}
+              data-cursor="pull"
               onMouseEnter={() => hoverArm.set(a.slug)}
               onMouseLeave={() => hoverArm.set(null)}
               onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
