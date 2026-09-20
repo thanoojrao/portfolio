@@ -3,7 +3,8 @@ import Section from "./Section.astro";
 import { profile } from "../data/site";
 
 const links = [
-  { k: "email", label: profile.email, href: `mailto:${profile.email}` },
+  { k: "location", label: profile.location, href: null as string | null },
+  { k: "email", label: profile.email, href: `mailto:${profile.email}` as string | null },
   { k: "github", label: "github.com/thanoojrao", href: profile.github },
   { k: "linkedin", label: "linkedin.com/in/thanooj-lingampally", href: profile.linkedin },
   ...(profile.resume ? [{ k: "resume", label: "resume.pdf", href: profile.resume }] : []),
@@ -20,9 +21,13 @@ const links = [
       links.map((l) => (
         <li class="flex flex-wrap gap-x-3">
           <span class="text-muted w-20 shrink-0">{l.k}:</span>
-          <a class="u" href={l.href} target={l.href.startsWith("mailto") ? undefined : "_blank"} rel="noreferrer">
-            {l.label}
-          </a>
+          {l.href ? (
+            <a class="u" href={l.href} target={l.href.startsWith("mailto") ? undefined : "_blank"} rel="noreferrer">
+              {l.label}
+            </a>
+          ) : (
+            <span class="text-text">{l.label}</span>
+          )}
         </li>
       ))
     }

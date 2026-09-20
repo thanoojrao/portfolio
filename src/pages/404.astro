@@ -1,0 +1,20 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404">
+  <main class="mx-auto max-w-3xl px-4 md:px-8 pt-24 md:pt-32 pb-16">
+    <div class="prompt text-sm md:text-base">
+      <span class="text-text">$</span> cat <span class="text-muted">{Astro.url.pathname}</span>
+    </div>
+    <h1 class="mt-6 text-2xl md:text-4xl font-semibold tracking-tight">
+      <span class="accent">404</span>: no such arm
+    </h1>
+    <p class="mt-4 text-muted max-w-xl">
+      This path has never been pulled. Reward: unknown, and likely to stay that way.
+    </p>
+    <p class="mt-8 text-sm">
+      <a class="u" href="/">← cd ~</a>
+    </p>
+  </main>
+</Layout>

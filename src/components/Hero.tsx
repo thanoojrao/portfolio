@@ -78,26 +78,21 @@ export default function Hero() {
             {!outputVisible && <span className="cursor" />}
           </div>
 
-          <AnimatePresence>
-            {outputVisible && (
-              <motion.div
-                initial={reduce ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="mt-6"
-              >
+          <motion.div
+            className="mt-6"
+            initial={reduce ? "show" : "hide"}
+            animate={outputVisible ? "show" : "hide"}
+            variants={{ hide: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.3 } } }}
+            style={{ pointerEvents: outputVisible ? "auto" : "none" }}
+          >
                 <motion.h1
-                  initial={reduce ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.05 }}
+                  variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.05 } } }}
                   className="text-3xl md:text-5xl font-semibold tracking-tight leading-tight"
                 >
                   {profile.name}
                 </motion.h1>
                 <motion.p
-                  initial={reduce ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.18 }}
+                  variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.18 } } }}
                   className="mt-3 text-base md:text-lg"
                 >
                   <span className="accent accent-glow">{profile.title}</span>
@@ -107,9 +102,7 @@ export default function Hero() {
                   </a>
                 </motion.p>
                 <motion.p
-                  initial={reduce ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
+                  variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.3 } } }}
                   className="mt-5 max-w-xl text-muted leading-relaxed"
                 >
                   {profile.tagline}
@@ -117,9 +110,7 @@ export default function Hero() {
 
                 {/* controls */}
                 <motion.div
-                  initial={reduce ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.45 }}
+                  variants={{ hide: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.45 } } }}
                   className="mt-9 panel rounded-md p-4 md:p-5 max-w-xl"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-4">
@@ -186,9 +177,7 @@ export default function Hero() {
                     </div>
                   </div>
                 </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </motion.div>
         </div>
 
         <motion.div
