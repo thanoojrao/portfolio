@@ -1,5 +1,6 @@
-# thanooj.dev — portfolio
+# thanooj.vercel.app — portfolio
 
+nLive at **https://thanooj.vercel.app**.
 Personal site built around one idea: **exploration vs exploitation**.
 
 The site has two modes. **Exploit** shows the proven work, ordered by confidence.
