@@ -50,11 +50,11 @@ export const experience: Experience[] = [
     period: "Jan 2026 — present",
     kind: "work",
     lines: [
-      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product with paying customers. Over half the commits across seven deployed services.",
-      "Claude-on-Bedrock agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a five-layer honesty guard, and an eval harness that replays recorded production flows against every prompt and model change.",
-      "Cut perceived chat latency from a 23s median to under 2s to first token by streaming while the guard audits concurrently and retracts on failure.",
-      "Audited the e-signing pipeline end to end, found seven critical defects, led the fixes, and gated deploys on the test suite.",
-      "Multilingual ingestion, alert triage that collapsed 222 open issues into 42 root causes, and the AWS cost audit.",
+      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product with paying customers, across several deployed services on AWS.",
+      "The Claude-on-Bedrock agent behind chat and email: tool calling at scale, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
+      "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
+      "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, Claude selects, with the eval set built before the model.",
+      "Multilingual document ingestion, log-fingerprinted alert triage, deploy gating on the test suite, and the infrastructure and cost hygiene that a one-engineer backend needs.",
     ],
   },
   {
@@ -128,38 +128,31 @@ export const projects: Project[] = [
     reward: "in production",
     rewardKnown: true,
     summary:
-      "The Claude-on-Bedrock agent behind Dottr's chat and email: 40+ tools, a five-layer honesty guard, an eval harness of replayed production flows, and a 23s to under 2s latency fix.",
+      "The Claude-on-Bedrock agent behind Dottr's chat and email: dozens of tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
       {
         heading: "Problem",
         body: [
-          "A contract-intelligence agent that reads, fills, routes and signs documents for paying customers. The demo is easy. The hard part is an agent that claims it sent a document when it did not, or takes an action the user never authorised, or takes 23 seconds to say anything at all.",
+          "A contract-intelligence agent reads, fills, routes and signs documents for paying customers. The demo is easy. The hard part is an agent that says it sent something it did not, or takes an action nobody authorised, or makes the user wait so long the product feels broken.",
         ],
       },
       {
-        heading: "What I built",
+        heading: "How it is built",
         body: [
-          "Tool dispatch across more than forty tools, with prompt-cache-aware context assembly so long conversations stay cheap and fast.",
-          "A five-layer honesty guard: every action the agent claims is checked against records the system actually owns before the user sees the claim.",
-          "An eval harness of recorded production flows, replayed against every prompt and model change, so regressions show up in CI rather than in a customer's inbox.",
-          "Streaming replies while the guard audits concurrently and retracts on failure. Perceived latency went from a 23-second median to under two seconds to first token.",
-        ],
-      },
-      {
-        heading: "Also in this codebase",
-        body: [
-          "Audited the e-signing pipeline end to end and found seven critical defects, including one that could complete a contract with a required signer never contacted. Led the fixes and gated deploys on the test suite.",
-          "Multilingual ingestion: benchmarked four OCR vendors on scanned Indian legal filings, built a Textract-first router that detects garbled output and re-routes, and moved to Cohere multilingual embeddings after measuring that the previous model could not bridge English queries to Telugu text. Backfilled 11k chunks in production with no downtime.",
-          "Alert triage that fingerprints log signatures, collapsing 222 open issues into 42 root causes and cutting auto-filed noise by over 80%.",
+          "Tool calling across dozens of tools, with context assembled to keep the prompt cache warm so long conversations stay fast and cheap.",
+          "A layered honesty guard: before the user sees a claim like 'sent to the counterparty', the claim is checked against records the system actually owns. If the check fails, the claim is retracted.",
+          "An eval harness built from recorded real flows, replayed in CI against every prompt and model change, so a regression in planning or tool use fails a build instead of reaching an inbox.",
+          "Streaming with concurrent auditing: the reply starts immediately while the guard runs alongside it. Time to first token went from tens of seconds to under two, without giving up the guarantee.",
         ],
       },
       {
         heading: "Decisions I would defend",
         body: [
-          "Guard after, not before. Blocking on the audit made the product feel broken. Streaming and retracting made it feel fast and still kept it honest.",
-          "Replay real flows, not synthetic prompts. The failures that matter come from what customers actually do.",
+          "Guard after, not before. Blocking the reply on the audit was correct and unusable. Streaming and retracting is correct and fast.",
+          "Replay real flows, not synthetic prompts. The failures that matter come from what customers actually do, and a harness of invented cases never found them.",
+          "Gate deploys on the suite. Once the harness existed, letting a red build ship would have thrown away its whole value.",
         ],
       },
     ],
@@ -176,29 +169,30 @@ export const projects: Project[] = [
     reward: "in production",
     rewardKnown: true,
     summary:
-      "Signature-field detection rebuilt as a propose-then-select pipeline: a 37 MB int8 ONNX detector finds candidates, Claude picks the right ones. The eval harness came first and caught a bug that put 30% of candidates off the page.",
+      "Signature-field detection as a propose-then-select pipeline: a small quantised object detector finds candidates cheaply, and Claude picks the right ones using the document's text. The eval set was built before the model, and it paid for itself on day one.",
     tags: ["ONNX", "object detection", "Claude", "evals", "computer vision"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
       {
         heading: "Problem",
         body: [
-          "Contracts arrive as scanned PDFs of every layout imaginable. The product has to know where each party signs, initials and dates, and getting it wrong means a document goes out with a field in the wrong place.",
+          "Contracts arrive as scanned PDFs in every layout imaginable. The product has to know where each party signs, initials and dates. A vision model alone cannot tell which box belongs to which party; a language model alone cannot see the page.",
         ],
       },
       {
-        heading: "What I built",
+        heading: "How it is built",
         body: [
-          "A small, quantised object detector, 37 MB int8 in ONNX, that proposes candidate boxes fast and cheaply on CPU.",
-          "Claude selects among the proposals using the document's text and structure, which is what the detector cannot see.",
-          "The eval harness first: 793 documents and 6,567 human-reviewed boxes. It immediately exposed a coordinate-transform bug that had placed 30% of candidates off the page.",
-          "Vendor benchmarks alongside it: document parsing (Docling beat Reducto on table fidelity, 2.2s versus 3.4s median), signature detection vendors, and placement models, so every choice had a number behind it.",
+          "Propose: a small int8-quantised object detector, exported to ONNX, runs on CPU and returns candidate boxes for a page in well under a second.",
+          "Select: Claude sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
+          "Measure first: a human-reviewed evaluation set of hundreds of documents and thousands of boxes existed before the pipeline did. On its first run it exposed a coordinate-transform bug that had silently placed a large share of candidates off the page. No one would have seen that by eyeballing outputs.",
+          "Every alternative got the same treatment: document parsers, detection vendors and placement models were benchmarked head to head on the same set before any of them was adopted.",
         ],
       },
       {
         heading: "What I learned",
         body: [
-          "Build the measuring stick before the thing you measure. The harness paid for itself on day one and now guards every model swap.",
+          "Build the measuring stick before the thing you measure. It turned vendor debates into a table, and it now guards every model swap.",
+          "Split the job along the models' strengths. Cheap perception plus expensive reasoning beat either one doing everything.",
         ],
       },
     ],
