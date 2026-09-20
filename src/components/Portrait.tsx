@@ -112,12 +112,7 @@ export default function Portrait() {
       for (const d of dots) {
         const hx = d.gx * cell + half;
         const hy = d.gy * cell + half;
-        if (d.val < 0.05) {
-          // unlit lattice node, kept faint so the face reads against it
-          ctx.fillStyle = "rgba(42,53,46,0.55)";
-          ctx.fillRect(hx - 0.6, hy - 0.6, 1.2, 1.2);
-          continue;
-        }
+        if (d.val <= 0) continue; // unlit: the page lattice shows through
         // scatter + drift while scattered
         const drift = k * 0.6 * Math.sin(t * 2 + d.ph);
         let x = hx + (d.sx * cell * k + drift * cell) * 1;
