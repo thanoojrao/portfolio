@@ -1,0 +1,83 @@
+---
+import "../styles/global.css";
+import { profile } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  boot?: boolean;
+}
+const { title, description = profile.tagline, boot = false } = Astro.props;
+const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.title}`;
+---
+
+<!doctype html>
+<html lang="en" data-mode="exploit">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0a0e0c" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      // set the accent before first paint so there is no colour flash
+      try {
+        var p = JSON.parse(localStorage.getItem("policy") || "{}");
+        document.documentElement.dataset.mode = p.mode === "explore" ? "explore" : "exploit";
+      } catch (e) {}
+    </script>
+    {
+      boot && (
+        <script is:inline>
+          // hide content until the boot island mounts, unless already booted this session
+          try {
+            if (sessionStorage.getItem("booted") !== "1") {
+              document.write('<div id="boot-shield" style="position:fixed;inset:0;z-index:59;background:#0a0e0c"></div>');
+            }
+          } catch (e) {}
+        </script>
+      )
+    }
+  </head>
+  <body>
+    <div class="relative z-10">
+      <slot />
+      <footer class="mx-auto max-w-6xl px-4 md:px-8 py-10 text-xs text-muted border-t border-grid mt-10">
+        <div class="flex flex-wrap justify-between gap-3">
+          <span>
+            <span class="text-text">$</span> exit <span class="text-muted/70">// {new Date().getFullYear()} · {profile.name}</span>
+          </span>
+          <span>
+            built with astro · <a class="u" href="https://github.com/thanoojrao/portfolio">source</a>
+          </span>
+        </div>
+      </footer>
+    </div>
+    <script>
+      // scroll reveal for static sections
+      const els = document.querySelectorAll<HTMLElement>(".reveal");
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+      );
+      els.forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

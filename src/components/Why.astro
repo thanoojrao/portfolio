@@ -1,0 +1,18 @@
+---
+import Section from "./Section.astro";
+import { whyNote } from "../data/site";
+---
+
+<Section id="why" cmd="cat" args="notes/explore-exploit.md">
+  <article class="max-w-2xl">
+    <h2 class="text-xl md:text-2xl font-semibold tracking-tight">
+      <span class="text-muted"># </span>{whyNote.title}
+    </h2>
+    <div class="mt-5 space-y-4 text-muted leading-relaxed">
+      {whyNote.paragraphs.map((p) => <p>{p}</p>)}
+    </div>
+    <div class="mt-6 text-xs text-muted/70">
+      <span class="text-text">$</span> echo $POLICY <span class="text-muted/50">// try the switch at the top</span>
+    </div>
+  </article>
+</Section>

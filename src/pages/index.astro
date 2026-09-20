@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Boot from "../components/Boot";
+import Particles from "../components/Particles";
+import Hero from "../components/Hero";
+import Projects from "../components/Projects";
+import Experience from "../components/Experience.astro";
+import Skills from "../components/Skills.astro";
+import Why from "../components/Why.astro";
+import Contact from "../components/Contact.astro";
+---
+
+<Layout boot>
+  <Boot client:load />
+  <Particles client:idle />
+  <Hero client:load />
+  <Projects client:load />
+  <Experience />
+  <Skills />
+  <Why />
+  <Contact />
+</Layout>

@@ -1,0 +1,91 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { projects } from "../../data/site";
+
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const idx = projects.findIndex((p) => p.slug === project.slug);
+const prev = projects[(idx - 1 + projects.length) % projects.length];
+const next = projects[(idx + 1) % projects.length];
+---
+
+<Layout title={project.title} description={project.summary}>
+  <main class="mx-auto max-w-3xl px-4 md:px-8 pt-16 md:pt-24 pb-10">
+    <nav class="text-sm text-muted">
+      <a class="u" href="/#projects">← cd ..</a>
+    </nav>
+
+    <div class="prompt text-sm md:text-base mt-8">
+      <span class="text-text">$</span> cat <span class="text-muted">projects/{project.slug}.md</span>
+    </div>
+
+    <header class="mt-6 reveal in">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+        <span>
+          mode: <span class={project.mode === "exploit" ? "text-exploit" : "text-explore"}>{project.mode}</span>
+        </span>
+        {project.org && <span>· {project.org}</span>}
+        <span>· {project.period}</span>
+        <span class="ml-auto">
+          reward: <span class="text-text">{project.reward}</span>
+          {!project.rewardKnown && <span class="accent"> ?</span>}
+        </span>
+      </div>
+      <h1 class="mt-3 text-2xl md:text-4xl font-semibold tracking-tight leading-tight">{project.title}</h1>
+      <p class="mt-4 text-muted leading-relaxed">{project.summary}</p>
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {
+          project.tags.map((t) => (
+            <span class="text-[11px] px-1.5 py-0.5 rounded-sm panel text-muted">{t}</span>
+          ))
+        }
+      </div>
+      {
+        project.links.length > 0 && (
+          <div class="mt-4 flex flex-wrap gap-4 text-sm">
+            {project.links.map((l) => (
+              <a class="u" href={l.href} target="_blank" rel="noreferrer">
+                {l.label} ↗
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <article class="mt-10 space-y-9">
+      {
+        project.sections.map((s, i) => (
+          <section class="reveal">
+            <h2 class="text-lg md:text-xl font-semibold">
+              <span class="text-muted">## </span>
+              {s.heading}
+            </h2>
+            <div class="mt-3 space-y-3 text-muted leading-relaxed">
+              {s.body.length > 1 ? (
+                <ul class="space-y-2">
+                  {s.body.map((b) => (
+                    <li class="flex gap-3">
+                      <span class="accent shrink-0">›</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                s.body.map((b) => <p>{b}</p>)
+              )}
+            </div>
+          </section>
+        ))
+      }
+    </article>
+
+    <nav class="mt-14 pt-6 border-t border-grid flex justify-between text-sm gap-4">
+      <a class="u text-muted" href={`/projects/${prev.slug}/`}>← {prev.title}</a>
+      <a class="u text-muted text-right" href={`/projects/${next.slug}/`}>{next.title} →</a>
+    </nav>
+  </main>
+</Layout>

@@ -1,0 +1,37 @@
+---
+import Section from "./Section.astro";
+import { experience } from "../data/site";
+---
+
+<Section id="experience" cmd="cat" args="experience.log">
+  <ol class="relative border-l border-grid ml-2 md:ml-3 space-y-8">
+    {
+      experience.map((e, i) => (
+        <li class="pl-6 md:pl-8 relative">
+          <span
+            class:list={[
+              "absolute -left-[5px] top-2 h-2.5 w-2.5 rounded-full border",
+              e.kind === "work" ? "accent-bg accent-border" : "bg-ink border-muted",
+            ]}
+          />
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span class="text-[11px] text-muted">[{String(i).padStart(2, "0")}]</span>
+            <h3 class="font-semibold text-text">{e.role}</h3>
+            <span class="text-muted">@ {e.org}</span>
+            {e.period && <span class="text-xs text-muted/70 ml-auto">{e.period}</span>}
+          </div>
+          {e.lines.length > 0 && (
+            <ul class="mt-2 space-y-1 text-sm text-muted">
+              {e.lines.map((l) => (
+                <li class="flex gap-2">
+                  <span class="accent shrink-0">›</span>
+                  <span>{l}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</Section>

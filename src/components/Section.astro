@@ -1,0 +1,17 @@
+---
+interface Props {
+  id?: string;
+  cmd: string;
+  args?: string;
+}
+const { id, cmd, args } = Astro.props;
+---
+
+<section id={id} class="mx-auto max-w-6xl px-4 md:px-8 py-14 md:py-20 reveal">
+  <div class="prompt text-sm md:text-base">
+    <span class="text-text">$</span> {cmd}{args && <span class="text-muted"> {args}</span>}
+  </div>
+  <div class="mt-6">
+    <slot />
+  </div>
+</section>

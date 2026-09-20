@@ -1,0 +1,21 @@
+---
+import Section from "./Section.astro";
+import { stack } from "../data/site";
+---
+
+<Section id="stack" cmd="env" args="| grep STACK">
+  <p class="text-sm text-muted mb-4">The stack I actually use, not the one I have heard of.</p>
+  <div class="flex flex-wrap gap-2">
+    {
+      stack.map((s, i) => (
+        <span
+          class="panel rounded-sm px-3 py-1.5 text-sm hover:accent-border transition-colors"
+          style={`transition-delay:${i * 20}ms`}
+        >
+          <span class="text-muted/70">STACK_{String(i).padStart(2, "0")}=</span>
+          <span class="text-text">{s}</span>
+        </span>
+      ))
+    }
+  </div>
+</Section>
