@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { projects } from "../../data/site";
+import HonestyGuard from "../../components/HonestyGuard";
 
 export function getStaticPaths() {
   return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
@@ -54,6 +55,24 @@ const next = projects[(idx + 1) % projects.length];
         )
       }
     </header>
+
+    {
+      project.demo === "honesty-guard" && (
+        <section class="mt-10">
+          <div class="prompt text-sm md:text-base">
+            <span class="text-text">$</span> ./replay <span class="text-muted">honesty-guard</span>
+          </div>
+          <p class="mt-2 text-sm text-muted">
+            The reply streams right away. The guard reads it as it arrives and checks every claim against records the system
+            owns. A claim with no record behind it is struck out and corrected.
+          </p>
+          <div class="mt-4">
+            <HonestyGuard client:visible />
+          </div>
+          <p class="mt-2 text-[11px] text-muted/70">Simulated: names and data are invented and the timing is slowed so it can be read.</p>
+        </section>
+      )
+    }
 
     <article class="mt-10 space-y-9">
       {

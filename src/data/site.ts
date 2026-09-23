@@ -113,6 +113,8 @@ export type Project = {
   tags: string[];
   links: { label: string; href: string }[];
   sections: { heading: string; body: string[] }[];
+  /** an interactive replay shown above the write-up */
+  demo?: "honesty-guard";
 };
 
 export const projects: Project[] = [
@@ -127,6 +129,7 @@ export const projects: Project[] = [
     explore: 0.3,
     reward: "in production",
     rewardKnown: true,
+    demo: "honesty-guard",
     summary:
       "The Claude-on-Bedrock agent behind Dottr's chat and email: dozens of tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],

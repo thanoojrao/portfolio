@@ -10,6 +10,7 @@
   --color-grid: #1a2320;
   --color-exploit: #3ddc84;
   --color-explore: #f5b942;
+  --color-fail: #ff6b6b;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
