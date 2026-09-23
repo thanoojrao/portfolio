@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useStore } from "@nanostores/react";
-import { epsilon, mode, booted, hoverArm, useHydratedStore } from "../store/policy";
+import { epsilon, mode, hoverArm, useHydratedStore } from "../store/policy";
 import { projects } from "../data/site";
 
 /**
@@ -33,7 +33,6 @@ export default function PolicyGraph() {
   const reduce = useReducedMotion();
   const eps = useHydratedStore(epsilon, 0.1);
   const m = useHydratedStore(mode, "exploit");
-  const isBooted = useStore(booted);
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [counts, setCounts] = useState<number[]>(() => ARMS.map(() => 0));
   const [last, setLast] = useState<number>(-1);
@@ -56,7 +55,7 @@ export default function PolicyGraph() {
 
   // the policy's own ε-greedy ticks
   useEffect(() => {
-    if (reduce || !isBooted) return;
+    if (reduce) return;
     const tick = () => {
       if (document.visibilityState !== "visible") return;
       if (hoverArm.get()) return; // a hovered arm takes over
@@ -68,7 +67,7 @@ export default function PolicyGraph() {
     };
     const iv = window.setInterval(tick, m === "explore" ? 520 : 720);
     return () => clearInterval(iv);
-  }, [reduce, isBooted, m, fire]);
+  }, [reduce, m, fire]);
 
   // hovering an arm (here or on a card) pulls it repeatedly
   useEffect(() => {
@@ -129,7 +128,6 @@ export default function PolicyGraph() {
             <g
               key={a.slug}
               style={{ cursor: "pointer" }}
-              data-cursor="pull"
               onMouseEnter={() => hoverArm.set(a.slug)}
               onMouseLeave={() => hoverArm.set(null)}
               onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
@@ -183,15 +181,6 @@ export default function PolicyGraph() {
 
         {/* policy node */}
         <circle cx={C.x} cy={C.y} r={20} fill="var(--color-panel)" stroke="var(--accent)" strokeWidth={1.5} style={{ transition: "stroke .5s" }} />
-        <motion.circle
-          cx={C.x}
-          cy={C.y}
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth={1}
-          animate={reduce ? {} : { r: [20, 30], opacity: [0.5, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
-        />
         <text x={C.x} y={C.y + 5} textAnchor="middle" fontSize="14" fill="var(--color-text)" fontFamily="inherit">
           π
         </text>

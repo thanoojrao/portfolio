@@ -42,17 +42,14 @@ function Reward({ p, onPolicy }: { p: Project; onPolicy: boolean }) {
         <span>reward</span>
         <span className="text-muted">{p.reward}</span>
       </div>
-      <div className="h-1.5 w-full rounded-sm overflow-hidden relative bg-grid">
-        <motion.div
-          className="absolute inset-y-0 w-1/3"
-          style={{
-            background: "linear-gradient(90deg, transparent, rgb(var(--accent-rgb) / .55), transparent)",
-            opacity: onPolicy ? 1 : 0.4,
-          }}
-          animate={reduce ? {} : { x: ["-100%", "400%"] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
+      {/* not yet measured: dashed, no fill */}
+      <div
+        className="h-1.5 w-full rounded-sm"
+        style={{
+          background: "repeating-linear-gradient(90deg, rgb(var(--accent-rgb) / .35) 0 6px, transparent 6px 12px)",
+          opacity: onPolicy ? 1 : 0.5,
+        }}
+      />
     </div>
   );
 }
@@ -130,7 +127,6 @@ export default function Projects() {
                 <a
                   href={`/projects/${proj.slug}/`}
                   onClick={() => pull(proj.slug)}
-                  data-cursor="open"
                   className={`group block h-full panel rounded-md p-5 border transition-[border-color,box-shadow] duration-300 ${
                     onPolicy ? "" : "border-grid"
                   } hover:accent-border`}

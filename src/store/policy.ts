@@ -20,8 +20,6 @@ export const mode = atom<Mode>("exploit");
 export const pulls = map<Record<string, number>>({});
 export const steps = atom<number>(0);
 export const hydrated = atom<boolean>(false);
-/** true once the boot overlay has finished (or was skipped) */
-export const booted = atom<boolean>(false);
 
 const KEY = "policy";
 

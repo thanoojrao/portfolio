@@ -50,13 +50,11 @@ body {
 
 ::selection { background: rgb(var(--accent-rgb) / 0.3); }
 
-/* faint CRT vignette + scanlines, subtle */
+/* faint vignette */
 body::before {
   content: "";
   position: fixed; inset: 0; pointer-events: none; z-index: 40;
-  background:
-    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 3px);
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
 }
 
 /* accent transitions on mode switch */
@@ -104,6 +102,3 @@ input[type="range"].eps::-moz-range-thumb { width: 18px; height: 18px; border-ra
 }
 
 .group:hover .hover-accent { color: var(--accent); }
-
-/* custom cursor active: hide the native pointer everywhere */
-html.custom-cursor, html.custom-cursor * { cursor: none !important; }

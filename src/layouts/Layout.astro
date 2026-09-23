@@ -5,9 +5,8 @@ import { profile } from "../data/site";
 interface Props {
   title?: string;
   description?: string;
-  boot?: boolean;
 }
-const { title, description = profile.tagline, boot = false } = Astro.props;
+const { title, description = profile.tagline } = Astro.props;
 const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.title}`;
 ---
 
@@ -45,18 +44,6 @@ const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${
         document.documentElement.dataset.mode = p.mode === "explore" ? "explore" : "exploit";
       } catch (e) {}
     </script>
-    {
-      boot && (
-        <script is:inline>
-          // hide content until the boot island mounts, unless already booted this session
-          try {
-            if (sessionStorage.getItem("booted") !== "1") {
-              document.write('<div id="boot-shield" style="position:fixed;inset:0;z-index:59;background:#0a0e0c"></div>');
-            }
-          } catch (e) {}
-        </script>
-      )
-    }
   </head>
   <body>
     <div class="relative z-10">

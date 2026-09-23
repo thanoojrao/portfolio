@@ -11,7 +11,8 @@ import data from "../data/portrait.json";
  * ε controls how well it resolves. Near 0 every dot sits on its node and the face is
  * sharp. As ε rises, dots wander toward random scatter positions and the face
  * dissolves. Exploitation converges, exploration scatters. The pointer nudges nearby
- * dots aside; they spring back.
+ * dots aside; they spring back. Nothing moves on its own: when ε is low and the pointer
+ * is away, the portrait is still and the loop stops drawing.
  */
 
 const { cols, rows, v } = data as { cols: number; rows: number; v: number[] };
@@ -100,7 +101,9 @@ export default function Portrait() {
     let t = 0;
     let raf = 0;
 
+    // returns how far the dots moved this frame, so the loop can go idle once settled
     const draw = () => {
+      let moved = 0;
       const explore = modeRef.current === "explore";
       const rgb = explore ? "245,185,66" : "61,220,132";
       // scatter target from ε: nothing below 0.15, full at 0.95
@@ -113,14 +116,10 @@ export default function Portrait() {
         const hx = d.gx * cell + half;
         const hy = d.gy * cell + half;
         if (d.val <= 0) continue; // unlit: the page lattice shows through
-        // a slow diagonal wave runs through the lattice
-        const wave = Math.sin(t * 2.6 + d.gx * 0.22 + d.gy * 0.14);
-        const wx = wave * cell * 0.3;
-        const wy = Math.cos(t * 2.1 + d.gy * 0.18 - d.gx * 0.08) * cell * 0.42;
         // scatter + drift while scattered
         const drift = k * 0.6 * Math.sin(t * 2 + d.ph);
-        let x = hx + wx + d.sx * cell * k + drift * cell;
-        let y = hy + wy + d.sy * cell * k + drift * cell * 0.7;
+        let x = hx + d.sx * cell * k + drift * cell;
+        let y = hy + d.sy * cell * k + drift * cell * 0.7;
         // pointer repulsion
         const dx = x - px;
         const dy = y - py;
@@ -133,23 +132,23 @@ export default function Portrait() {
           y += (dy / dist) * push;
         }
         // ease toward the computed position so motion is smooth
-        d.x += (x - d.x) * 0.25;
-        d.y += (y - d.y) * 0.25;
-        // a brightness sweep passes down the face every few seconds
-        const sweepPos = ((t * 0.35) % 1.6) * rows - rows * 0.3;
-        const sweep = Math.max(0, 1 - Math.abs(d.gy - sweepPos) / 6);
-        const glow = 1 + 0.45 * sweep * sweep;
-        const r = cell * (0.08 + 0.34 * d.val) * (1 + 0.12 * sweep);
-        const a = Math.min(1, (0.3 + 0.7 * d.val) * glow);
+        const mx = (x - d.x) * 0.25;
+        const my = (y - d.y) * 0.25;
+        d.x += mx;
+        d.y += my;
+        moved = Math.max(moved, Math.abs(mx), Math.abs(my));
+        const r = cell * (0.08 + 0.34 * d.val);
+        const a = 0.3 + 0.7 * d.val;
         ctx.beginPath();
         ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${rgb},${a * (1 - k * 0.35)})`;
         ctx.fill();
       }
+      return moved;
     };
 
     // first paint: dots start at home
-    repaint = draw;
+    repaint = () => void draw();
     for (const d of dots) {
       d.x = d.gx * cell + cell / 2;
       d.y = d.gy * cell + cell / 2;
@@ -157,10 +156,19 @@ export default function Portrait() {
     draw();
 
     if (!reduce) {
+      let lastMode = modeRef.current;
+      let still = 0;
       const loop = () => {
         raf = requestAnimationFrame(loop);
         if (document.visibilityState !== "visible") return;
-        draw();
+        const target = Math.max(0, Math.min(1, (epsRef.current - 0.15) / 0.8));
+        const busy =
+          px > -1e8 || k > 0.001 || Math.abs(target - k) > 0.001 || modeRef.current !== lastMode;
+        lastMode = modeRef.current;
+        // keep drawing while anything is in motion; go idle once the dots are home
+        if (busy || still < 30) {
+          still = draw() < 0.01 && !busy ? still + 1 : 0;
+        }
       };
       loop();
     }

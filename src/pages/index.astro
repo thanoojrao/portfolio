@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Boot from "../components/Boot";
 import Particles from "../components/Particles";
 import Cursor from "../components/Cursor";
 import Hero from "../components/Hero";
@@ -12,8 +11,7 @@ import Why from "../components/Why.astro";
 import Contact from "../components/Contact.astro";
 ---
 
-<Layout boot>
-  <Boot client:load />
+<Layout>
   <Particles client:idle />
   <Cursor client:idle />
   <Hero client:load />
