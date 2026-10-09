@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { profile } from "../data/site";
+import Analytics from "@vercel/analytics/astro";
 
 interface Props {
   title?: string;
@@ -44,6 +45,7 @@ const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${
         document.documentElement.dataset.mode = p.mode === "explore" ? "explore" : "exploit";
       } catch (e) {}
     </script>
+    <Analytics />
   </head>
   <body>
     <div class="relative z-10">

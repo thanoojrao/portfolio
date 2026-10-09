@@ -18,6 +18,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vercel/analytics": "^2.0.1",
     "astro": "^7.3.3",
     "framer-motion": "^13.4.0",
     "nanostores": "^1.5.3",
