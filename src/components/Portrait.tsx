@@ -11,8 +11,9 @@ import data from "../data/portrait.json";
  * ε controls how well it resolves. Near 0 every dot sits on its node and the face is
  * sharp. As ε rises, dots wander toward random scatter positions and the face
  * dissolves. Exploitation converges, exploration scatters. The pointer nudges nearby
- * dots aside; they spring back. Nothing moves on its own: when ε is low and the pointer
- * is away, the portrait is still and the loop stops drawing.
+ * dots aside; they spring back. On load it resolves once from scatter; after that
+ * nothing moves on its own: when ε is low and the pointer is away, the portrait is
+ * still and the loop stops drawing.
  */
 
 const { cols, rows, v } = data as { cols: number; rows: number; v: number[] };
@@ -97,7 +98,9 @@ export default function Portrait() {
     canvas.addEventListener("pointermove", onMove, { passive: true });
     canvas.addEventListener("pointerleave", onLeave);
 
-    let k = 0; // current scatter amount, eased toward target
+    // current scatter amount, eased toward target. Starts fully scattered so the
+    // portrait resolves once on load
+    let k = reduce ? 0 : 1;
     let t = 0;
     let raf = 0;
 
@@ -147,11 +150,11 @@ export default function Portrait() {
       return moved;
     };
 
-    // first paint: dots start at home
+    // first paint: dots start at their scatter positions (or home, without motion)
     repaint = () => void draw();
     for (const d of dots) {
-      d.x = d.gx * cell + cell / 2;
-      d.y = d.gy * cell + cell / 2;
+      d.x = (d.gx + d.sx * k) * cell + cell / 2;
+      d.y = (d.gy + d.sy * k) * cell + cell / 2;
     }
     draw();
 
