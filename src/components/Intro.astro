@@ -1,0 +1,52 @@
+---
+import { profile } from "../data/site";
+---
+
+<header class="grid grid-cols-1 sm:grid-cols-[1fr_170px] md:grid-cols-[1fr_290px] gap-8 md:gap-16 items-center pt-12 sm:pt-20 md:pt-24 pb-14 md:pb-20">
+  <div>
+    <h1 class="font-serif font-semibold text-text text-[38px] sm:text-[48px] md:text-[64px] leading-[1.05] tracking-[-0.01em]">
+      {profile.name}
+    </h1>
+    <p class="mt-3 md:mt-4 text-[15px] md:text-[16px] text-muted">
+      <span class="text-text font-medium">{profile.title}</span>{" at "}<a class="inline" href={profile.org.url}
+        >{profile.org.name}</a
+      >{" · "}{profile.location} · open to {profile.openTo}
+    </p>
+    <p class="mt-5 md:mt-6 text-[17px] sm:text-[19px] md:text-[22px] leading-[1.5] text-text max-w-[560px]">{profile.pitch}</p>
+    <div class="mt-7 md:mt-9 flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
+      <a
+        class="inline-flex items-center gap-2 rounded-lg bg-exploit text-[#06120b] font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
+        href={`mailto:${profile.email}`}>Email me <span aria-hidden="true">→</span></a
+      >
+      {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Résumé</a>}
+      <a class="px-3 py-2.5 text-body hover:text-text" href={profile.github}>GitHub</a>
+      <a class="px-3 py-2.5 text-body hover:text-text" href={profile.linkedin}>LinkedIn</a>
+    </div>
+  </div>
+  <div
+    class="hidden sm:block w-24 h-[126px] sm:w-[170px] sm:h-[223px] md:w-[290px] md:h-[381px] rounded-xl md:rounded-2xl overflow-hidden panel"
+    aria-hidden="true"
+  >
+    <canvas id="portrait" width="580" height="762" class="block w-full h-full"></canvas>
+  </div>
+</header>
+
+<script>
+  // the lattice portrait, drawn once: no image ships, only a brightness grid
+  import data from "../data/portrait.json";
+  const { cols, rows, v } = data as { cols: number; rows: number; v: number[] };
+  const c = document.getElementById("portrait") as HTMLCanvasElement | null;
+  const ctx = c?.getContext("2d");
+  if (c && ctx) {
+    const sx = c.width / cols, sy = c.height / rows;
+    for (let r = 0; r < rows; r++)
+      for (let q = 0; q < cols; q++) {
+        const t = v[r * cols + q] / 99;
+        if (!t) continue;
+        ctx.fillStyle = `rgba(61,220,132,${0.15 + 0.85 * t})`;
+        ctx.beginPath();
+        ctx.arc(q * sx + sx / 2, r * sy + sy / 2, Math.max(0.4, t * sx * 0.48), 0, Math.PI * 2);
+        ctx.fill();
+      }
+  }
+</script>

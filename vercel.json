@@ -1,0 +1,11 @@
+{
+  "redirects": [
+    { "source": "/resume.pdf", "destination": "/thanooj-lingampally-resume.pdf", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/thanooj-lingampally-resume.pdf",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    }
+  ]
+}

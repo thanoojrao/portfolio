@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { projects } from "../../data/site";
+import { projects, profile } from "../../data/site";
 import HonestyGuard from "../../components/HonestyGuard";
 
 export function getStaticPaths() {
@@ -8,38 +8,33 @@ export function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const idx = projects.findIndex((p) => p.slug === project.slug);
-const prev = projects[(idx - 1 + projects.length) % projects.length];
-const next = projects[(idx + 1) % projects.length];
+// "next" stays within the same track: Work leads to Work, Experiments to Experiments
+const siblings = projects.filter((p) => p.track === project.track);
+const idx = siblings.findIndex((p) => p.slug === project.slug);
+const next = siblings[(idx + 1) % siblings.length];
 ---
 
-<Layout title={project.title} description={project.summary}>
-  <main class="mx-auto max-w-3xl px-4 md:px-8 pt-16 md:pt-24 pb-10">
+<Layout title={project.seoTitle} description={project.metaDescription} ogType="article">
+  <main id="main" class="mx-auto max-w-3xl px-5 pt-10 md:pt-14 pb-10">
     <nav class="text-sm text-muted">
-      <a class="u" href="/#projects">← cd ..</a>
+      <a class="hover:text-text" href="/#projects">← All projects</a>
     </nav>
 
-    <div class="prompt text-sm md:text-base mt-8">
-      <span class="text-text">$</span> cat <span class="text-muted">projects/{project.slug}.md</span>
-    </div>
-
-    <header class="mt-6 reveal in">
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-        <span>
-          mode: <span class={project.mode === "exploit" ? "text-exploit" : "text-explore"}>{project.mode}</span>
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted">
+        <span class={project.track === "work" ? "text-exploit" : "text-explore"}>
+          {project.track === "work" ? "Work" : "Experiment"}
         </span>
         {project.org && <span>· {project.org}</span>}
         <span>· {project.period}</span>
-        <span class="ml-auto">
-          reward: <span class={project.rewardKnown ? "text-text" : "text-muted"}>{project.reward}</span>
-        </span>
       </div>
-      <h1 class="mt-3 text-2xl md:text-4xl font-semibold tracking-tight leading-tight">{project.title}</h1>
-      <p class="mt-4 text-muted leading-relaxed">{project.summary}</p>
-      <div class="mt-4 flex flex-wrap gap-1.5">
+      <h1 class="mt-3 font-serif font-semibold text-text text-[30px] md:text-[40px] leading-[1.15] tracking-[-0.01em]">{project.title}</h1>
+      <p class="mt-4 text-[17px] leading-relaxed">{project.summary}</p>
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        {project.chips.map((c) => <span class:list={["chip", project.track === "experiment" && "amber"]}>{c}</span>)}
         {
           project.tags.map((t) => (
-            <span class="text-[11px] px-1.5 py-0.5 rounded-sm panel text-muted">{t}</span>
+            <span class="font-mono text-[11px] px-2 py-0.5 rounded-md panel text-muted">{t}</span>
           ))
         }
       </div>
@@ -59,35 +54,30 @@ const next = projects[(idx + 1) % projects.length];
     {
       project.demo === "honesty-guard" && (
         <section class="mt-10">
-          <div class="prompt text-sm md:text-base">
-            <span class="text-text">$</span> ./replay <span class="text-muted">honesty-guard</span>
-          </div>
-          <p class="mt-2 text-sm text-muted">
+          <h2 class="font-serif font-semibold text-text text-[22px]">Live replay: the honesty guard</h2>
+          <p class="mt-2 text-[15px] text-muted">
             The reply streams right away. The guard reads it as it arrives and checks every claim against records the system
             owns. A claim with no record behind it is struck out and corrected.
           </p>
           <div class="mt-4">
             <HonestyGuard client:visible />
           </div>
-          <p class="mt-2 text-[11px] text-muted/70">Simulated: names and data are invented and the timing is slowed so it can be read.</p>
+          <p class="mt-2 text-[13px] text-muted">Simulated: names and data are invented and the timing is slowed so it can be read.</p>
         </section>
       )
     }
 
     <article class="mt-10 space-y-9">
       {
-        project.sections.map((s, i) => (
-          <section class="reveal">
-            <h2 class="text-lg md:text-xl font-semibold">
-              <span class="text-muted">## </span>
-              {s.heading}
-            </h2>
-            <div class="mt-3 space-y-3 text-muted leading-relaxed">
+        project.sections.map((s) => (
+          <section>
+            <h2 class="font-serif font-semibold text-text text-[22px]">{s.heading}</h2>
+            <div class="mt-3 space-y-3 leading-relaxed">
               {s.body.length > 1 ? (
                 <ul class="space-y-2">
                   {s.body.map((b) => (
                     <li class="flex gap-3">
-                      <span class="accent shrink-0">›</span>
+                      <span class="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
                       <span>{b}</span>
                     </li>
                   ))}
@@ -101,9 +91,29 @@ const next = projects[(idx + 1) % projects.length];
       }
     </article>
 
-    <nav class="mt-14 pt-6 border-t border-grid flex justify-between text-sm gap-4">
-      <a class="u text-muted" href={`/projects/${prev.slug}/`}>← {prev.title}</a>
-      <a class="u text-muted text-right" href={`/projects/${next.slug}/`}>{next.title} →</a>
-    </nav>
+    <aside class="mt-14 p-6 rounded-xl panel">
+      <p class="font-serif font-semibold text-text text-[22px] leading-snug">Building something like this?</p>
+      <p class="mt-1.5 text-[15px] text-muted">I'd like to hear about it. I usually reply within a day.</p>
+      <div class="mt-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
+        <a
+          class="inline-flex items-center gap-2 rounded-lg bg-exploit text-[#06120b] font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
+          href={`mailto:${profile.email}`}>Email me <span aria-hidden="true">→</span></a
+        >
+        {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Résumé</a>}
+        <a class="px-3 py-2.5 text-body hover:text-text" href={profile.linkedin}>LinkedIn</a>
+      </div>
+    </aside>
+
+    {
+      next.slug !== project.slug && (
+        <nav class="mt-10 pt-6 border-t border-grid flex justify-between gap-4 text-sm" aria-label="More projects">
+          <a class="text-muted hover:text-text" href="/#projects">← All projects</a>
+          <a class="text-right text-muted hover:text-text" href={`/projects/${next.slug}/`}>
+            <span class="block font-mono text-xs">Next {project.track === "work" ? "case study" : "write-up"}</span>
+            <span class="text-text">{next.title}</span> <span aria-hidden="true">→</span>
+          </a>
+        </nav>
+      )
+    }
   </main>
 </Layout>

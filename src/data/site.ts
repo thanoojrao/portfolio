@@ -1,39 +1,53 @@
-export type Mode = "exploit" | "explore";
-
 export const profile = {
   name: "Thanooj Lingampally",
-  handle: "thanooj",
   title: "Founding AI Engineer",
   org: { name: "Dottr", url: "https://dottr.ai" },
-  tagline:
-    "First engineer at an AI contract-intelligence startup. I own the Claude agent loop, its honesty guards and evals, signature-field detection, and the AWS infrastructure under it. I build the unglamorous parts that keep agents honest in production.",
-  location: "New York, NY",
+  /** meta and social description: short enough not to be cut off (~155 chars) */
+  description:
+    "Thanooj Lingampally, founding AI engineer in New York, open to SF. I build production LLM agents: tool calling, honesty guards, evals and latency.",
+  /** home page <title>: name first for name searches, then the role terms recruiters search */
+  seoTitle: "Thanooj Lingampally · Founding AI Engineer, LLM Agents · New York",
+  /** the one sentence under the name: the core message of the site */
+  pitch:
+    "I build production AI agents that actually work, and the unglamorous parts that keep them honest: guards, evals, and latency.",
+  location: "New York",
+  openTo: "SF",
   email: "thanoojlingampally@gmail.com",
   github: "https://github.com/thanoojrao",
-  linkedin: "https://linkedin.com/in/thanooj-lingampally",
-  resume: "/resume.pdf" as string | null,
+  linkedin: "https://www.linkedin.com/in/thanooj-lingampally",
+  resume: "/thanooj-lingampally-resume.pdf" as string | null,
 };
 
-export const stack = [
-  "Python",
-  "Claude / Amazon Bedrock",
-  "LangGraph",
-  "FastAPI",
-  "PostgreSQL",
-  "pgvector",
-  "DynamoDB",
-  "SQS",
-  "ECS Fargate",
-  "Terraform",
-  "Docker",
-  "GitHub Actions",
-  "PyTorch",
-  "ONNX",
-  "MLflow",
-  "Cohere embeddings",
-  "Docling / Textract",
-  "TypeScript / Next.js",
-];
+/** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
+export const brief = {
+  paragraphs: [
+    "I'm the first engineer at Dottr, a contract-intelligence and e-signing startup. I own the Claude-on-Bedrock agent behind its chat and email, the AWS infrastructure under it, and the guard that checks every action the agent claims against real records before the user sees it.",
+    "Before that I spent two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used, then did an MS in AI at the University at Buffalo, where I spent my spare cycles on reinforcement learning and robotics.",
+  ],
+  stats: [
+    { value: "23s → <2s", label: "time to first token on the production agent", slug: "dottr-agent" },
+    { value: "6,567 boxes", label: "across 793 documents in a human-reviewed eval set, built before the model", slug: "signature-field-detection" },
+    { value: "10K+ users", label: "on the RAG claims pre-audit tool I built at TCS", slug: "tcs-rag-platform" },
+  ],
+  /** one line for the recruiter keyword skim; the full list lives on the résumé */
+  skills: [
+    // languages, then AI, then backend and infra
+    "Python",
+    "TypeScript / Next.js",
+    "LLM agents",
+    "Tool calling",
+    "LangGraph",
+    "RAG",
+    "Evals",
+    "Claude / Bedrock",
+    "PyTorch",
+    "FastAPI",
+    "Postgres + pgvector",
+    "AWS (ECS, SQS, DynamoDB)",
+    "Terraform",
+    "Docker",
+  ],
+};
 
 export type Experience = {
   org: string;
@@ -50,7 +64,7 @@ export const experience: Experience[] = [
     period: "Jan 2026 — present",
     kind: "work",
     lines: [
-      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product with paying customers, across several deployed services on AWS.",
+      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product, across several deployed services on AWS.",
       "The Claude-on-Bedrock agent behind chat and email: tool calling at scale, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
       "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
       "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, Claude selects, with the eval set built before the model.",
@@ -63,9 +77,10 @@ export const experience: Experience[] = [
     period: "Dec 2022 — Aug 2024",
     kind: "work",
     lines: [
-      "Scoped and built a customer-facing RAG platform for 10K+ enterprise users, working directly with business stakeholders under corporate security and compliance requirements.",
-      "Spring Boot microservices connecting legacy enterprise databases to ML pipelines.",
-      "Led the MLflow-based MLOps pipeline for model versioning, tracking, and promotion to production.",
+      "Built a RAG claims pre-audit tool for insurance vendors used by 10K+ people: Amazon Textract for garage invoices and claim documents, LangChain for retrieval and summarisation, and a deterministic calculation engine for exact, auditable deductions.",
+      "Worked directly with business stakeholders and met the company's security and compliance requirements.",
+      "Spring Boot (Java) microservices with secure REST endpoints connecting old enterprise databases to the ML pipelines.",
+      "Led the MLflow pipeline for versioning, tracking and promoting models to production.",
     ],
   },
   {
@@ -96,20 +111,19 @@ export const experience: Experience[] = [
 
 export type Project = {
   slug: string;
-  /** short label for the bandit graph */
-  short?: string;
   title: string;
   org?: string;
   period: string;
-  mode: Mode;
-  /** confidence that this is proven, 0..1 */
-  exploit: number;
-  /** novelty / uncertainty, 0..1 */
-  explore: number;
-  /** short reward line shown on the card */
-  reward: string;
-  rewardKnown: boolean;
   summary: string;
+  /** search-friendly <title> and a meta description short enough not to be cut off (~155 chars) */
+  seoTitle: string;
+  metaDescription: string;
+  /** "work" = shipped at a job, "experiment" = school and side projects */
+  track: "work" | "experiment";
+  /** one or two plain sentences for the project list on the home page */
+  card: string;
+  /** outcome chips shown on the home page row */
+  chips: string[];
   tags: string[];
   links: { label: string; href: string }[];
   sections: { heading: string; body: string[] }[];
@@ -120,25 +134,24 @@ export type Project = {
 export const projects: Project[] = [
   {
     slug: "dottr-agent",
-    short: "agent",
+    seoTitle: "Production Claude agent: honesty guard, evals, streaming",
+    metaDescription: "The Claude-on-Bedrock agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
     title: "An agent that has to be honest about what it did",
     org: "Dottr",
     period: "2026 — present",
-    mode: "exploit",
-    exploit: 0.97,
-    explore: 0.3,
-    reward: "in production",
-    rewardKnown: true,
     demo: "honesty-guard",
     summary:
       "The Claude-on-Bedrock agent behind Dottr's chat and email: dozens of tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
+    track: "work",
+    card: "The Claude agent behind Dottr's chat and email: dozens of tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
+    chips: ["in production", "TTFT 23s → <2s"],
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
       {
         heading: "Problem",
         body: [
-          "A contract-intelligence agent reads, fills, routes and signs documents for paying customers. The demo is easy. The hard part is an agent that says it sent something it did not, or takes an action nobody authorised, or makes the user wait so long the product feels broken.",
+          "A contract-intelligence agent reads, fills, routes and signs documents for real users. The demo is easy. The hard part is an agent that says it sent something it did not, or takes an action nobody authorised, or makes the user wait so long the product feels broken.",
         ],
       },
       {
@@ -162,17 +175,16 @@ export const projects: Project[] = [
   },
   {
     slug: "signature-field-detection",
-    short: "signature",
+    seoTitle: "Signature-field detection: ONNX detector plus Claude",
+    metaDescription: "A small quantised detector proposes signature fields and Claude selects them, measured on a human-reviewed eval set of 793 documents and 6,567 boxes.",
     title: "Finding where to sign: a detector proposes, Claude selects",
     org: "Dottr",
     period: "2026",
-    mode: "exploit",
-    exploit: 0.9,
-    explore: 0.45,
-    reward: "in production",
-    rewardKnown: true,
     summary:
       "Signature-field detection as a propose-then-select pipeline: a small quantised object detector finds candidates cheaply, and Claude picks the right ones using the document's text. The eval set was built before the model, and it paid for itself on day one.",
+    track: "work",
+    card: "A small quantised detector finds candidate signature fields cheaply; Claude picks the right ones from the document's text. The eval set came before the model.",
+    chips: ["in production", "793 docs · 6,567 boxes"],
     tags: ["ONNX", "object detection", "Claude", "evals", "computer vision"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
@@ -187,7 +199,7 @@ export const projects: Project[] = [
         body: [
           "Propose: a small int8-quantised object detector, exported to ONNX, runs on CPU and returns candidate boxes for a page in well under a second.",
           "Select: Claude sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
-          "Measure first: a human-reviewed evaluation set of hundreds of documents and thousands of boxes existed before the pipeline did. On its first run it exposed a coordinate-transform bug that had silently placed a large share of candidates off the page. No one would have seen that by eyeballing outputs.",
+          "Measure first: a human-reviewed evaluation set of 793 documents and 6,567 boxes existed before the pipeline did. On its first run it caught a coordinate-transform bug before it reached users, the kind of thing nobody spots by eyeballing outputs.",
           "Every alternative got the same treatment: document parsers, detection vendors and placement models were benchmarked head to head on the same set before any of them was adopted.",
         ],
       },
@@ -202,56 +214,56 @@ export const projects: Project[] = [
   },
   {
     slug: "tcs-rag-platform",
-    short: "rag",
-    title: "A RAG platform for ten thousand enterprise users",
+    seoTitle: "RAG claims pre-audit tool for insurers: Textract and LangChain",
+    metaDescription: "A RAG tool used by 10,000+ people to pre-audit insurance claims: Textract for invoices, LangChain for retrieval, a deterministic engine for the math.",
+    title: "A claims pre-audit tool for insurers, used by 10,000+ people",
     org: "Tata Consultancy Services",
     period: "2022 — 2024",
-    mode: "exploit",
-    exploit: 0.82,
-    explore: 0.3,
-    reward: "shipped",
-    rewardKnown: true,
     summary:
-      "A customer-facing retrieval-augmented question answering platform over enterprise documents, scoped with business stakeholders and built to corporate security and compliance requirements.",
-    tags: ["RAG", "LangGraph", "Spring Boot", "MLflow", "MLOps"],
+      "A RAG tool that pre-audits insurance claims: Textract reads garage invoices and claim documents, LangChain handles retrieval and summarisation, and a deterministic engine calculates the deductions, so every number is exact and auditable. Claim processors get a filtered summary to decide each claim.",
+    track: "work",
+    card: "Textract reads garage invoices, LangChain retrieves and summarises, and a deterministic engine does the math, so claim processors get exact, auditable numbers.",
+    chips: ["10K+ users", "auditable math"],
+    tags: ["RAG", "LangChain", "Amazon Textract", "Spring Boot", "MLflow"],
     links: [],
     sections: [
       {
         heading: "Problem",
         body: [
-          "Enterprise document collections are large, messy and full of near-duplicates, and the people who need answers from them are not engineers. A single retrieve-then-answer chain gave confident wrong answers whenever retrieval missed.",
+          "Insurance vendors review claims backed by garage invoices and other documents, and every deduction has to be correct and defensible. An LLM is good at reading and summarising those documents, but it should not be trusted with the arithmetic.",
         ],
       },
       {
-        heading: "What I did",
+        heading: "What I built",
         body: [
-          "Scoped the platform directly with business stakeholders and built it to their security and compliance requirements, for a user base of over ten thousand.",
-          "Modelled the pipeline as a LangGraph state machine with explicit nodes for query rewriting, retrieval, grading of retrieved chunks and a fallback path when nothing relevant was found.",
-          "Spring Boot microservices with secure REST endpoints connecting legacy enterprise databases to the ML pipelines.",
-          "Led the MLflow-based MLOps pipeline for model versioning, tracking and promotion to production.",
+          "Document reading with Amazon Textract, so garage invoices and other claim documents became structured text.",
+          "Retrieval and summarisation on LangChain, producing a filtered summary for claim processors to decide each claim.",
+          "A deterministic calculation engine for the deductions, kept separate from the LLM, so the numbers were exact and could be audited.",
+          "Spring Boot (Java) microservices with secure REST endpoints connecting the old enterprise databases to the ML pipelines.",
+          "Led the MLflow pipeline for versioning, tracking and promoting models to production.",
+          "Worked directly with business stakeholders, and built to the company's security and compliance requirements. More than 10,000 people used it.",
         ],
       },
       {
-        heading: "What I learned",
+        heading: "Decision I would defend",
         body: [
-          "Most RAG failures are retrieval failures. Making the system admit 'not found' was worth more than any prompt tweak.",
+          "Let the model read, never let it calculate. Keeping the deductions in a deterministic engine meant every figure a processor saw could be traced and audited.",
         ],
       },
     ],
   },
   {
     slug: "citi-bike-mlops",
-    short: "citibike",
+    seoTitle: "Citi Bike demand forecasting: an end-to-end MLOps pipeline",
+    metaDescription: "Station-level Citi Bike demand as a scheduled pipeline: Hopsworks feature store, LightGBM, MLflow and a monitoring dashboard. MAE from 139 to 34.4.",
     title: "Citi Bike demand forecasting, end to end",
     org: "University at Buffalo",
     period: "Spring 2025",
-    mode: "exploit",
-    exploit: 0.75,
-    explore: 0.4,
-    reward: "MAE 139 → 34.4",
-    rewardKnown: true,
     summary:
       "Station-level demand for New York's bike share in six-hour buckets, as a scheduled pipeline with a feature store, model registry and a monitoring dashboard, not a notebook.",
+    track: "experiment",
+    card: "Station-level demand as a scheduled pipeline with a feature store, model registry and monitoring dashboard, not a notebook.",
+    chips: ["MAE 139 → 34.4"],
     tags: ["LightGBM", "Hopsworks", "GitHub Actions", "MLflow", "Streamlit"],
     links: [{ label: "github", href: "https://github.com/thanoojrao/citi_bike" }],
     sections: [
@@ -286,17 +298,16 @@ export const projects: Project[] = [
   },
   {
     slug: "quadruped-locomotion",
-    short: "anymal",
+    seoTitle: "Quadruped navigation with PPO and Mixture-of-Experts in MuJoCo",
+    metaDescription: "ANYmal C in MuJoCo: locomotion with PPO, then goal-conditioned navigation with a Mixture-of-Experts policy in PyTorch, reaching 92% success.",
     title: "Goal-conditioned quadruped navigation with a Mixture-of-Experts policy",
     org: "University at Buffalo",
     period: "2025",
-    mode: "explore",
-    exploit: 0.5,
-    explore: 0.95,
-    reward: "92% success",
-    rewardKnown: true,
     summary:
       "The ANYmal C robot in MuJoCo, first taught to walk with PPO, then to reach targets with a Mixture-of-Experts policy in PyTorch: 92% success on target-reaching within 200 timesteps.",
+    track: "experiment",
+    card: "ANYmal C in MuJoCo: taught to walk with PPO, then to reach targets with a Mixture-of-Experts policy in PyTorch.",
+    chips: ["92% success"],
     tags: ["MuJoCo", "PyTorch", "Mixture-of-Experts", "PPO", "robotics"],
     links: [{ label: "github (checkpoint)", href: "https://github.com/thanoojrao/RL_quadruped_locomotion" }],
     sections: [
@@ -309,26 +320,25 @@ export const projects: Project[] = [
         ],
       },
       {
-        heading: "Why it is here",
+        heading: "Why I keep at it",
         body: [
-          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the arm I keep pulling outside work.",
+          "Agents that act in the physical world have all the problems of software agents, with worse failure modes. This is the side project I keep coming back to.",
         ],
       },
     ],
   },
   {
     slug: "warehouse-rl",
-    short: "warehouse",
+    seoTitle: "Warehouse robot RL environment: Q-learning vs SARSA",
+    metaDescription: "A grid-world warehouse environment built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA.",
     title: "A warehouse robot environment, solved with Q-learning and SARSA",
     org: "University at Buffalo",
     period: "Spring 2025",
-    mode: "explore",
-    exploit: 0.4,
-    explore: 0.8,
-    reward: "unknown",
-    rewardKnown: false,
     summary:
       "A 2D grid world I designed from scratch: a robot picks up objects and delivers them around obstacles, in deterministic and stochastic versions, then tabular RL learns to do it.",
+    track: "experiment",
+    card: "A grid world I designed from scratch, deterministic and stochastic, where tabular RL learns pickup and delivery.",
+    chips: ["RL from scratch"],
     tags: ["RL", "Gymnasium", "Q-learning", "SARSA"],
     links: [{ label: "github", href: "https://github.com/thanoojrao/rl_environment" }],
     sections: [
@@ -340,9 +350,9 @@ export const projects: Project[] = [
         ],
       },
       {
-        heading: "Why it is here",
+        heading: "What it taught me",
         body: [
-          "This is where the theme of this site comes from. Watching epsilon decay change what the agent found was the first time explore versus exploit felt like a real decision rather than a formula.",
+          "Watching epsilon decay change what the agent found was the first time the trade-off between exploring and exploiting felt like a real decision rather than a formula.",
         ],
       },
     ],
@@ -368,13 +378,15 @@ export const alsoPulled: { title: string; note: string; href?: string }[] = [
   },
 ];
 
-export const whyNote = {
-  title: "on exploration vs exploitation",
-  paragraphs: [
-    "In reinforcement learning an agent has to choose between the action it already knows pays off and an action it has not tried yet. Pull the known arm and you collect a reliable reward. Pull an unknown one and you might find something better, or waste the pull.",
-    "I think the same trade-off runs through a career, and through a life. Most of my working hours go to exploitation: shipping agent infrastructure that has to be correct today. A deliberate fraction goes to exploration: reinforcement learning, robotics, ideas with no obvious payoff. The fraction is the interesting decision. Too little and you plateau. Too much and nothing compounds.",
-    "The cleanest version of this is the secretary problem. You see n candidates one at a time, must accept or reject each on the spot, and want the best. The optimal strategy is to reject the first n/e of them, about 37%, no matter how good they look, purely to learn what good looks like, then take the first one who beats everyone so far. That first 37% is exploration you have already decided to pay for. It shows up in apartment hunting, hiring, and job offers with deadlines: anywhere options arrive in sequence and cannot be revisited.",
-    "The honest caveat is that the 37% assumes no recall and that only the very best counts. Relax either and the exploration window shrinks. Knowing which assumptions your situation actually meets is most of the skill.",
-    "This site is built the same way. Flip the switch or move the slider and you change the policy. Exploit shows the work I am confident in. Explore shows the arms I am still pulling.",
+export const essay = {
+  title: "On exploration vs exploitation",
+  /** paragraphs before the secretary-problem toy */
+  before: [
+    "In reinforcement learning an agent has to choose between the action it already knows pays off and one it hasn't tried yet. I think the same trade-off runs through a career. Most of my hours go to exploitation: agent infrastructure that has to be correct today. A deliberate fraction goes to exploration: RL, robotics, ideas with no obvious payoff. The fraction is the interesting decision.",
+    "The cleanest version is the secretary problem. Candidates arrive one at a time, you must accept or reject each on the spot, and you want the best. The optimal rule: reject the first ~37% no matter how good they look, purely to learn what good looks like, then take the first one who beats them all.",
+  ],
+  /** paragraphs after the toy */
+  after: [
+    "The honest caveat: 37% assumes you can't go back and that only the very best counts. Relax either and the window shrinks. Knowing which assumptions your situation actually meets is most of the skill.",
   ],
 };

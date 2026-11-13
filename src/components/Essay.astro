@@ -1,0 +1,67 @@
+---
+import { essay } from "../data/site";
+---
+
+<section id="essay" class="measure py-14 border-t border-grid scroll-mt-14">
+  <h2 class="h2">{essay.title}</h2>
+  {essay.before.map((p) => <p class="mb-4">{p}</p>)}
+
+  <figure class="my-6 p-5 rounded-xl panel">
+    <div class="flex justify-between items-baseline gap-3">
+      <figcaption class="text-text font-medium text-[15px]">How much would you explore before committing?</figcaption>
+      <span class="label">100 candidates</span>
+    </div>
+    <svg
+      id="sec-curve"
+      viewBox="0 0 600 150"
+      preserveAspectRatio="none"
+      class="w-full h-[150px] block mt-2.5 mb-1.5"
+      role="img"
+      aria-label="Chance of picking the best candidate, for each fraction skipped. It peaks at about 37%."
+    ></svg>
+    <input id="sec-k" type="range" min="0" max="99" value="15" class="w-full accent-explore" aria-label="Percent of candidates to skip" />
+    <div class="flex flex-wrap justify-between gap-2 font-mono text-[13px] text-muted" aria-live="polite">
+      <span>skip the first <b id="sec-kv" class="text-explore font-medium">15%</b>, then take the first one better than all of them</span>
+      <span>picks the very best <b id="sec-pv" class="text-explore font-medium">29%</b> of the time</span>
+    </div>
+  </figure>
+
+  {essay.after.map((p) => <p class="mb-4">{p}</p>)}
+</section>
+
+<script>
+  // exact probability of choosing the best of n when you skip the first k
+  const n = 100;
+  const prob = [1 / n];
+  for (let k = 1; k < n; k++) {
+    let s = 0;
+    for (let i = k; i < n; i++) s += 1 / i;
+    prob.push((k / n) * s);
+  }
+  const svg = document.getElementById("sec-curve");
+  const input = document.getElementById("sec-k") as HTMLInputElement | null;
+  if (svg && input) {
+    const W = 600, H = 150, max = 0.4;
+    const pt = (k: number) => [(k / (n - 1)) * W, H - 6 - (prob[k] / max) * (H - 16)];
+    const d = "M" + prob.map((_, k) => pt(k).join(",")).join(" L");
+    const [x37] = pt(37);
+    svg.innerHTML = `<line x1="0" y1="${H - 6}" x2="${W}" y2="${H - 6}" stroke="#1c2420"/>
+      <line x1="${x37}" y1="6" x2="${x37}" y2="${H - 6}" stroke="#2c3530" stroke-dasharray="3 4"/>
+      <text x="${x37 + 6}" y="16" fill="#7c857e" font-family="JetBrains Mono" font-size="11">37%</text>
+      <path d="${d}" fill="none" stroke="#f5b942" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <circle id="sec-dot" r="5" fill="#f5b942"/>`;
+    const dot = document.getElementById("sec-dot")!;
+    const kv = document.getElementById("sec-kv")!;
+    const pv = document.getElementById("sec-pv")!;
+    const update = () => {
+      const k = +input.value;
+      const [x, y] = pt(k);
+      dot.setAttribute("cx", String(x));
+      dot.setAttribute("cy", String(y));
+      kv.textContent = `${k}%`;
+      pv.textContent = `${Math.round(prob[k] * 100)}%`;
+    };
+    input.addEventListener("input", update);
+    update();
+  }
+</script>

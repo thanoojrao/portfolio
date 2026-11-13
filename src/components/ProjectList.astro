@@ -1,0 +1,103 @@
+---
+import { projects, alsoPulled } from "../data/site";
+const tracks = [
+  { id: "work", label: "Work", hint: "Shipped and in production." },
+  { id: "experiment", label: "Experiments", hint: "Things I am still exploring: RL, robotics, pipelines built to learn." },
+] as const;
+---
+
+<section id="projects" class="measure py-14 border-t border-grid scroll-mt-14">
+  <h2 class="h2">Projects</h2>
+  <div class="flex gap-1.5 mb-[18px]" role="tablist" aria-label="Project type">
+    {
+      tracks.map((t, i) => (
+        <button
+          role="tab"
+          id={`tab-${t.id}`}
+          aria-controls={`panel-${t.id}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          data-track={t.id}
+          class="ptab cursor-pointer rounded-full border border-grid px-3.5 py-1.5 text-[13px] font-medium text-muted"
+        >
+          {t.label}
+          <span class="font-mono text-[11px] opacity-70 ml-1">{projects.filter((p) => p.track === t.id).length}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    tracks.map((t, i) => (
+      <div id={`panel-${t.id}`} role="tabpanel" aria-labelledby={`tab-${t.id}`} hidden={i !== 0}>
+        <p class="text-sm text-muted -mt-1.5 mb-3.5">{t.hint}</p>
+        <ul>
+          {projects
+            .filter((p) => p.track === t.id)
+            .map((p) => (
+              <li>
+                <a href={`/projects/${p.slug}/`} class="group block no-underline rounded-[10px] p-[18px] -mx-[18px] hover:bg-panel transition-colors">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5 sm:gap-4">
+                    <h3 class="text-[17px] font-medium leading-snug text-text group-hover:text-white">{p.title}</h3>
+                    <span class="font-mono text-xs text-muted whitespace-nowrap">
+                      {p.org === "Tata Consultancy Services" ? "TCS" : p.org === "University at Buffalo" ? "UB" : p.org} ·{" "}
+                      {p.period.replace(" — present", "").replace("Spring ", "")}
+                    </span>
+                  </div>
+                  <p class="mt-1.5 mb-2.5 text-[15px] leading-relaxed">{p.card}</p>
+                  <div class="flex flex-wrap items-center gap-2">
+                    {p.chips.map((c) => (
+                      <span class:list={["chip", t.id === "experiment" && "amber"]}>{c}</span>
+                    ))}
+                    <span class="ml-auto text-[13px] text-muted group-hover:text-text">
+                      {p.demo ? "Case study + live replay →" : t.id === "work" ? "Case study →" : "Write-up →"}
+                    </span>
+                  </div>
+                </a>
+              </li>
+            ))}
+        </ul>
+      </div>
+    ))
+  }
+
+  <p class="mt-[18px] text-sm text-muted">
+    Also:{" "}
+    {
+      alsoPulled.map((a, i) => (
+        <>
+          <a class="inline" href={a.href}>{a.title.charAt(0).toUpperCase() + a.title.slice(1)}</a>
+          {i < alsoPulled.length - 1 ? ", " : "."}
+        </>
+      ))
+    }
+  </p>
+</section>
+
+<style>
+  .ptab[aria-selected="true"] { color: var(--color-text); background: var(--color-panel); }
+  .ptab[data-track="work"][aria-selected="true"] { border-color: rgb(61 220 132 / 0.45); }
+  .ptab[data-track="experiment"][aria-selected="true"] { border-color: rgb(245 185 66 / 0.45); }
+</style>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".ptab"));
+  const select = (tab: HTMLButtonElement) => {
+    for (const t of tabs) {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute("aria-controls")!);
+      if (panel) panel.hidden = !on;
+    }
+  };
+  tabs.forEach((t, i) => {
+    t.tabIndex = i === 0 ? 0 : -1;
+    t.addEventListener("click", () => select(t));
+    t.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+</script>
