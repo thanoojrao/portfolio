@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://thanooj.vercel.app',
+  site: 'https://thanooj.com',
   vite: {
     plugins: [tailwindcss()]
   },

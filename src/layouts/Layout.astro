@@ -6,13 +6,47 @@ import Analytics from "@vercel/analytics/astro";
 interface Props {
   title?: string;
   description?: string;
+  /** wide container for the home page; case studies keep the narrow reading width */
+  wide?: boolean;
+  /** "article" for case studies */
+  ogType?: "website" | "article";
+  /** keep the page out of search results (404) */
+  noindex?: boolean;
+  /** emit Person structured data (home page only) */
+  person?: boolean;
 }
-const { title, description = profile.tagline } = Astro.props;
-const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.title}`;
+const { title, description = profile.description, wide = false, ogType = "website", noindex = false, person = false } =
+  Astro.props;
+const container = wide ? "max-w-5xl" : "max-w-3xl";
+const fullTitle = title ? `${title} · ${profile.name}` : profile.seoTitle;
+const origin = Astro.site ?? Astro.url.origin;
+const ogImage = new URL("/og.png", origin).href;
+
+// tells search engines who this is and ties the site to LinkedIn and GitHub
+const jsonLd = person && {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  mainEntity: {
+    "@type": "Person",
+    name: profile.name,
+    jobTitle: profile.title,
+    url: new URL("/", origin).href,
+    image: ogImage,
+    email: `mailto:${profile.email}`,
+    worksFor: { "@type": "Organization", name: profile.org.name, url: profile.org.url },
+    address: { "@type": "PostalAddress", addressLocality: "New York", addressRegion: "NY", addressCountry: "US" },
+    alumniOf: [
+      { "@type": "CollegeOrUniversity", name: "University at Buffalo" },
+      { "@type": "CollegeOrUniversity", name: "National Institute of Technology Durgapur" },
+    ],
+    knowsAbout: ["LLM agents", "AI engineering", "Retrieval-augmented generation", "LLM evaluation", "Tool calling", "Claude", "Amazon Bedrock", "Python", "AWS", "Reinforcement learning"],
+    sameAs: [profile.linkedin, profile.github],
+  },
+};
 ---
 
 <!doctype html>
-<html lang="en" data-mode="exploit">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,62 +54,50 @@ const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${
     <meta name="description" content={description} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:image" content={new URL("/og.png", Astro.site ?? Astro.url.origin)} />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL("/og.png", Astro.site ?? Astro.url.origin)} />
-    <link rel="canonical" href={Astro.url.href} />
+    <meta name="twitter:image" content={ogImage} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={Astro.url.href} />}
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <meta name="theme-color" content="#0a0e0c" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
       rel="stylesheet"
     />
-    <script is:inline>
-      // set the accent before first paint so there is no colour flash
-      try {
-        var p = JSON.parse(localStorage.getItem("policy") || "{}");
-        document.documentElement.dataset.mode = p.mode === "explore" ? "explore" : "exploit";
-      } catch (e) {}
-    </script>
     <Analytics />
   </head>
   <body>
-    <div class="relative z-10">
-      <slot />
-      <footer class="mx-auto max-w-6xl px-4 md:px-8 py-10 text-xs text-muted border-t border-grid mt-10">
-        <div class="flex flex-wrap justify-between gap-3">
-          <span>
-            <span class="text-text">$</span> exit <span class="text-muted/70">// {new Date().getFullYear()} · {profile.name}</span>
-          </span>
-          <span>
-            <a class="u" href="https://github.com/thanoojrao/portfolio">source</a>
-          </span>
-        </div>
-      </footer>
-    </div>
-    <script>
-      // scroll reveal for static sections
-      const els = document.querySelectorAll<HTMLElement>(".reveal");
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const e of entries) {
-            if (e.isIntersecting) {
-              e.target.classList.add("in");
-              io.unobserve(e.target);
-            }
-          }
-        },
-        { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
-      );
-      els.forEach((el) => io.observe(el));
-    </script>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-exploit focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-ink"
+      >Skip to content</a
+    >
+    <nav class="sticky top-0 z-20 bg-ink/85 backdrop-blur border-b border-grid/60">
+      <div class:list={["mx-auto px-5 h-14 flex items-center justify-between", container]}>
+        <a href="/" class="font-serif font-semibold text-[17px] text-text no-underline">{profile.name}</a>
+        <ul class="flex gap-6 text-sm text-muted">
+          <li class="hidden sm:block"><a class="hover:text-text" href="/#about">About</a></li>
+          <li class="hidden sm:block"><a class="hover:text-text" href="/#projects">Projects</a></li>
+          <li class="hidden sm:block"><a class="hover:text-text" href="/#essay">Essay</a></li>
+          <li><a class="text-text sm:text-muted hover:text-text" href="/#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+    <slot />
+    <footer class="border-t border-grid">
+      <div class:list={["mx-auto px-5 py-6 flex flex-wrap justify-between gap-3 font-mono text-xs text-muted", container]}>
+        <span>© {new Date().getFullYear()} {profile.name}</span>
+        <a class="hover:text-text" href="https://github.com/thanoojrao/portfolio">source</a>
+      </div>
+    </footer>
   </body>
 </html>

@@ -1,38 +1,20 @@
 ---
-import Section from "./Section.astro";
 import { profile } from "../data/site";
-
-const links = [
-  { k: "location", label: profile.location, href: null as string | null },
-  { k: "email", label: profile.email, href: `mailto:${profile.email}` as string | null },
-  { k: "github", label: "github.com/thanoojrao", href: profile.github },
-  { k: "linkedin", label: "linkedin.com/in/thanooj-lingampally", href: profile.linkedin },
-  ...(profile.resume ? [{ k: "resume", label: "resume.pdf", href: profile.resume }] : []),
-];
 ---
 
-<Section id="contact" cmd="ping" args="thanooj">
-  <p class="text-muted max-w-xl">
-    Open to conversations about production agents, evals, and anything with a robot in it. Reply time is usually within a
-    day.
+<section id="contact" class="measure pt-[72px] pb-24 border-t border-grid scroll-mt-14">
+  <h2 class="h2 !text-[34px]">Let's talk</h2>
+  <p class="max-w-[520px] mb-[26px] text-[17px]">
+    If you're building agents that have to work in production, or you just want to argue about evals, I'd like to hear
+    from you. I usually reply within a day.
   </p>
-  <ul class="mt-6 space-y-2 text-sm">
-    {
-      links.map((l) => (
-        <li class="flex flex-wrap gap-x-3">
-          <span class="text-muted w-20 shrink-0">{l.k}:</span>
-          {l.href ? (
-            <a class="u" href={l.href} target={l.href.startsWith("mailto") ? undefined : "_blank"} rel="noreferrer">
-              {l.label}
-            </a>
-          ) : (
-            <span class="text-text">{l.label}</span>
-          )}
-        </li>
-      ))
-    }
-  </ul>
-  <div class="mt-8 text-xs text-muted/70">
-    64 bytes from thanooj: icmp_seq=1 ttl=64 time=<span class="accent">0.9 ms</span>
+  <a
+    class="font-mono font-medium text-[17px] sm:text-[18px] text-text no-underline border-b border-exploit pb-0.5 break-all"
+    href={`mailto:${profile.email}`}>{profile.email}</a
+  >
+  <div class="mt-7 flex gap-5 text-sm text-muted">
+    {profile.resume && <a class="hover:text-text" href={profile.resume}>Résumé</a>}
+    <a class="hover:text-text" href={profile.github}>GitHub</a>
+    <a class="hover:text-text" href={profile.linkedin}>LinkedIn</a>
   </div>
-</Section>
+</section>
