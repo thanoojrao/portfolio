@@ -71,30 +71,13 @@ const description =
           the model learns to gather everything that matters about the match into <code class="font-mono text-[14px] text-text">[CLS]</code>: a "not", a date that doesn't line up, or the one
           clause that answers the exact question.
         </p>
-
-        <figure class="my-6 p-5 rounded-xl panel space-y-3 text-[15px]">
-          <figcaption class="label">Query: "Is water damage from a burst pipe covered?"</figcaption>
-          <div class="flex gap-3">
-            <span class="chip shrink-0 self-start">A</span>
-            <span>"Sudden water damage from burst pipes is covered up to the policy limit."</span>
-          </div>
-          <div class="flex gap-3">
-            <span class="chip amber shrink-0 self-start">B</span>
-            <span>"Water damage caused by flooding or groundwater is not covered."</span>
-          </div>
-          <p class="text-muted text-[14px]">
-            Both chunks are about water damage, so they land close together in embedding space. A cross-encoder reads
-            each one against the question and can tell that only A answers it.
-          </p>
-        </figure>
-
         <p>
           The catch: nothing can be computed ahead of time. Every query and document pair is a full forward pass. Run
           it over a million chunks and that's a million passes for one question. So a cross-encoder is a reranker, not
           a search engine.
         </p>
         <p>
-          Here's the difference on a few policy clauses. These are real scores from two small open models, one of
+          Here's the difference on a few kitchen tips. These are real scores from two small open models, one of
           each kind. You can also edit the query and run both models live in your browser.
         </p>
         <RerankDemo />

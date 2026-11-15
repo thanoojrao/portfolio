@@ -4,36 +4,36 @@
 // so they appear instantly. "Try your own" loads the models in the visitor's browser (about 45 MB, cached after
 // the first run) and scores whatever query and passages are in the boxes.
 const passages = [
-  "Water damage caused by flooding or groundwater is not covered.",
-  "Sudden water damage from burst pipes is covered up to the policy limit.",
-  "Slow leaks that happen over weeks, like a dripping pipe under a sink, are treated as maintenance.",
-  "Water damage claims must be reported within 30 days of the incident.",
-  "Damage from a burst pipe is excluded if the home was left unheated for more than 7 days.",
+  "Most pots and pans, including stainless steel, are dishwasher safe.",
+  "Cast iron should be washed by hand and dried right away so it doesn't rust.",
+  "Nonstick pans last longer if you avoid metal utensils and very high heat.",
+  "Never put a hot glass dish straight into cold water, since it can crack.",
+  "Wooden cutting boards warp and split if they soak or go through the dishwasher.",
 ];
 const examples = [
   {
-    label: "Slow leak",
-    query: "Does my policy pay for a pipe that leaked slowly for a month?",
-    answer: 2,
-    cos: [0.238, 0.596, 0.535, 0.41, 0.468],
-    ce: [-11.14, -4.52, -0.33, -10.6, -7.14],
-    note: "Embeddings pick the burst-pipe clause. It's about pipes and coverage, so it sits close to the query in vector space. The cross-encoder reads each clause against the question and picks the one about slow leaks.",
+    label: "Cast iron",
+    query: "Can I put my cast iron skillet in the dishwasher?",
+    answer: 1,
+    cos: [0.645, 0.563, 0.396, 0.342, 0.418],
+    ce: [-4.56, -1.5, -9.93, -9.96, -6.81],
+    note: "Embeddings pick the tip that says pans are dishwasher safe. It's about pans and dishwashers, so it sits closest to the question in vector space. The cross-encoder reads each tip against the question, notices it's about cast iron, and picks the right one.",
   },
   {
-    label: "Deadline",
-    query: "Is there a deadline for filing a water damage claim?",
-    answer: 3,
-    cos: [0.457, 0.536, 0.342, 0.762, 0.424],
-    ce: [-4.03, -5.86, -10.65, 5.75, -8.63],
-    note: "An easy one. Both get it right. Look at the green bars though: the cross-encoder is almost certain about one clause and near zero on the rest, while the similarity bars are all fairly close.",
+    label: "Cutting board",
+    query: "Is it ok to run my wooden chopping board through the dishwasher?",
+    answer: 4,
+    cos: [0.515, 0.303, 0.23, 0.309, 0.583],
+    ce: [-6.27, -10.83, -10.57, -10.73, 4.53],
+    note: "An easy one. Both get it right. Look at the bars though: the similarity scores for the top two are close, while the cross-encoder is almost certain about one tip and near zero on the rest.",
   },
   {
-    label: "Where it slips",
-    query: "How long do I have to tell the insurer about a leak?",
-    answer: 3,
-    cos: [0.235, 0.407, 0.426, 0.529, 0.375],
-    ce: [-11.2, -10.86, -2.78, -3.71, -7.37],
-    note: "Here the cross-encoder gets pulled toward the word \"leak\" and embeddings win. A reranker is better on average, not every time, which is why you test it on your own data before trusting it.",
+    label: "Where both miss",
+    query: "Which pans can't go in the dishwasher?",
+    answer: 1,
+    cos: [0.673, 0.304, 0.543, 0.402, 0.494],
+    ce: [4.34, -10.93, -4.37, -9.9, -3.79],
+    note: "Both pick \"most pots and pans are dishwasher safe\", the opposite of what was asked. The word \"can't\" barely moves either model here. A reranker is better on average, not every time, which is why you test it on your own data before trusting it.",
   },
 ];
 ---
@@ -152,8 +152,8 @@ const examples = [
       answer === null
         ? ""
         : i === answer
-          ? `<span class="text-exploit font-mono text-[12px]">✓ right clause</span><br/>`
-          : `<span class="text-fail font-mono text-[12px]">✗ wrong clause</span><br/>`;
+          ? `<span class="text-exploit font-mono text-[12px]">✓ right answer</span><br/>`
+          : `<span class="text-fail font-mono text-[12px]">✗ wrong answer</span><br/>`;
     el.innerHTML = `${mark}<span class="text-text">${esc(text)}</span>`;
   }
 
