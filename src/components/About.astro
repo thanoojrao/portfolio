@@ -2,16 +2,25 @@
 import { brief, experience } from "../data/site";
 // the first three entries show; the rest sit behind "Show more"
 const shown = 3;
+// keyed by role, since one org (UB) has two entries
 const short: Record<string, string> = {
-  Dottr: "Agent loop, honesty guard, eval harness, signature-field detection, AWS.",
-  "University at Buffalo": "Reinforcement learning, ML, NLP, computer vision.",
-  "Tata Consultancy Services": "RAG claims pre-audit tool for insurers, used by 10K+ people.",
-  Counselit: "Node/Express APIs and React interfaces for client pilots.",
-  "NIT Durgapur": "Robocell, the robotics club.",
+  "Founding AI Engineer": "First engineer. Agent loop, honesty guard, eval harness, signature detection, AWS. Led engineering until our CTO joined; ran 2 technical hires.",
+  "Graduate Teaching Assistant": "CSE 474/574, Introduction to Machine Learning.",
+  "MS Computer Science, Artificial Intelligence": "Reinforcement learning, ML, NLP, computer vision.",
+  "ML Engineer": "RAG claims pre-audit tool for insurers, used by 10K+ people. Joined in the final year of my BTech.",
+  "Software Engineering Intern": "Node/Express APIs and React interfaces for client pilots.",
+  BTech: "Robocell, the robotics club.",
 };
 // newest first, work and school interleaved by start date
-const order = ["Dottr", "University at Buffalo", "Tata Consultancy Services", "Counselit", "NIT Durgapur"];
-const timeline = order.map((o) => experience.find((e) => e.org === o)!).filter(Boolean);
+const order = [
+  "Founding AI Engineer",
+  "Graduate Teaching Assistant",
+  "MS Computer Science, Artificial Intelligence",
+  "ML Engineer",
+  "Software Engineering Intern",
+  "BTech",
+];
+const timeline = order.map((r) => experience.find((e) => e.role === r)!).filter(Boolean);
 ---
 
 <section id="about" class="measure py-14 border-t border-grid scroll-mt-14">
@@ -58,10 +67,10 @@ const timeline = order.map((o) => experience.find((e) => e.org === o)!).filter(B
     {
       timeline.map((e, i) => (
         <li class:list={["grid-cols-1 sm:grid-cols-[150px_1fr] gap-x-5 gap-y-0.5 py-3.5", i < shown ? "grid" : "hidden extra"]}>
-          <div class="font-mono text-[13px] leading-[1.9] text-muted">{e.period.replace(" — ", " – ").replace("present", "now")}</div>
+          <div class="font-mono text-[13px] leading-[1.9] text-muted">{e.period.replace("present", "now")}</div>
           <div class="text-text font-medium">
             {e.role} · {e.org}
-            <small class="block font-normal text-sm leading-relaxed text-muted mt-0.5">{short[e.org] ?? e.lines[0]}</small>
+            <small class="block font-normal text-sm leading-relaxed text-muted mt-0.5">{short[e.role] ?? e.lines[0]}</small>
           </div>
         </li>
       ))

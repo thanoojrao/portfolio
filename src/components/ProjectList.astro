@@ -1,5 +1,5 @@
 ---
-import { projects, alsoPulled } from "../data/site";
+import { projects, alsoPulled, moreFromDottr } from "../data/site";
 const tracks = [
   { id: "work", label: "Work", hint: "Shipped and in production." },
   { id: "experiment", label: "Experiments", hint: "Things I am still exploring: RL, robotics, pipelines built to learn." },
@@ -40,7 +40,7 @@ const tracks = [
                     <h3 class="text-[17px] font-medium leading-snug text-text group-hover:text-white">{p.title}</h3>
                     <span class="font-mono text-xs text-muted whitespace-nowrap">
                       {p.org === "Tata Consultancy Services" ? "TCS" : p.org === "University at Buffalo" ? "UB" : p.org} ·{" "}
-                      {p.period.replace(" — present", "").replace("Spring ", "")}
+                      {p.period.replace(" to present", "").replace("Spring ", "")}
                     </span>
                   </div>
                   <p class="mt-1.5 mb-2.5 text-[15px] leading-relaxed">{p.card}</p>
@@ -56,6 +56,18 @@ const tracks = [
               </li>
             ))}
         </ul>
+        {t.id === "work" && (
+          <div class="mt-4 pt-4 border-t border-dashed border-grid">
+            <h3 class="mb-2 font-mono text-xs font-medium tracking-wider uppercase text-exploit">More from Dottr</h3>
+            <ul class="space-y-2.5">
+              {moreFromDottr.map((m) => (
+                <li class="text-[15px] leading-relaxed">
+                  <span class="text-text font-medium">{m.title}.</span> {m.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     ))
   }

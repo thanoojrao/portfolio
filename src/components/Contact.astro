@@ -2,18 +2,18 @@
 import { profile } from "../data/site";
 ---
 
-<section id="contact" class="measure pt-[72px] pb-24 border-t border-grid scroll-mt-14">
+<section id="contact" class="measure pt-[72px] pb-14 border-t border-grid scroll-mt-14">
   <h2 class="h2 !text-[34px]">Let's talk</h2>
   <p class="max-w-[520px] mb-[26px] text-[17px]">
-    If you're building agents that have to work in production, or you just want to argue about evals, I'd like to hear
-    from you. I usually reply within a day.
+    I'm looking for my next role building AI agents or backend systems that have to work in production. If you're hiring
+    for that, or just want to argue about evals, email me. I usually reply within a day.
   </p>
   <a
     class="font-mono font-medium text-[17px] sm:text-[18px] text-text no-underline border-b border-exploit pb-0.5 break-all"
     href={`mailto:${profile.email}`}>{profile.email}</a
   >
   <div class="mt-7 flex gap-5 text-sm text-muted">
-    {profile.resume && <a class="hover:text-text" href={profile.resume}>Résumé</a>}
+    {profile.resume && <a class="hover:text-text" href={profile.resume}>Resume (PDF)</a>}
     <a class="hover:text-text" href={profile.github}>GitHub</a>
     <a class="hover:text-text" href={profile.linkedin}>LinkedIn</a>
   </div>
