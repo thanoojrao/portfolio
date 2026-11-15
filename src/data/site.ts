@@ -348,6 +348,36 @@ export const projects: Project[] = [
       },
     ],
   },
+  {
+    slug: "warehouse-rl",
+    seoTitle: "Warehouse robot RL environment: Q-learning vs SARSA",
+    metaDescription: "A grid-world warehouse environment built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA.",
+    title: "A warehouse robot environment, solved with Q-learning and SARSA",
+    org: "University at Buffalo",
+    period: "Spring 2025",
+    summary:
+      "A 2D grid world I designed from scratch: a robot picks up objects and delivers them around obstacles, in deterministic and stochastic versions, then tabular RL learns to do it.",
+    track: "experiment",
+    card: "A grid world I designed from scratch, deterministic and stochastic, where tabular RL learns pickup and delivery.",
+    chips: ["RL from scratch"],
+    tags: ["RL", "Gymnasium", "Q-learning", "SARSA"],
+    links: [{ label: "github", href: "https://github.com/thanoojrao/rl_environment" }],
+    sections: [
+      {
+        heading: "What it is",
+        body: [
+          "Building the environment, not just the agent: observation and action spaces, reward shaping for pickup and delivery, obstacles, and a stochastic variant where actions sometimes slip.",
+          "Q-learning and SARSA with a sweep over discount factor and epsilon decay, so the difference between the two algorithms shows up in the plots rather than being asserted. A bonus multi-pickup version reaches about 215 average reward over a thousand episodes.",
+        ],
+      },
+      {
+        heading: "What it taught me",
+        body: [
+          "Watching epsilon decay change what the agent found was the first time the trade-off between exploring and exploiting felt like a real decision rather than a formula.",
+        ],
+      },
+    ],
+  },
 ];
 
 /** more shipped work at Dottr, one line each under the work cards */
@@ -383,11 +413,6 @@ export const publications: { authorship: string; title: string; venue: string; n
 
 /** smaller things, listed in one line each under the cards */
 export const alsoPulled: { title: string; note: string; href?: string }[] = [
-  {
-    title: "Warehouse robot RL environment",
-    note: "a grid world built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA",
-    href: "https://github.com/thanoojrao/rl_environment",
-  },
   {
     title: "NYC taxi demand pipeline",
     note: "the course template the Citi Bike project was adapted from; hourly demand, same stack, a map of predictions by zone",
