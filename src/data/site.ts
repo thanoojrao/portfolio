@@ -22,7 +22,7 @@ export const profile = {
 /** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
 export const brief = {
   paragraphs: [
-    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude-on-Bedrock agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. Before our CTO joined I also helped hire the team, and I sit in customer meetings, which is where the best features came from.",
+    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. Before our CTO joined I also helped hire the team, and I sit in customer meetings, which is where the best features came from.",
     "Before that I spent almost two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used. I then did an MS in AI at the University at Buffalo, where I was a teaching assistant for Introduction to Machine Learning (CSE 474/574) and spent my spare cycles on reinforcement learning and robotics.",
   ],
   stats: [
@@ -69,7 +69,7 @@ export const experience: Experience[] = [
     kind: "work",
     lines: [
       "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product in production with paying customers, across several deployed services on AWS.",
-      "The Claude-on-Bedrock agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
+      "The Claude agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
       "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
       "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, Claude selects, with the eval set built before the model.",
       "Company-specific contract review, an end-to-end audit of the e-signing pipeline, multilingual document ingestion, log-fingerprinted alert triage, and an AWS cost audit.",
@@ -146,13 +146,13 @@ export const projects: Project[] = [
   {
     slug: "dottr-agent",
     seoTitle: "Production Claude agent: honesty guard, evals, streaming",
-    metaDescription: "The Claude-on-Bedrock agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
+    metaDescription: "The Claude agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
     title: "An agent that has to be honest about what it did",
     org: "Dottr",
     period: "2026 to present",
     demo: "honesty-guard",
     summary:
-      "The Claude-on-Bedrock agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
+      "The Claude agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     track: "work",
     card: "The Claude agent behind Dottr's chat and email: 40+ tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
     chips: ["in production", "40+ tools", "TTFT 23s → <2s"],
