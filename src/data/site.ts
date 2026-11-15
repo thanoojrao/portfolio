@@ -9,7 +9,7 @@ export const profile = {
   seoTitle: "Thanooj Lingampally · Founding AI Engineer, LLM Agents · New York",
   /** the one sentence under the name: the core message of the site */
   pitch:
-    "I'm the first engineer at Dottr. I built the Claude agent that runs its product in production for paying customers: 40+ tools, a guard that checks every action it claims, and replies that start in under 2 seconds instead of 23.",
+    "I'm the first engineer at Dottr. I built the AI agent that runs its product in production for paying customers: 40+ tools, a guard that checks every action it claims, and replies that start in under 2 seconds instead of 23.",
   /** the small status line under the role: what I am looking for */
   status: "Open to AI, LLM agent and backend engineering roles. Open to relocating, San Francisco preferred.",
   location: "New York",
@@ -22,7 +22,7 @@ export const profile = {
 /** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
 export const brief = {
   paragraphs: [
-    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude-on-Bedrock agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. I led engineering until our CTO joined, ran the hiring for our two technical hires, and sit in customer meetings, which is where the best features came from.",
+    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the AI agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. I also sit in customer meetings, which is where the best features came from.",
     "Before that I spent almost two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used. I then did an MS in AI at the University at Buffalo, where I was a teaching assistant for Introduction to Machine Learning (CSE 474/574) and spent my spare cycles on reinforcement learning and robotics.",
   ],
   stats: [
@@ -35,17 +35,16 @@ export const brief = {
     // agent and backend stack first, frontend last
     "Python",
     "FastAPI",
-    "Claude / Amazon Bedrock",
+    "Claude / Amazon Bedrock (Anthropic SDK)",
     "LLM agents and tool calling",
     "Evals",
     "Prompt caching",
     "RAG (LangChain, LangGraph)",
     "PyTorch",
-    "ONNX",
     "MLflow",
     "Postgres + pgvector",
     "DynamoDB",
-    "AWS (ECS Fargate, SQS, S3)",
+    "AWS (ECS Fargate, Lambda, SQS, S3, SES)",
     "Terraform",
     "GitHub Actions",
     "Docker",
@@ -69,10 +68,9 @@ export const experience: Experience[] = [
     kind: "work",
     lines: [
       "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product in production with paying customers, across several deployed services on AWS.",
-      "Led engineering until our CTO joined, ran the hiring for our two technical hires, mentored the team, and sit in customer meetings.",
-      "The Claude-on-Bedrock agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
+      "The AI agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
       "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
-      "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, Claude selects, with the eval set built before the model.",
+      "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, an LLM selects, with the eval set built before the model.",
       "Company-specific contract review, an end-to-end audit of the e-signing pipeline, multilingual document ingestion, log-fingerprinted alert triage, and an AWS cost audit.",
     ],
   },
@@ -146,16 +144,16 @@ export type Project = {
 export const projects: Project[] = [
   {
     slug: "dottr-agent",
-    seoTitle: "Production Claude agent: honesty guard, evals, streaming",
-    metaDescription: "The Claude-on-Bedrock agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
+    seoTitle: "Production AI agent: honesty guard, evals, streaming",
+    metaDescription: "The AI agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
     title: "An agent that has to be honest about what it did",
     org: "Dottr",
     period: "2026 to present",
     demo: "honesty-guard",
     summary:
-      "The Claude-on-Bedrock agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
+      "The AI agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     track: "work",
-    card: "The Claude agent behind Dottr's chat and email: 40+ tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
+    card: "The AI agent behind Dottr's chat and email: 40+ tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
     chips: ["in production", "40+ tools", "TTFT 23s → <2s"],
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
@@ -196,15 +194,15 @@ export const projects: Project[] = [
   },
   {
     slug: "signature-field-detection",
-    seoTitle: "Signature-field detection: ONNX detector plus Claude",
-    metaDescription: "A small quantised detector proposes signature fields and Claude selects them, measured on a human-reviewed eval set of 793 documents and 6,567 boxes.",
-    title: "Finding where to sign: a detector proposes, Claude selects",
+    seoTitle: "Signature-field detection: ONNX detector plus an LLM",
+    metaDescription: "A small quantised detector proposes signature fields and an LLM selects them, measured on a human-reviewed eval set of 793 documents and 6,567 boxes.",
+    title: "Finding where to sign: a detector proposes, an LLM selects",
     org: "Dottr",
     period: "2026",
     summary:
-      "Signature-field detection as a propose-then-select pipeline: a small quantised object detector finds candidates cheaply, and Claude picks the right ones using the document's text. The eval set was built before the model, and it paid for itself on day one.",
+      "Signature-field detection as a propose-then-select pipeline: a small quantised object detector finds candidates cheaply, and an LLM picks the right ones using the document's text. The eval set was built before the model, and it paid for itself on day one.",
     track: "work",
-    card: "A small quantised detector finds candidate signature fields cheaply; Claude picks the right ones from the document's text. The eval set came before the model.",
+    card: "A small quantised detector finds candidate signature fields cheaply; an LLM picks the right ones from the document's text. The eval set came before the model.",
     chips: ["in production", "793 docs · 6,567 boxes"],
     tags: ["ONNX", "object detection", "Claude", "evals", "computer vision"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
@@ -219,7 +217,7 @@ export const projects: Project[] = [
         heading: "How it is built",
         body: [
           "Propose: a small int8-quantised object detector, 37 MB as ONNX (down from 774 MB in PyTorch), runs on CPU at ingest with no model call and returns candidate boxes.",
-          "Select: only when someone actually intends to sign or send, Claude sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
+          "Select: only when someone actually intends to sign or send, the LLM sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
           "Measure first: a human-reviewed evaluation set of 793 documents and 6,567 boxes existed before the pipeline did. It exposed a coordinate-transform bug that had put 30% of candidates off the page, the kind of thing nobody spots by eyeballing outputs. On that set the detector reaches 86.4% recall at confidence 0.3 and 92.8% at 0.1.",
           "Every alternative got the same treatment: document parsers, detection vendors and placement models were benchmarked head to head on the same set before any of them was adopted. Docling and Reducto parsed most of our documents about equally well, so we chose Docling for its lower median latency, 2.2s vs 3.4s.",
         ],
