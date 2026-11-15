@@ -9,7 +9,7 @@ export const profile = {
   seoTitle: "Thanooj Lingampally · Founding AI Engineer, LLM Agents · New York",
   /** the one sentence under the name: the core message of the site */
   pitch:
-    "I'm the first engineer at Dottr. I built the AI agent that runs its product in production for paying customers: 40+ tools, a guard that checks every action it claims, and replies that start in under 2 seconds instead of 23.",
+    "I'm the first engineer at Dottr, where companies draft, review and sign contracts by chatting with an AI agent. I built that agent: it reviews each contract against the customer's own playbook, replies in under 2 seconds instead of 23, and can't send anything without the user's confirm.",
   /** the small status line under the role: what I am looking for */
   status: "Open to AI, LLM agent and backend engineering roles. Open to relocating, San Francisco preferred.",
   location: "New York",
@@ -22,12 +22,12 @@ export const profile = {
 /** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
 export const brief = {
   paragraphs: [
-    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the AI agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. I also sit in customer meetings, which is where the best features came from.",
+    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. Customers use it to draft, review and send contracts by chatting with an AI agent, and I designed and built that agent along with the Python backend and AWS infrastructure under it. I sit in customer meetings, which is where the best feature came from: review that runs each company's own playbook on every contract they upload.",
     "Before that I spent almost two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used. I then did an MS in AI at the University at Buffalo, where I was a teaching assistant for Introduction to Machine Learning (CSE 474/574) and spent my spare cycles on reinforcement learning and robotics.",
   ],
   stats: [
     { value: "23s → <2s", label: "time to first token on the production agent", slug: "dottr-agent" },
-    { value: "40+ tools", label: "in the production agent, every claimed action backed by a receipt", slug: "dottr-agent" },
+    { value: "40+ tools", label: "in the production agent customers use to draft, review and send contracts", slug: "dottr-agent" },
     { value: "10K+ users", label: "on the RAG claims pre-audit tool I built at TCS", slug: "tcs-rag-platform" },
   ],
   /** one line for the recruiter keyword skim; the full list lives on the résumé */
@@ -68,10 +68,11 @@ export const experience: Experience[] = [
     kind: "work",
     lines: [
       "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product in production with paying customers, across several deployed services on AWS.",
-      "The AI agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
+      "Company-specific contract review: customers capture their own playbook, and every upload is reviewed against it with flags that cite their source. It replaced one customer's Excel checklist and spread across their team.",
+      "The AI agent customers use to draft, review and send contracts over chat and email: 40+ tools, nothing irreversible without the user's confirm on a specific plan, an honesty guard as a backstop, and an eval harness that replays real flows against every prompt and model change.",
       "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
       "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, an LLM selects, with the eval set built before the model.",
-      "Company-specific contract review, an end-to-end audit of the e-signing pipeline, multilingual document ingestion, log-fingerprinted alert triage, and an AWS cost audit.",
+      "An end-to-end audit of the e-signing pipeline, multilingual document ingestion, log-fingerprinted alert triage, and an AWS cost audit.",
     ],
   },
   {
@@ -146,14 +147,14 @@ export const projects: Project[] = [
     slug: "dottr-agent",
     seoTitle: "Production AI agent: honesty guard, evals, streaming",
     metaDescription: "The AI agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
-    title: "An agent that has to be honest about what it did",
+    title: "An agent customers can trust with a send button",
     org: "Dottr",
     period: "2026 to present",
     demo: "honesty-guard",
     summary:
-      "The AI agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
+      "The AI agent Dottr's customers use to draft, review and send contracts: 40+ tools, plan-bound confirms with an honesty guard as backstop, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     track: "work",
-    card: "The AI agent behind Dottr's chat and email: 40+ tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
+    card: "The AI agent Dottr's customers use to draft, review and send contracts: 40+ tools, replies in under 2 seconds, and nothing sent without the user's confirm.",
     chips: ["in production", "40+ tools", "TTFT 23s → <2s"],
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
@@ -168,7 +169,7 @@ export const projects: Project[] = [
         heading: "How it is built",
         body: [
           "Tool calling across 40+ tools, with context assembled to keep the prompt cache warm so long conversations stay fast and cheap.",
-          "A layered honesty guard: before the user sees a claim like 'sent to the counterparty', the claim is checked against records the system actually owns. If the check fails, the claim is retracted.",
+          "An honesty guard: before the user sees a claim like 'sent to the counterparty', the claim is checked against records the system actually owns. If the check fails, the claim is retracted.",
           "An eval harness of about 150 cases across 8 behaviours, from tool selection to approval routing, many taken verbatim from production messages. Every pull request runs the critical cases three times against the real model with deterministic checks, and the full set runs nightly, so a regression in planning or tool use fails a build instead of reaching an inbox.",
           "Streaming with concurrent auditing: the reply starts immediately while the guard runs alongside it. Time to first token went from tens of seconds to under two, without giving up the guarantee.",
         ],
