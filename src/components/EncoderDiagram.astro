@@ -78,7 +78,7 @@ const vec = [0, 1, 2, 3, 4, 5];
         </defs>
         <g font-family="var(--font-mono)" font-size="11" text-anchor="middle">
           <!-- CLS vector -> linear head -> one number -->
-          <rect x={cx(0) - 4} y="6" width="66" height="28" rx="6" fill="rgb(61 220 132 / .12)" stroke="var(--color-exploit)" stroke-width="1.5"></rect>
+          <rect x={cx(0) - 4} y="6" width="66" height="28" rx="6" style="fill: rgb(var(--accent-rgb) / .12)" stroke="var(--color-exploit)" stroke-width="1.5"></rect>
           <text x={cx(0) + 29} y="25" fill="var(--color-exploit)" font-size="13">0.18</text>
           <text x={cx(0) + 72} y="24" fill="var(--color-muted)" font-size="10" text-anchor="start">relevance score</text>
           <line x1={cx(0)} y1="56" x2={cx(0)} y2="38" stroke="var(--color-exploit)" stroke-width="1.5" marker-end="url(#ah-g)"></line>
@@ -119,7 +119,7 @@ const vec = [0, 1, 2, 3, 4, 5];
                   width={tw}
                   height="28"
                   rx="5"
-                  fill={tok.kind === "cls" ? "rgb(61 220 132 / .15)" : "none"}
+                  style={tok.kind === "cls" ? "fill: rgb(var(--accent-rgb) / .15)" : "fill: none"}
                   stroke={tok.kind === "cls" ? "var(--color-exploit)" : "var(--color-grid)"}
                 ></rect>
                 <text

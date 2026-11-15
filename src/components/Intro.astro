@@ -18,7 +18,7 @@ import { profile } from "../data/site";
     <p class="mt-5 md:mt-6 text-[17px] sm:text-[19px] md:text-[22px] leading-[1.5] text-text max-w-[560px]">{profile.pitch}</p>
     <div class="mt-7 md:mt-9 flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
       <a
-        class="inline-flex items-center gap-2 rounded-lg bg-exploit text-[#06120b] font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
+        class="inline-flex items-center gap-2 rounded-lg bg-exploit text-on-accent font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
         href={`mailto:${profile.email}`}>Email me <span aria-hidden="true">→</span></a
       >
       {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Resume (PDF)</a>}
@@ -41,12 +41,13 @@ import { profile } from "../data/site";
   const c = document.getElementById("portrait") as HTMLCanvasElement | null;
   const ctx = c?.getContext("2d");
   if (c && ctx) {
+    const rgb = getComputedStyle(document.documentElement).getPropertyValue("--accent-rgb").trim().split(/\s+/).join(",") || "61,220,132";
     const sx = c.width / cols, sy = c.height / rows;
     for (let r = 0; r < rows; r++)
       for (let q = 0; q < cols; q++) {
         const t = v[r * cols + q] / 99;
         if (!t) continue;
-        ctx.fillStyle = `rgba(61,220,132,${0.15 + 0.85 * t})`;
+        ctx.fillStyle = `rgba(${rgb},${0.15 + 0.85 * t})`;
         ctx.beginPath();
         ctx.arc(q * sx + sx / 2, r * sy + sy / 2, Math.max(0.4, t * sx * 0.48), 0, Math.PI * 2);
         ctx.fill();

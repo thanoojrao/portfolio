@@ -49,11 +49,11 @@ import { essay } from "../data/site";
     const pt = (k: number) => [(k / (n - 1)) * W, H - 6 - (prob[k] / max) * (H - 16)];
     const d = "M" + prob.map((_, k) => pt(k).join(",")).join(" L");
     const [x37] = pt(37);
-    svg.innerHTML = `<line x1="0" y1="${H - 6}" x2="${W}" y2="${H - 6}" stroke="#1c2420"/>
-      <line x1="${x37}" y1="6" x2="${x37}" y2="${H - 6}" stroke="#2c3530" stroke-dasharray="3 4"/>
-      <text x="${x37 + 6}" y="16" fill="#7c857e" font-family="JetBrains Mono" font-size="11">37%</text>
-      <path d="${d}" fill="none" stroke="#f5b942" stroke-width="2" vector-effect="non-scaling-stroke"/>
-      <circle id="sec-dot" r="5" fill="#f5b942"/>`;
+    svg.innerHTML = `<line x1="0" y1="${H - 6}" x2="${W}" y2="${H - 6}" style="stroke:var(--color-grid)"/>
+      <line x1="${x37}" y1="6" x2="${x37}" y2="${H - 6}" style="stroke:var(--color-line-2)" stroke-dasharray="3 4"/>
+      <text x="${x37 + 6}" y="16" style="fill:var(--color-muted)" font-family="JetBrains Mono" font-size="11">37%</text>
+      <path d="${d}" fill="none" style="stroke:var(--color-explore)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <circle id="sec-dot" r="5" style="fill:var(--color-explore)"/>`;
     const dot = document.getElementById("sec-dot")!;
     const kv = document.getElementById("sec-kv")!;
     const pv = document.getElementById("sec-pv")!;

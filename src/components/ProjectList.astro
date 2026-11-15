@@ -37,7 +37,7 @@ const tracks = [
               <li>
                 <a href={`/projects/${p.slug}/`} class="group block no-underline rounded-[10px] p-[18px] -mx-[18px] hover:bg-panel transition-colors">
                   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-0.5 sm:gap-4">
-                    <h3 class="text-[17px] font-medium leading-snug text-text group-hover:text-white">{p.title}</h3>
+                    <h3 class="text-[17px] font-medium leading-snug text-text group-hover:text-strong">{p.title}</h3>
                     <span class="font-mono text-xs text-muted whitespace-nowrap">
                       {p.org === "Tata Consultancy Services" ? "TCS" : p.org === "University at Buffalo" ? "UB" : p.org} ·{" "}
                       {p.period.replace(" to present", "").replace("Spring ", "")}
@@ -87,8 +87,8 @@ const tracks = [
 
 <style>
   .ptab[aria-selected="true"] { color: var(--color-text); background: var(--color-panel); }
-  .ptab[data-track="work"][aria-selected="true"] { border-color: rgb(61 220 132 / 0.45); }
-  .ptab[data-track="experiment"][aria-selected="true"] { border-color: rgb(245 185 66 / 0.45); }
+  .ptab[data-track="work"][aria-selected="true"] { border-color: rgb(var(--accent-rgb) / 0.45); }
+  .ptab[data-track="experiment"][aria-selected="true"] { border-color: rgb(var(--explore-rgb) / 0.45); }
 </style>
 
 <script>
