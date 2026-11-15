@@ -18,7 +18,7 @@ import { profile } from "../data/site";
     <p class="mt-5 md:mt-6 text-[17px] sm:text-[19px] md:text-[22px] leading-[1.5] text-text max-w-[560px]">{profile.pitch}</p>
     <div class="mt-7 md:mt-9 flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
       <a
-        class="inline-flex items-center gap-2 rounded-lg bg-exploit text-[#06120b] font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
+        class="inline-flex items-center gap-2 rounded-lg bg-exploit text-on-accent font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
         href={`mailto:${profile.email}`}>Email me <span aria-hidden="true">→</span></a
       >
       {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Resume (PDF)</a>}
@@ -27,7 +27,7 @@ import { profile } from "../data/site";
     </div>
   </div>
   <div
-    class="hidden sm:block w-24 h-[126px] sm:w-[170px] sm:h-[223px] md:w-[290px] md:h-[381px] rounded-xl md:rounded-2xl overflow-hidden panel"
+    class="hidden sm:block w-24 h-[126px] sm:w-[170px] sm:h-[223px] md:w-[290px] md:h-[381px] rounded-xl md:rounded-2xl overflow-hidden border border-[#1c2420] bg-[#10151a]"
     aria-hidden="true"
   >
     <canvas id="portrait" width="580" height="762" class="block w-full h-full"></canvas>
@@ -35,7 +35,7 @@ import { profile } from "../data/site";
 </header>
 
 <script>
-  // the lattice portrait, drawn once: no image ships, only a brightness grid
+  // the lattice portrait (always on its dark card, in light mode too), drawn once: no image ships, only a brightness grid
   import data from "../data/portrait.json";
   const { cols, rows, v } = data as { cols: number; rows: number; v: number[] };
   const c = document.getElementById("portrait") as HTMLCanvasElement | null;
