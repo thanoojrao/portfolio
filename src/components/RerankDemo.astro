@@ -1,0 +1,301 @@
+---
+// Embedding similarity vs cross-encoder relevance on the same passages.
+// The three examples show real scores, computed offline with the same two models (q8 ONNX, transformers.js 3.5.1),
+// so they appear instantly. "Try your own" loads the models in the visitor's browser (about 45 MB, cached after
+// the first run) and scores whatever query and passages are in the boxes.
+const passages = [
+  "Most pots and pans, including stainless steel, are dishwasher safe.",
+  "Cast iron should be washed by hand and dried right away so it doesn't rust.",
+  "Nonstick pans last longer if you avoid metal utensils and very high heat.",
+  "Never put a hot glass dish straight into cold water, since it can crack.",
+  "Wooden cutting boards warp and split if they soak or go through the dishwasher.",
+];
+const examples = [
+  {
+    label: "Cast iron",
+    query: "Can I put my cast iron skillet in the dishwasher?",
+    answer: 1,
+    cos: [0.645, 0.563, 0.396, 0.342, 0.418],
+    ce: [-4.56, -1.5, -9.93, -9.96, -6.81],
+    note: "Embeddings pick the tip that says pans are dishwasher safe. It's about pans and dishwashers, so it sits closest to the question in vector space. The cross-encoder reads each tip against the question, notices it's about cast iron, and picks the right one.",
+  },
+  {
+    label: "Cutting board",
+    query: "Is it ok to run my wooden chopping board through the dishwasher?",
+    answer: 4,
+    cos: [0.515, 0.303, 0.23, 0.309, 0.583],
+    ce: [-6.27, -10.83, -10.57, -10.73, 4.53],
+    note: "An easy one. Both get it right. Look at the bars though: the similarity scores for the top two are close, while the cross-encoder is almost certain about one tip and near zero on the rest.",
+  },
+  {
+    label: "Where both miss",
+    query: "Which pans can't go in the dishwasher?",
+    answer: 1,
+    cos: [0.673, 0.304, 0.543, 0.402, 0.494],
+    ce: [4.34, -10.93, -4.37, -9.9, -3.79],
+    note: "Both pick \"most pots and pans are dishwasher safe\", the opposite of what was asked. The word \"can't\" barely moves either model here. A reranker is better on average, not every time, which is why you test it on your own data before trusting it.",
+  },
+];
+---
+
+<figure id="rr" class="my-6 p-5 rounded-xl panel text-[15px]">
+  <div class="flex justify-between items-baseline gap-3">
+    <figcaption class="text-text font-medium">Same question, two models</figcaption>
+    <span class="label">real scores</span>
+  </div>
+
+  <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Examples">
+    {
+      examples.map((ex, i) => (
+        <button
+          type="button"
+          data-ex={i}
+          class="rr-ex font-mono text-[12px] px-2.5 py-1 rounded-md border border-grid text-muted hover:text-text"
+        >
+          {ex.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="mt-5 label">Question</p>
+  <p id="rr-query" class="mt-1.5 font-serif text-text text-[19px] leading-snug"></p>
+
+  <div class="mt-5 grid gap-3 sm:grid-cols-2">
+    <div class="p-3.5 rounded-lg bg-ink border border-grid">
+      <p class="label"><span class="text-explore">■</span> Embedding search picks</p>
+      <p id="rr-pick-bi" class="mt-2 text-[14px]"></p>
+    </div>
+    <div class="p-3.5 rounded-lg bg-ink border border-grid">
+      <p class="label"><span class="text-exploit">■</span> Cross-encoder picks</p>
+      <p id="rr-pick-ce" class="mt-2 text-[14px]"></p>
+    </div>
+  </div>
+
+  <p id="rr-note" class="mt-4 text-[14px]"></p>
+
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+    <p id="rr-stage" class="label"></p>
+    <button
+      id="rr-toggle"
+      type="button"
+      class="rounded-lg border border-exploit text-exploit font-medium text-[14px] px-3.5 py-1.5 hover:bg-exploit hover:text-[#06120b]"
+    ></button>
+  </div>
+  <ol id="rr-list" class="mt-2 relative"></ol>
+
+  <p class="mt-3 text-[12px] text-muted leading-relaxed">
+    <span class="text-explore">Amber</span>: cosine similarity between the two separate vectors (all-MiniLM-L6-v2).{" "}
+    <span class="text-exploit">Green</span>: the cross-encoder's score for the pair, read together and squashed to 0 to 100%
+    (ms-marco-MiniLM-L-6-v2).
+  </p>
+
+  <details id="rr-own" class="mt-5 pt-4 border-t border-grid">
+    <summary class="cursor-pointer select-none text-text font-medium">Try your own</summary>
+    <p class="mt-2 text-[13px] text-muted">
+      Runs both models in your browser. The first run downloads about 45 MB, then it's cached.
+    </p>
+    <label class="block mt-3 label" for="rr-q">Question</label>
+    <input
+      id="rr-q"
+      class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text focus:outline-none focus:border-muted"
+    />
+    <label class="block mt-3 label" for="rr-p">Passages, one per line</label>
+    <textarea
+      id="rr-p"
+      rows="6"
+      class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text leading-relaxed focus:outline-none focus:border-muted"
+      >{passages.join("\n")}</textarea
+    >
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <button
+        id="rr-run"
+        type="button"
+        class="rounded-lg bg-exploit text-[#06120b] font-medium px-4 py-2 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
+        >Rank them</button
+      >
+      <span id="rr-status" class="font-mono text-[12px] text-muted" aria-live="polite"></span>
+    </div>
+  </details>
+</figure>
+
+<script define:vars={{ examples, passages }}>
+  window.__rr = { examples, passages };
+</script>
+
+<script>
+  type Example = { label: string; query: string; answer: number; cos: number[]; ce: number[]; note: string };
+  const { examples, passages } = (window as any).__rr as { examples: Example[]; passages: string[] };
+
+  const CDN = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1";
+  const $ = (id: string) => document.getElementById(id)!;
+  const qEl = $("rr-q") as HTMLInputElement;
+  const pEl = $("rr-p") as HTMLTextAreaElement;
+  const run = $("rr-run") as HTMLButtonElement;
+  const status = $("rr-status");
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".rr-ex")];
+
+  const esc = (s: string) =>
+    s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
+  const argmax = (a: number[]) => a.reduce((best, v, i) => (v > a[best] ? i : best), 0);
+
+  function bar(value: number, text: string, color: string) {
+    const w = Math.max(0, Math.min(1, value)) * 100;
+    return `<div class="flex items-center gap-2.5">
+      <div class="flex-1 h-1.5 rounded-full bg-grid overflow-hidden"><div class="h-full rounded-full ${color}" style="width:${w.toFixed(1)}%"></div></div>
+      <span class="font-mono text-[11px] text-muted w-10 text-right">${text}</span></div>`;
+  }
+
+  function pick(el: HTMLElement, text: string, answer: number | null, i: number) {
+    const mark =
+      answer === null
+        ? ""
+        : i === answer
+          ? `<span class="text-exploit font-mono text-[12px]">✓ right answer</span><br/>`
+          : `<span class="text-fail font-mono text-[12px]">✗ wrong answer</span><br/>`;
+    el.innerHTML = `${mark}<span class="text-text">${esc(text)}</span>`;
+  }
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const list = $("rr-list");
+  const toggle = $("rr-toggle") as HTMLButtonElement;
+  const stage = $("rr-stage");
+  let biOrder: number[] = [];
+  let ceOrder: number[] = [];
+  let reranked = false;
+
+  const orderBy = (a: number[]) => a.map((_, i) => i).sort((x, y) => a[y] - a[x]);
+
+  function show(query: string, docs: string[], cos: number[], logits: number[], answer: number | null, note: string) {
+    const rel = logits.map(sigmoid);
+    biOrder = orderBy(cos);
+    ceOrder = orderBy(logits);
+    $("rr-query").textContent = query;
+    pick($("rr-pick-bi"), docs[biOrder[0]], answer, biOrder[0]);
+    pick($("rr-pick-ce"), docs[ceOrder[0]], answer, ceOrder[0]);
+    $("rr-note").textContent = note;
+    list.innerHTML = biOrder
+      .map(
+        (i) => `<li data-i="${i}" class="py-3 border-t border-grid first:border-t-0 bg-panel">
+          <div class="flex gap-3">
+            <span class="rr-rank font-mono text-[13px] text-muted w-5 shrink-0 pt-px"></span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] ${i === answer ? "text-text" : ""}">${esc(docs[i])}${
+                i === answer ? ` <span class="chip ml-1 align-middle">answers it</span>` : ""
+              } <span class="rr-delta font-mono text-[11px] ml-1 align-middle"></span></p>
+              <div class="mt-2 space-y-1.5">
+                ${bar(cos[i], cos[i].toFixed(2), "bg-explore")}
+                <div class="rr-green transition-opacity duration-500">${bar(rel[i], `${Math.round(rel[i] * 100)}%`, "bg-exploit")}</div>
+              </div>
+            </div>
+          </div></li>`,
+      )
+      .join("");
+    reranked = false;
+    arrange(false);
+  }
+
+  // reorder rows to the current stage; animate the move (FLIP) unless motion is reduced
+  function arrange(animate: boolean) {
+    const order = reranked ? ceOrder : biOrder;
+    const rows = new Map([...list.children].map((li) => [Number((li as HTMLElement).dataset.i), li as HTMLElement]));
+    const before = new Map([...rows].map(([i, li]) => [i, li.getBoundingClientRect().top]));
+    order.forEach((i) => list.appendChild(rows.get(i)!));
+    order.forEach((i, r) => {
+      const li = rows.get(i)!;
+      li.querySelector(".rr-rank")!.textContent = `${r + 1}`;
+      const delta = reranked ? biOrder.indexOf(i) - r : 0;
+      const d = li.querySelector(".rr-delta") as HTMLElement;
+      d.textContent = delta > 0 ? `▲ ${delta}` : delta < 0 ? `▼ ${-delta}` : "";
+      d.className = `rr-delta font-mono text-[11px] ml-1 align-middle ${delta > 0 ? "text-exploit" : "text-fail"}`;
+      (li.querySelector(".rr-green") as HTMLElement).style.opacity = reranked ? "1" : "0.25";
+      if (!animate || reduceMotion) return;
+      const dy = before.get(i)! - li.getBoundingClientRect().top;
+      if (!dy) return;
+      li.animate([{ transform: `translateY(${dy}px)` }, { transform: "translateY(0)" }], {
+        duration: 700,
+        easing: "cubic-bezier(.2,.8,.2,1)",
+      });
+    });
+    stage.textContent = reranked
+      ? "Step 2: reranked by the cross-encoder"
+      : "Step 1: retrieved by embedding search, best first";
+    toggle.textContent = reranked ? "Reset" : "Rerank ▸";
+  }
+
+  toggle.addEventListener("click", () => {
+    reranked = !reranked;
+    arrange(true);
+  });
+
+  function select(i: number | null) {
+    tabs.forEach((t, j) => {
+      const on = j === i;
+      t.setAttribute("aria-pressed", String(on));
+      t.classList.toggle("text-text", on);
+      t.classList.toggle("bg-panel-2", on);
+      t.classList.toggle("text-muted", !on);
+    });
+    if (i === null) return;
+    const ex = examples[i];
+    qEl.value = ex.query;
+    pEl.value = passages.join("\n");
+    show(ex.query, passages, ex.cos, ex.ce, ex.answer, ex.note);
+  }
+
+  tabs.forEach((t, i) => t.addEventListener("click", () => select(i)));
+  select(0);
+
+  let models: Promise<any> | null = null;
+  function load() {
+    models ??= (async () => {
+      // load from the CDN at runtime so the library stays out of the site bundle
+      const t = await (new Function("u", "return import(u)") as (u: string) => Promise<any>)(CDN);
+      t.env.allowLocalModels = false;
+      const embed = await t.pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "q8" });
+      const name = "Xenova/ms-marco-MiniLM-L-6-v2";
+      const tok = await t.AutoTokenizer.from_pretrained(name);
+      const ce = await t.AutoModelForSequenceClassification.from_pretrained(name, { dtype: "q8" });
+      return { embed, tok, ce };
+    })();
+    models.catch(() => (models = null));
+    return models;
+  }
+
+  run.addEventListener("click", async () => {
+    const q = qEl.value.trim();
+    const docs = pEl.value
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 12);
+    if (!q || docs.length === 0) {
+      status.textContent = "Add a question and at least one passage.";
+      return;
+    }
+    run.disabled = true;
+    try {
+      status.textContent = models ? "Scoring..." : "Loading models (about 45 MB, first time only)...";
+      const { embed, tok, ce } = await load();
+      status.textContent = "Scoring...";
+      const t0 = performance.now();
+
+      const v = (await embed([q, ...docs], { pooling: "mean", normalize: true })).tolist() as number[][];
+      const cos = docs.map((_, i) => v[0].reduce((s, x, j) => s + x * v[i + 1][j], 0));
+
+      const inputs = tok(new Array(docs.length).fill(q), { text_pair: docs, padding: true, truncation: true });
+      const logits = ((await ce(inputs)).logits.tolist() as number[][]).map((r) => r[0]);
+
+      select(null);
+      show(q, docs, cos, logits, null, "Your question, scored live on your device. Do the two models agree?");
+      status.textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+      $("rr-query").scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (e) {
+      console.error(e);
+      status.textContent = "Couldn't load the models in this browser. Try a recent Chrome, Edge, Firefox or Safari.";
+    } finally {
+      run.disabled = false;
+    }
+  });
+</script>
