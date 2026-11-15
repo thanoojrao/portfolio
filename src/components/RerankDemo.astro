@@ -1,0 +1,211 @@
+---
+// Embedding similarity vs cross-encoder score.
+// The three examples show real scores, computed offline with the same two models (q8 ONNX, transformers.js 3.5.1),
+// so they appear instantly. "Run live" loads the models in the visitor's browser (about 45 MB, cached after the
+// first run) and scores whatever query and passages are in the boxes.
+const passages = [
+  "Water damage caused by flooding or groundwater is not covered.",
+  "Sudden water damage from burst pipes is covered up to the policy limit.",
+  "Slow leaks that happen over weeks, like a dripping pipe under a sink, are treated as maintenance.",
+  "Water damage claims must be reported within 30 days of the incident.",
+  "Damage from a burst pipe is excluded if the home was left unheated for more than 7 days.",
+];
+const examples = [
+  {
+    label: "Slow leak",
+    query: "Does my policy pay for a pipe that leaked slowly for a month?",
+    cos: [0.238, 0.596, 0.535, 0.41, 0.468],
+    ce: [-11.14, -4.52, -0.33, -10.6, -7.14],
+    note: "Embeddings put the burst-pipe clause first. It's about pipes and coverage, so it sits close to the query in vector space. The cross-encoder reads the pair together and picks the clause about slow leaks, which is the one that answers it.",
+  },
+  {
+    label: "Deadline",
+    query: "Is there a deadline for filing a water damage claim?",
+    cos: [0.457, 0.536, 0.342, 0.762, 0.424],
+    ce: [-4.03, -5.86, -10.65, 5.75, -8.63],
+    note: "An easy one. Both get it right, but look at the gap: the cross-encoder is far more sure about the 30 day clause than about anything else.",
+  },
+  {
+    label: "Where it slips",
+    query: "How long do I have to tell the insurer about a leak?",
+    cos: [0.235, 0.407, 0.426, 0.529, 0.375],
+    ce: [-11.2, -10.86, -2.78, -3.71, -7.37],
+    note: "Here the cross-encoder gets pulled toward the word \"leak\" and the embeddings win. A reranker is better on average, not every time, which is why you measure it on your own data before trusting it.",
+  },
+];
+---
+
+<figure id="rr" class="my-6 p-5 rounded-xl panel text-[15px]">
+  <div class="flex justify-between items-baseline gap-3">
+    <figcaption class="text-text font-medium">Embeddings vs a cross-encoder</figcaption>
+    <span class="label">real scores</span>
+  </div>
+
+  <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Examples">
+    {
+      examples.map((ex, i) => (
+        <button
+          type="button"
+          data-ex={i}
+          class="rr-ex font-mono text-[12px] px-2.5 py-1 rounded-md border border-grid text-muted hover:text-text"
+        >
+          {ex.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <label class="block mt-4 label" for="rr-q">Query</label>
+  <input
+    id="rr-q"
+    class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text focus:outline-none focus:border-muted"
+    value={examples[0].query}
+  />
+
+  <details class="mt-3">
+    <summary class="label cursor-pointer select-none">Passages (edit to try your own, one per line)</summary>
+    <textarea
+      id="rr-p"
+      rows="6"
+      class="mt-2 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text leading-relaxed focus:outline-none focus:border-muted"
+      >{passages.join("\n")}</textarea
+    >
+  </details>
+
+  <div id="rr-out" class="mt-5 grid gap-5 md:grid-cols-2">
+    <div>
+      <p class="label">Embedding search (all-MiniLM-L6-v2)</p>
+      <p class="mt-1 text-[13px] text-muted">cosine similarity of two separate vectors</p>
+      <ol id="rr-bi" class="mt-3 space-y-2"></ol>
+    </div>
+    <div>
+      <p class="label">Cross-encoder (ms-marco-MiniLM-L-6-v2)</p>
+      <p class="mt-1 text-[13px] text-muted">one score from [CLS], query and passage read together</p>
+      <ol id="rr-ce" class="mt-3 space-y-2"></ol>
+    </div>
+  </div>
+  <p id="rr-note" class="mt-4 text-[14px]"></p>
+
+  <div class="mt-5 pt-4 border-t border-grid flex flex-wrap items-center gap-3">
+    <button
+      id="rr-run"
+      type="button"
+      class="rounded-lg bg-exploit text-[#06120b] font-medium px-4 py-2 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
+      >Run live</button
+    >
+    <span id="rr-status" class="font-mono text-[12px] text-muted" aria-live="polite"
+      >Edit the query or passages, then run both models in your browser. First run downloads about 45 MB.</span
+    >
+  </div>
+  <p class="mt-3 text-[12px] text-muted">
+    Cosine runs from -1 to 1. The cross-encoder score is a raw logit, so only its order matters.
+  </p>
+</figure>
+
+<script define:vars={{ examples, passages }}>
+  window.__rr = { examples, passages };
+</script>
+
+<script>
+  type Example = { label: string; query: string; cos: number[]; ce: number[]; note: string };
+  const { examples, passages } = (window as any).__rr as { examples: Example[]; passages: string[] };
+
+  const CDN = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1";
+  const $ = (id: string) => document.getElementById(id)!;
+  const qEl = $("rr-q") as HTMLInputElement;
+  const pEl = $("rr-p") as HTMLTextAreaElement;
+  const run = $("rr-run") as HTMLButtonElement;
+  const status = $("rr-status");
+  const note = $("rr-note");
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".rr-ex")];
+
+  const esc = (s: string) =>
+    s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+
+  function render(el: HTMLElement, docs: string[], scores: number[], digits: number, color: string) {
+    const order = docs.map((_, i) => i).sort((a, b) => scores[b] - scores[a]);
+    el.innerHTML = order
+      .map(
+        (i, r) => `<li class="flex gap-3 items-start p-2.5 rounded-lg ${r === 0 ? "bg-panel-2 border border-grid" : ""}">
+          <span class="font-mono text-[12px] w-12 shrink-0 pt-0.5 ${r === 0 ? color : "text-muted"}">${scores[i].toFixed(digits)}</span>
+          <span class="${r === 0 ? "text-text" : ""}">${esc(docs[i])}</span></li>`,
+      )
+      .join("");
+  }
+
+  function show(docs: string[], cos: number[], ce: number[]) {
+    render($("rr-bi"), docs, cos, 2, "text-explore");
+    render($("rr-ce"), docs, ce, 1, "text-exploit");
+  }
+
+  function select(i: number | null) {
+    tabs.forEach((t, j) => {
+      const on = j === i;
+      t.setAttribute("aria-pressed", String(on));
+      t.classList.toggle("text-text", on);
+      t.classList.toggle("bg-panel-2", on);
+      t.classList.toggle("text-muted", !on);
+    });
+    if (i === null) return;
+    const ex = examples[i];
+    qEl.value = ex.query;
+    pEl.value = passages.join("\n");
+    show(passages, ex.cos, ex.ce);
+    note.textContent = ex.note;
+  }
+
+  tabs.forEach((t, i) => t.addEventListener("click", () => select(i)));
+  select(0);
+
+  let models: Promise<any> | null = null;
+  function load() {
+    models ??= (async () => {
+      // load from the CDN at runtime so the library stays out of the site bundle
+      const t = await (new Function("u", "return import(u)") as (u: string) => Promise<any>)(CDN);
+      t.env.allowLocalModels = false;
+      const embed = await t.pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "q8" });
+      const name = "Xenova/ms-marco-MiniLM-L-6-v2";
+      const tok = await t.AutoTokenizer.from_pretrained(name);
+      const ce = await t.AutoModelForSequenceClassification.from_pretrained(name, { dtype: "q8" });
+      return { embed, tok, ce };
+    })();
+    models.catch(() => (models = null));
+    return models;
+  }
+
+  run.addEventListener("click", async () => {
+    const q = qEl.value.trim();
+    const docs = pEl.value
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 12);
+    if (!q || docs.length === 0) {
+      status.textContent = "Add a query and at least one passage.";
+      return;
+    }
+    run.disabled = true;
+    try {
+      status.textContent = models ? "Scoring..." : "Loading models (about 45 MB, first time only)...";
+      const { embed, tok, ce } = await load();
+      status.textContent = "Scoring...";
+      const t0 = performance.now();
+
+      const v = (await embed([q, ...docs], { pooling: "mean", normalize: true })).tolist() as number[][];
+      const cos = docs.map((_, i) => v[0].reduce((s, x, j) => s + x * v[i + 1][j], 0));
+
+      const inputs = tok(new Array(docs.length).fill(q), { text_pair: docs, padding: true, truncation: true });
+      const logits = ((await ce(inputs)).logits.tolist() as number[][]).map((r) => r[0]);
+
+      select(null);
+      show(docs, cos, logits);
+      note.textContent = "Live result for your query.";
+      status.textContent = `Done in ${Math.round(performance.now() - t0)} ms on your device.`;
+    } catch (e) {
+      console.error(e);
+      status.textContent = "Couldn't load the models in this browser. Try a recent Chrome, Edge, Firefox or Safari.";
+    } finally {
+      run.disabled = false;
+    }
+  });
+</script>
