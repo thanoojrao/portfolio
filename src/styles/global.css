@@ -32,9 +32,9 @@
   color-scheme: dark;
 }
 
-/* light mode: follows the visitor's device setting; dark stays the default */
+/* light mode: follows the device setting unless the visitor picks one with the nav toggle */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --color-ink: #f7f7f4;
     --color-panel: #eef0eb;
     --color-panel-2: #e6e9e3;
@@ -55,6 +55,28 @@
     color-scheme: light;
   }
 }
+/* the nav toggle sets data-theme; an explicit choice wins over the device setting */
+:root[data-theme="light"] {
+  --color-ink: #f7f7f4;
+  --color-panel: #eef0eb;
+  --color-panel-2: #e6e9e3;
+  --color-text: #14181a;
+  --color-body: #363d39;
+  --color-muted: #5b645e;
+  --color-grid: #dde1db;
+  --color-exploit: #0b7a40;
+  --color-explore: #946000;
+  --color-fail: #b83232;
+  --color-on-accent: #ffffff;
+  --color-strong: #000000;
+  --color-line: #a9b1ab;
+  --color-line-2: #c3c9c4;
+  --accent: #0b7a40;
+  --accent-rgb: 11 122 64;
+  --explore-rgb: 148 96 0;
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
 
 html {
   background: var(--color-ink);
@@ -107,3 +129,14 @@ a.inline:hover { border-bottom-color: var(--accent); }
 
 /* home page sections sit in a wide container but keep a comfortable reading width */
 .measure > * { max-width: 720px; }
+
+/* theme toggle: show the icon for the mode you would switch to */
+.theme-toggle .sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+:root:not([data-theme]) .theme-toggle .sun { display: block; }
+:root:not([data-theme]) .theme-toggle .moon { display: none; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .theme-toggle .sun { display: none; }
+  :root:not([data-theme]) .theme-toggle .moon { display: block; }
+}
