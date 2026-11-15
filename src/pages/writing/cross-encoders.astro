@@ -68,7 +68,7 @@ const description =
           extra token added at the very start, and it doesn't stand for any word. Because attention runs <em>across</em> the pair, every query token can look at every document token in every layer, and <code class="font-mono text-[14px] text-text">[CLS]</code> can look at all of them.
         </p>
         <p>
-          On its own that token means nothing. Fine-tuning is what gives it a job. The model is trained on query and
+          Before fine-tuning, that token has no relevance job. (In BERT it was pretrained on a different pair task, guessing whether one sentence follows another.) Fine-tuning is what teaches it this one. The model is trained on query and
           passage pairs labeled relevant or not, with a small layer on top that turns the final <code class="font-mono text-[14px] text-text">[CLS]</code> vector into one score. To get that score right,
           the model learns to gather everything that matters about the match into <code class="font-mono text-[14px] text-text">[CLS]</code>: a "not", a date that doesn't line up, or the one
           clause that answers the exact question.
@@ -96,7 +96,8 @@ const description =
             <span>
               <b class="text-text font-medium">Shape.</b> A generative LLM is usually decoder-only. It reads left to right
               and predicts the next token. A cross-encoder is usually encoder-only, BERT style, so every token sees the
-              whole input at once.
+              whole input at once. Some newer rerankers are built on small LLMs instead, but they still output a
+              score, not text.
             </span>
           </li>
           <li class="flex gap-3">
@@ -123,7 +124,7 @@ const description =
         </ul>
         <p>
           The way I hold it now: embedding models and cross-encoders differ in <em>where</em> the query and document
-          meet. In a bi-encoder they meet at the very end, in one dot product. In a cross-encoder they meet at the
+          meet. In a bi-encoder they meet at the very end, in one cosine. In a cross-encoder they meet at the
           start and interact in every layer.
         </p>
       </section>
@@ -184,8 +185,8 @@ const description =
           when evals show the top results are already right.
         </p>
         <p>
-          The first thing I'd measure is whether the right chunk shows up in the top 50 at all. If it doesn't, a
-          reranker can't save it. I've seen English queries miss Telugu documents entirely, and the fix there was a
+          The first thing I'd measure is whether the right chunk shows up in the top 100 at all. If it doesn't, a
+          reranker can't save it. I've seen English queries fail to find the right Telugu documents, and the fix there was a
           better multilingual embedding model, not reranking. Reranking only helps once retrieval finds the right
           neighborhood.
         </p>
