@@ -133,13 +133,7 @@ const description =
           <li>The cross-encoder scores each candidate against the query and keeps the best 5 or so. Slower, but only 100 pairs.</li>
           <li>The LLM answers from those few chunks.</li>
         </ol>
-        <p>Each stage costs more per item than the one before it, so each one sees fewer items. Using it is short:</p>
-        <pre
-          class="panel rounded-xl p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-text"><code>from sentence_transformers import CrossEncoder
-
-reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-scores = reranker.predict([(query, doc) for doc in candidates])
-top = [doc for _, doc in sorted(zip(scores, candidates), reverse=True)[:5]]</code></pre>
+        <p>Each stage costs more per item than the one before it, so each one sees fewer items.</p>
       </section>
 
       <section class="space-y-3">
