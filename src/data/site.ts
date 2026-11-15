@@ -41,7 +41,6 @@ export const brief = {
     "Prompt caching",
     "RAG (LangChain, LangGraph)",
     "PyTorch",
-    "ONNX",
     "MLflow",
     "Postgres + pgvector",
     "DynamoDB",
