@@ -1,8 +1,8 @@
 ---
-// Embedding similarity vs cross-encoder score.
+// Embedding similarity vs cross-encoder relevance on the same passages.
 // The three examples show real scores, computed offline with the same two models (q8 ONNX, transformers.js 3.5.1),
-// so they appear instantly. "Run live" loads the models in the visitor's browser (about 45 MB, cached after the
-// first run) and scores whatever query and passages are in the boxes.
+// so they appear instantly. "Try your own" loads the models in the visitor's browser (about 45 MB, cached after
+// the first run) and scores whatever query and passages are in the boxes.
 const passages = [
   "Water damage caused by flooding or groundwater is not covered.",
   "Sudden water damage from burst pipes is covered up to the policy limit.",
@@ -14,30 +14,33 @@ const examples = [
   {
     label: "Slow leak",
     query: "Does my policy pay for a pipe that leaked slowly for a month?",
+    answer: 2,
     cos: [0.238, 0.596, 0.535, 0.41, 0.468],
     ce: [-11.14, -4.52, -0.33, -10.6, -7.14],
-    note: "Embeddings put the burst-pipe clause first. It's about pipes and coverage, so it sits close to the query in vector space. The cross-encoder reads the pair together and picks the clause about slow leaks, which is the one that answers it.",
+    note: "Embeddings pick the burst-pipe clause. It's about pipes and coverage, so it sits close to the query in vector space. The cross-encoder reads each clause against the question and picks the one about slow leaks.",
   },
   {
     label: "Deadline",
     query: "Is there a deadline for filing a water damage claim?",
+    answer: 3,
     cos: [0.457, 0.536, 0.342, 0.762, 0.424],
     ce: [-4.03, -5.86, -10.65, 5.75, -8.63],
-    note: "An easy one. Both get it right, but look at the gap: the cross-encoder is far more sure about the 30 day clause than about anything else.",
+    note: "An easy one. Both get it right. Look at the green bars though: the cross-encoder is almost certain about one clause and near zero on the rest, while the similarity bars are all fairly close.",
   },
   {
     label: "Where it slips",
     query: "How long do I have to tell the insurer about a leak?",
+    answer: 3,
     cos: [0.235, 0.407, 0.426, 0.529, 0.375],
     ce: [-11.2, -10.86, -2.78, -3.71, -7.37],
-    note: "Here the cross-encoder gets pulled toward the word \"leak\" and the embeddings win. A reranker is better on average, not every time, which is why you measure it on your own data before trusting it.",
+    note: "Here the cross-encoder gets pulled toward the word \"leak\" and embeddings win. A reranker is better on average, not every time, which is why you test it on your own data before trusting it.",
   },
 ];
 ---
 
 <figure id="rr" class="my-6 p-5 rounded-xl panel text-[15px]">
   <div class="flex justify-between items-baseline gap-3">
-    <figcaption class="text-text font-medium">Embeddings vs a cross-encoder</figcaption>
+    <figcaption class="text-text font-medium">Same question, two models</figcaption>
     <span class="label">real scores</span>
   </div>
 
@@ -55,51 +58,58 @@ const examples = [
     }
   </div>
 
-  <label class="block mt-4 label" for="rr-q">Query</label>
-  <input
-    id="rr-q"
-    class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text focus:outline-none focus:border-muted"
-    value={examples[0].query}
-  />
+  <p class="mt-5 label">Question</p>
+  <p id="rr-query" class="mt-1.5 font-serif text-text text-[19px] leading-snug"></p>
 
-  <details class="mt-3">
-    <summary class="label cursor-pointer select-none">Passages (edit to try your own, one per line)</summary>
+  <div class="mt-5 grid gap-3 sm:grid-cols-2">
+    <div class="p-3.5 rounded-lg bg-ink border border-grid">
+      <p class="label"><span class="text-explore">■</span> Embedding search picks</p>
+      <p id="rr-pick-bi" class="mt-2 text-[14px]"></p>
+    </div>
+    <div class="p-3.5 rounded-lg bg-ink border border-grid">
+      <p class="label"><span class="text-exploit">■</span> Cross-encoder picks</p>
+      <p id="rr-pick-ce" class="mt-2 text-[14px]"></p>
+    </div>
+  </div>
+
+  <p id="rr-note" class="mt-4 text-[14px]"></p>
+
+  <p class="mt-6 label">All passages</p>
+  <ul id="rr-list" class="mt-2 divide-y divide-grid"></ul>
+
+  <p class="mt-3 text-[12px] text-muted leading-relaxed">
+    <span class="text-explore">Amber</span>: cosine similarity between the two separate vectors (all-MiniLM-L6-v2).{" "}
+    <span class="text-exploit">Green</span>: the cross-encoder's relevance score for the pair, read together
+    (ms-marco-MiniLM-L-6-v2).
+  </p>
+
+  <details id="rr-own" class="mt-5 pt-4 border-t border-grid">
+    <summary class="cursor-pointer select-none text-text font-medium">Try your own</summary>
+    <p class="mt-2 text-[13px] text-muted">
+      Runs both models in your browser. The first run downloads about 45 MB, then it's cached.
+    </p>
+    <label class="block mt-3 label" for="rr-q">Question</label>
+    <input
+      id="rr-q"
+      class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text focus:outline-none focus:border-muted"
+    />
+    <label class="block mt-3 label" for="rr-p">Passages, one per line</label>
     <textarea
       id="rr-p"
       rows="6"
-      class="mt-2 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text leading-relaxed focus:outline-none focus:border-muted"
+      class="mt-1.5 w-full rounded-lg bg-ink border border-grid px-3 py-2 text-text leading-relaxed focus:outline-none focus:border-muted"
       >{passages.join("\n")}</textarea
     >
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <button
+        id="rr-run"
+        type="button"
+        class="rounded-lg bg-exploit text-[#06120b] font-medium px-4 py-2 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
+        >Rank them</button
+      >
+      <span id="rr-status" class="font-mono text-[12px] text-muted" aria-live="polite"></span>
+    </div>
   </details>
-
-  <div id="rr-out" class="mt-5 grid gap-5 md:grid-cols-2">
-    <div>
-      <p class="label">Embedding search (all-MiniLM-L6-v2)</p>
-      <p class="mt-1 text-[13px] text-muted">cosine similarity of two separate vectors</p>
-      <ol id="rr-bi" class="mt-3 space-y-2"></ol>
-    </div>
-    <div>
-      <p class="label">Cross-encoder (ms-marco-MiniLM-L-6-v2)</p>
-      <p class="mt-1 text-[13px] text-muted">one score from [CLS], query and passage read together</p>
-      <ol id="rr-ce" class="mt-3 space-y-2"></ol>
-    </div>
-  </div>
-  <p id="rr-note" class="mt-4 text-[14px]"></p>
-
-  <div class="mt-5 pt-4 border-t border-grid flex flex-wrap items-center gap-3">
-    <button
-      id="rr-run"
-      type="button"
-      class="rounded-lg bg-exploit text-[#06120b] font-medium px-4 py-2 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
-      >Run live</button
-    >
-    <span id="rr-status" class="font-mono text-[12px] text-muted" aria-live="polite"
-      >Edit the query or passages, then run both models in your browser. First run downloads about 45 MB.</span
-    >
-  </div>
-  <p class="mt-3 text-[12px] text-muted">
-    Cosine runs from -1 to 1. The cross-encoder score is a raw logit, so only its order matters.
-  </p>
 </figure>
 
 <script define:vars={{ examples, passages }}>
@@ -107,7 +117,7 @@ const examples = [
 </script>
 
 <script>
-  type Example = { label: string; query: string; cos: number[]; ce: number[]; note: string };
+  type Example = { label: string; query: string; answer: number; cos: number[]; ce: number[]; note: string };
   const { examples, passages } = (window as any).__rr as { examples: Example[]; passages: string[] };
 
   const CDN = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1";
@@ -116,26 +126,50 @@ const examples = [
   const pEl = $("rr-p") as HTMLTextAreaElement;
   const run = $("rr-run") as HTMLButtonElement;
   const status = $("rr-status");
-  const note = $("rr-note");
   const tabs = [...document.querySelectorAll<HTMLButtonElement>(".rr-ex")];
 
   const esc = (s: string) =>
     s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
+  const argmax = (a: number[]) => a.reduce((best, v, i) => (v > a[best] ? i : best), 0);
 
-  function render(el: HTMLElement, docs: string[], scores: number[], digits: number, color: string) {
-    const order = docs.map((_, i) => i).sort((a, b) => scores[b] - scores[a]);
-    el.innerHTML = order
-      .map(
-        (i, r) => `<li class="flex gap-3 items-start p-2.5 rounded-lg ${r === 0 ? "bg-panel-2 border border-grid" : ""}">
-          <span class="font-mono text-[12px] w-12 shrink-0 pt-0.5 ${r === 0 ? color : "text-muted"}">${scores[i].toFixed(digits)}</span>
-          <span class="${r === 0 ? "text-text" : ""}">${esc(docs[i])}</span></li>`,
-      )
-      .join("");
+  function bar(value: number, text: string, color: string) {
+    const w = Math.max(0, Math.min(1, value)) * 100;
+    return `<div class="flex items-center gap-2.5">
+      <div class="flex-1 h-1.5 rounded-full bg-grid overflow-hidden"><div class="h-full rounded-full ${color}" style="width:${w.toFixed(1)}%"></div></div>
+      <span class="font-mono text-[11px] text-muted w-10 text-right">${text}</span></div>`;
   }
 
-  function show(docs: string[], cos: number[], ce: number[]) {
-    render($("rr-bi"), docs, cos, 2, "text-explore");
-    render($("rr-ce"), docs, ce, 1, "text-exploit");
+  function pick(el: HTMLElement, text: string, answer: number | null, i: number) {
+    const mark =
+      answer === null
+        ? ""
+        : i === answer
+          ? `<span class="text-exploit font-mono text-[12px]">✓ right clause</span><br/>`
+          : `<span class="text-fail font-mono text-[12px]">✗ wrong clause</span><br/>`;
+    el.innerHTML = `${mark}<span class="text-text">${esc(text)}</span>`;
+  }
+
+  function show(query: string, docs: string[], cos: number[], logits: number[], answer: number | null, note: string) {
+    const rel = logits.map(sigmoid);
+    const bi = argmax(cos);
+    const ce = argmax(logits);
+    $("rr-query").textContent = query;
+    pick($("rr-pick-bi"), docs[bi], answer, bi);
+    pick($("rr-pick-ce"), docs[ce], answer, ce);
+    $("rr-note").textContent = note;
+    $("rr-list").innerHTML = docs
+      .map(
+        (d, i) => `<li class="py-3">
+          <p class="text-[14px] ${i === answer ? "text-text" : ""}">${esc(d)}${
+            i === answer ? ` <span class="chip ml-1 align-middle">answers it</span>` : ""
+          }</p>
+          <div class="mt-2 space-y-1.5">
+            ${bar(cos[i], cos[i].toFixed(2), "bg-explore")}
+            ${bar(rel[i], `${Math.round(rel[i] * 100)}%`, "bg-exploit")}
+          </div></li>`,
+      )
+      .join("");
   }
 
   function select(i: number | null) {
@@ -150,8 +184,7 @@ const examples = [
     const ex = examples[i];
     qEl.value = ex.query;
     pEl.value = passages.join("\n");
-    show(passages, ex.cos, ex.ce);
-    note.textContent = ex.note;
+    show(ex.query, passages, ex.cos, ex.ce, ex.answer, ex.note);
   }
 
   tabs.forEach((t, i) => t.addEventListener("click", () => select(i)));
@@ -181,7 +214,7 @@ const examples = [
       .filter(Boolean)
       .slice(0, 12);
     if (!q || docs.length === 0) {
-      status.textContent = "Add a query and at least one passage.";
+      status.textContent = "Add a question and at least one passage.";
       return;
     }
     run.disabled = true;
@@ -198,9 +231,9 @@ const examples = [
       const logits = ((await ce(inputs)).logits.tolist() as number[][]).map((r) => r[0]);
 
       select(null);
-      show(docs, cos, logits);
-      note.textContent = "Live result for your query.";
-      status.textContent = `Done in ${Math.round(performance.now() - t0)} ms on your device.`;
+      show(q, docs, cos, logits, null, "Your question, scored live on your device. Do the two models agree?");
+      status.textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+      $("rr-query").scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (e) {
       console.error(e);
       status.textContent = "Couldn't load the models in this browser. Try a recent Chrome, Edge, Firefox or Safari.";
