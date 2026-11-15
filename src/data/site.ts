@@ -44,7 +44,7 @@ export const brief = {
     "MLflow",
     "Postgres + pgvector",
     "DynamoDB",
-    "AWS (ECS Fargate, SQS, S3)",
+    "AWS (ECS Fargate, Lambda, SQS, S3, SES)",
     "Terraform",
     "GitHub Actions",
     "Docker",
