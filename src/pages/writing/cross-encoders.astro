@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import RerankDemo from "../../components/RerankDemo.astro";
+import EncoderDiagram from "../../components/EncoderDiagram.astro";
 
 const title = "What a cross-encoder adds";
 const description =
@@ -61,6 +62,7 @@ const description =
           A cross-encoder takes the query and one document as a single input, roughly <code class="font-mono text-[14px] text-text">[CLS] query [SEP] document [SEP]</code>, runs it through a
           transformer, and outputs one number: how relevant this document is to this query.
         </p>
+        <EncoderDiagram />
         <p>
           The part that clicked for me was the <code class="font-mono text-[14px] text-text">[CLS]</code> token. It's an
           extra token added at the very start, and it doesn't stand for any word. Because attention runs <em>across</em> the pair, every query token can look at every document token in every layer, and <code class="font-mono text-[14px] text-text">[CLS]</code> can look at all of them.
@@ -128,11 +130,36 @@ const description =
 
       <section class="space-y-3">
         <h2 class="font-serif font-semibold text-text text-[22px]">Where it fits: retrieve, then rerank</h2>
-        <ol class="space-y-2 list-decimal pl-5 marker:text-muted">
-          <li>Embedding search (and often keyword search too) pulls the top 50 to 100 candidates. Cheap, wide net.</li>
-          <li>The cross-encoder scores each candidate against the query and keeps the best 5 or so. Slower, but only 100 pairs.</li>
-          <li>The LLM answers from those few chunks.</li>
-        </ol>
+        <figure class="my-5 p-5 rounded-xl panel space-y-4" aria-label="Retrieve then rerank: 1,000,000 chunks, embedding search keeps the top 100, the cross-encoder keeps the top 5, and the LLM answers from those.">
+          <div>
+            <div class="flex items-baseline justify-between gap-3 text-[14px]">
+              <span><span class="font-mono text-[12px] text-muted mr-2">1</span><span class="text-text">All chunks</span> <span class="text-muted">everything in the index</span></span>
+              <span class="font-mono text-[12px] text-muted shrink-0">1,000,000</span>
+            </div>
+            <div class="mt-1.5 h-2 rounded-full bg-muted/40" style="width:100%"></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between gap-3 text-[14px]">
+              <span><span class="font-mono text-[12px] text-muted mr-2">2</span><span class="text-text">Embedding search</span> <span class="text-muted">cheap, casts a wide net</span></span>
+              <span class="font-mono text-[12px] text-muted shrink-0">top 100</span>
+            </div>
+            <div class="mt-1.5 h-2 rounded-full bg-explore" style="width:45%"></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between gap-3 text-[14px]">
+              <span><span class="font-mono text-[12px] text-muted mr-2">3</span><span class="text-text">Cross-encoder</span> <span class="text-muted">reads each pair, keeps the best</span></span>
+              <span class="font-mono text-[12px] text-muted shrink-0">top 5</span>
+            </div>
+            <div class="mt-1.5 h-2 rounded-full bg-exploit" style="width:16%"></div>
+          </div>
+          <div>
+            <div class="flex items-baseline justify-between gap-3 text-[14px]">
+              <span><span class="font-mono text-[12px] text-muted mr-2">4</span><span class="text-text">LLM</span> <span class="text-muted">answers from those few chunks</span></span>
+              <span class="font-mono text-[12px] text-muted shrink-0">answer</span>
+            </div>
+            <div class="mt-1.5 h-2 rounded-full bg-text" style="width:6%"></div>
+          </div>
+        </figure>
         <p>Each stage costs more per item than the one before it, so each one sees fewer items.</p>
       </section>
 
