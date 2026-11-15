@@ -1,0 +1,145 @@
+---
+// Bi-encoder vs cross-encoder, side by side on wide screens and stacked on phones.
+const tokens = [
+  { t: "CLS", kind: "cls" },
+  { t: "q1", kind: "q" },
+  { t: "q2", kind: "q" },
+  { t: "SEP", kind: "sep" },
+  { t: "p1", kind: "p" },
+  { t: "p2", kind: "p" },
+  { t: "p3", kind: "p" },
+  { t: "SEP", kind: "sep" },
+];
+const tw = 31;
+const gap = 4;
+const x0 = 12;
+const cx = (i: number) => x0 + i * (tw + gap) + tw / 2;
+const qIdx = [1, 2];
+const pIdx = [4, 5, 6];
+const vec = [0, 1, 2, 3, 4, 5];
+---
+
+<figure class="my-6 p-5 rounded-xl panel">
+  <div class="grid gap-6 md:grid-cols-2">
+    <div>
+      <p class="label"><span class="text-explore">■</span> Bi-encoder (embeddings)</p>
+      <svg viewBox="0 0 300 270" class="mt-3 w-full h-auto" role="img"
+        aria-label="Bi-encoder: the query and the passage each go through their own encoder pass and become vectors. They only meet at the end, in one dot product that gives the score.">
+        <defs>
+          <marker id="ah-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--color-muted)"></path>
+          </marker>
+        </defs>
+        <g font-family="var(--font-mono)" font-size="11" text-anchor="middle">
+          <!-- score -->
+          <circle cx="150" cy="36" r="17" fill="none" stroke="var(--color-explore)" stroke-width="1.5"></circle>
+          <text x="150" y="40" fill="var(--color-explore)" font-size="10">cos</text>
+          <text x="150" y="10" fill="var(--color-muted)">score</text>
+          <text x="150" y="72" fill="var(--color-explore)" font-size="13">0.56</text>
+          <!-- vectors meet only here -->
+          <path d="M80,82 Q80,40 131,38" fill="none" stroke="var(--color-explore)" stroke-dasharray="3 3" marker-end="url(#ah-a)"></path>
+          <path d="M220,82 Q220,40 169,38" fill="none" stroke="var(--color-explore)" stroke-dasharray="3 3" marker-end="url(#ah-a)"></path>
+          {
+            [80, 220].map((c) => (
+              <g>
+                {vec.map((k) => (
+                  <rect x={c - 33 + k * 11} y="84" width="9" height="12" rx="2" fill="var(--color-explore)" opacity={0.35 + (k % 3) * 0.25}></rect>
+                ))}
+                <line x1={c} y1="128" x2={c} y2="102" stroke="var(--color-muted)" marker-end="url(#ah-a)"></line>
+                <rect x={c - 45} y="130" width="90" height="64" rx="8" fill="var(--color-panel-2)" stroke="var(--color-grid)"></rect>
+                <text x={c} y="166" fill="var(--color-body)">encoder</text>
+                <line x1={c} y1="226" x2={c} y2="200" stroke="var(--color-muted)" marker-end="url(#ah-a)"></line>
+              </g>
+            ))
+          }
+          <rect x="35" y="228" width="90" height="28" rx="6" fill="none" stroke="var(--color-grid)"></rect>
+          <text x="80" y="246" fill="var(--color-text)">query</text>
+          <rect x="175" y="228" width="90" height="28" rx="6" fill="none" stroke="var(--color-grid)"></rect>
+          <text x="220" y="246" fill="var(--color-text)">passage</text>
+        </g>
+      </svg>
+      <p class="mt-2 text-[14px]">
+        Two separate passes. Each side becomes one vector, and they only meet at the end, in a cosine. For the cast
+        iron tip in the demo below, that's 0.56, while a wrong tip scores 0.65. Passages can be encoded ahead of time.
+      </p>
+    </div>
+
+    <div>
+      <p class="label"><span class="text-exploit">■</span> Cross-encoder (reranker)</p>
+      <svg viewBox="0 0 300 270" class="mt-3 w-full h-auto" role="img"
+        aria-label="Cross-encoder: the query and passage go in together as one sequence that starts with a CLS token. Attention connects every query token to every passage token. The CLS output becomes the relevance score.">
+        <defs>
+          <marker id="ah-c" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--color-muted)"></path>
+          </marker>
+          <marker id="ah-g" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--color-exploit)"></path>
+          </marker>
+        </defs>
+        <g font-family="var(--font-mono)" font-size="11" text-anchor="middle">
+          <!-- CLS vector -> linear head -> one number -->
+          <rect x={cx(0) - 4} y="6" width="66" height="28" rx="6" fill="rgb(61 220 132 / .12)" stroke="var(--color-exploit)" stroke-width="1.5"></rect>
+          <text x={cx(0) + 29} y="25" fill="var(--color-exploit)" font-size="13">0.18</text>
+          <text x={cx(0) + 72} y="24" fill="var(--color-muted)" font-size="10" text-anchor="start">relevance score</text>
+          <line x1={cx(0)} y1="56" x2={cx(0)} y2="38" stroke="var(--color-exploit)" stroke-width="1.5" marker-end="url(#ah-g)"></line>
+          <rect x={cx(0) - 4} y="58" width="86" height="24" rx="6" fill="var(--color-panel-2)" stroke="var(--color-grid)"></rect>
+          <text x={cx(0) + 39} y="74" fill="var(--color-body)" font-size="10">linear head</text>
+          <line x1={cx(0)} y1="108" x2={cx(0)} y2="86" stroke="var(--color-exploit)" stroke-width="1.5" marker-end="url(#ah-g)"></line>
+          <text x={cx(0) + 8} y="100" fill="var(--color-muted)" font-size="10" text-anchor="start">CLS vector</text>
+          <!-- one encoder, attention across both -->
+          <rect x="8" y="110" width="284" height="86" rx="8" fill="var(--color-panel-2)" stroke="var(--color-grid)"></rect>
+          {
+            qIdx.flatMap((q) =>
+              pIdx.map((p) => (
+                <line x1={cx(q)} y1="186" x2={cx(p)} y2="124" stroke="var(--color-exploit)" stroke-opacity="0.45"></line>
+              )),
+            )
+          }
+          {
+            pIdx.flatMap((p) =>
+              qIdx.map((q) => (
+                <line x1={cx(p)} y1="186" x2={cx(q)} y2="124" stroke="var(--color-exploit)" stroke-opacity="0.2"></line>
+              )),
+            )
+          }
+          {
+            [...qIdx, ...pIdx].map((i) => (
+              <line x1={cx(i)} y1="186" x2={cx(0)} y2="124" stroke="var(--color-text)" stroke-opacity="0.12"></line>
+            ))
+          }
+          <text x="290" y="102" fill="var(--color-muted)" font-size="10" text-anchor="end">attention across both</text>
+          <!-- tokens -->
+          {
+            tokens.map((tok, i) => (
+              <g>
+                <line x1={cx(i)} y1="226" x2={cx(i)} y2="200" stroke="var(--color-muted)" marker-end="url(#ah-c)"></line>
+                <rect
+                  x={cx(i) - tw / 2}
+                  y="228"
+                  width={tw}
+                  height="28"
+                  rx="5"
+                  fill={tok.kind === "cls" ? "rgb(61 220 132 / .15)" : "none"}
+                  stroke={tok.kind === "cls" ? "var(--color-exploit)" : "var(--color-grid)"}
+                ></rect>
+                <text
+                  x={cx(i)}
+                  y="246"
+                  font-size="10"
+                  fill={tok.kind === "cls" ? "var(--color-exploit)" : tok.kind === "sep" ? "var(--color-muted)" : "var(--color-text)"}
+                >
+                  {tok.t}
+                </text>
+              </g>
+            ))
+          }
+        </g>
+      </svg>
+      <p class="mt-2 text-[14px]">
+        One pass over query (q) and passage (p) together. Every token sees every other token, and a small linear head
+        turns the <code class="font-mono text-[13px] text-text">[CLS]</code> vector into one score: 0.18 for the same
+        cast iron tip, against 0.01 for that wrong one.
+      </p>
+    </div>
+  </div>
+</figure>

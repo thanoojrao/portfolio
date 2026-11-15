@@ -1,0 +1,205 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import RerankDemo from "../../components/RerankDemo.astro";
+import EncoderDiagram from "../../components/EncoderDiagram.astro";
+
+const title = "What a cross-encoder adds";
+const description =
+  "Notes on cross-encoders: how they differ from embedding search and from generative LLMs, and where a reranker fits in a RAG pipeline.";
+---
+
+<Layout title={title} description={description} ogType="article">
+  <main id="main" class="mx-auto max-w-3xl px-5 pt-10 md:pt-14 pb-16">
+    <nav class="text-sm text-muted">
+      <a class="hover:text-text" href="/#essay">← Back</a>
+    </nav>
+
+    <header class="mt-8">
+      <div class="font-mono text-xs text-muted"><span class="text-explore">Notes</span> · November 2026 · 5 min read</div>
+      <h1 class="mt-3 font-serif font-semibold text-text text-[30px] md:text-[40px] leading-[1.15] tracking-[-0.01em]">
+        {title}
+      </h1>
+      <p class="mt-4 text-[17px] leading-relaxed">
+        I've built retrieval on embeddings for a while. This week I finally sat down with cross-encoders, the models
+        that rerank results before an LLM sees them. These are my notes on what they add and when they're worth it.
+      </p>
+    </header>
+
+    <article class="mt-10 space-y-9 leading-relaxed">
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">Where I started</h2>
+        <p>
+          Most RAG systems start the same way. Embed every chunk, embed the query, return the nearest neighbors. In
+          practice that's often pgvector with an embedding model like Cohere's. It's fast and it works.
+        </p>
+        <p>
+          But nearest is not the same as relevant. A chunk can sit right next to the query in vector space and still
+          not answer it. A cross-encoder is the piece built to fix that ranking, and I wanted to understand why it's
+          better at it.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">Bi-encoder: two separate passes</h2>
+        <p>
+          An embedding model is a bi-encoder. The query goes through the model on its own and becomes a vector. Each
+          document goes through on its own and becomes a vector. You compare them with a dot product or cosine
+          similarity.
+        </p>
+        <p>
+          The big win is that documents are encoded once, ahead of time. At query time you encode one short string and
+          run a nearest-neighbor search, so searching millions of chunks is cheap.
+        </p>
+        <p>
+          The cost is that the model never sees the query and the document together. Everything it knows about a
+          document has to fit in one vector, written before anyone asked a question.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">Cross-encoder: one pass over both</h2>
+        <p>
+          A cross-encoder takes the query and one document as a single input, roughly <code class="font-mono text-[14px] text-text">[CLS] query [SEP] document [SEP]</code>, runs it through a
+          transformer, and outputs one number: how relevant this document is to this query.
+        </p>
+        <EncoderDiagram />
+        <p>
+          The part that clicked for me was the <code class="font-mono text-[14px] text-text">[CLS]</code> token. It's an
+          extra token added at the very start, and it doesn't stand for any word. Because attention runs <em>across</em> the pair, every query token can look at every document token in every layer, and <code class="font-mono text-[14px] text-text">[CLS]</code> can look at all of them.
+        </p>
+        <p>
+          Before fine-tuning, that token has no relevance job. (In BERT it was pretrained on a different pair task, guessing whether one sentence follows another.) Fine-tuning is what teaches it this one. The model is trained on query and
+          passage pairs labeled relevant or not, with a small layer on top that turns the final <code class="font-mono text-[14px] text-text">[CLS]</code> vector into one score. To get that score right,
+          the model learns to gather everything that matters about the match into <code class="font-mono text-[14px] text-text">[CLS]</code>: a "not", a date that doesn't line up, or the one
+          clause that answers the exact question.
+        </p>
+        <p>
+          The catch: nothing can be computed ahead of time. Every query and document pair is a full forward pass. Run
+          it over a million chunks and that's a million passes for one question. So a cross-encoder is a reranker, not
+          a search engine.
+        </p>
+        <p>
+          Here's the difference on a few kitchen tips. These are real scores from two small open models, one of
+          each kind. You can also edit the query and run both models live in your browser.
+        </p>
+        <RerankDemo />
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">How it differs from an LLM</h2>
+        <p>
+          A cross-encoder and a model like GPT or Claude are both transformers, but they're built for different jobs.
+        </p>
+        <ul class="space-y-2">
+          <li class="flex gap-3">
+            <span class="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
+            <span>
+              <b class="text-text font-medium">Shape.</b> A generative LLM is usually decoder-only. It reads left to right
+              and predicts the next token. A cross-encoder is usually encoder-only, BERT style, so every token sees the
+              whole input at once. Some newer rerankers are built on small LLMs instead, but they still output a
+              score, not text.
+            </span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
+            <span>
+              <b class="text-text font-medium">Output.</b> An LLM writes text. A cross-encoder writes one score. No
+              parsing, no prompt, no chance of it explaining itself instead of answering.
+            </span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
+            <span>
+              <b class="text-text font-medium">Training.</b> It's fine-tuned on labeled query and passage pairs, like
+              MS MARCO, so the only thing it learns to put into that one score is relevance.
+            </span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-[0.7em] size-1.5 shrink-0 rounded-full bg-muted" aria-hidden="true"></span>
+            <span>
+              <b class="text-text font-medium">Cost.</b> You can ask an LLM to rerank, and it works, but it's slower
+              and pricier per pair. A small cross-encoder like MiniLM is tiny next to an LLM and can run on a CPU.
+            </span>
+          </li>
+        </ul>
+        <p>
+          The way I hold it now: embedding models and cross-encoders differ in <em>where</em> the query and document
+          meet. In a bi-encoder they meet at the very end, in one cosine. In a cross-encoder they meet at the
+          start and interact in every layer.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">Where it fits: retrieve, then rerank</h2>
+        <figure
+          class="my-5 p-5 rounded-xl panel flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
+          aria-label="Retrieve then rerank: 1,000,000 chunks, embedding search keeps 100 candidates, the cross-encoder keeps the best 5, and the LLM writes one answer from those."
+        >
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-text">1,000,000</div>
+            <div class="text-[12px] text-muted">chunks</div>
+          </div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-explore">embedding search</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">fast, wide net</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
+          </div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-explore">100</div>
+            <div class="text-[12px] text-muted">candidates</div>
+          </div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-exploit">cross-encoder</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">reads each pair</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
+          </div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-exploit">5</div>
+            <div class="text-[12px] text-muted">best chunks</div>
+          </div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-muted">LLM</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">writes it</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
+          </div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-text">1</div>
+            <div class="text-[12px] text-muted">answer</div>
+          </div>
+        </figure>
+        <p>Each stage costs more per item than the one before it, so each one sees fewer items.</p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">When I'd reach for one</h2>
+        <p>
+          It's worth it when the wrong chunk is expensive and the answer hinges on details. At TCS I built a RAG tool
+          that pre-audits insurance claims against policy documents. A clause that's almost right is the worst kind of
+          wrong there, and that's exactly the case a reranker is made for.
+        </p>
+        <p>
+          I'd skip it when the latency budget is tight, when the corpus is small enough to hand the LLM everything, or
+          when evals show the top results are already right.
+        </p>
+        <p>
+          The first thing I'd measure is whether the right chunk shows up in the top 100 at all. If it doesn't, a
+          reranker can't save it. I've seen English queries fail to find the right Telugu documents, and the fix there was a
+          better multilingual embedding model, not reranking. Reranking only helps once retrieval finds the right
+          neighborhood.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="font-serif font-semibold text-text text-[22px]">The short version</h2>
+        <p class="text-text">Embeddings decide what's worth reading. The cross-encoder actually reads it.</p>
+      </section>
+    </article>
+
+    <nav class="mt-14 pt-6 border-t border-grid text-sm">
+      <a class="text-muted hover:text-text" href="/">← Home</a>
+    </nav>
+  </main>
+</Layout>
