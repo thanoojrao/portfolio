@@ -74,8 +74,15 @@ const examples = [
 
   <p id="rr-note" class="mt-4 text-[14px]"></p>
 
-  <p class="mt-6 label">All passages</p>
-  <ul id="rr-list" class="mt-2 divide-y divide-grid"></ul>
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+    <p id="rr-stage" class="label"></p>
+    <button
+      id="rr-toggle"
+      type="button"
+      class="rounded-lg border border-exploit text-exploit font-medium text-[14px] px-3.5 py-1.5 hover:bg-exploit hover:text-[#06120b]"
+    ></button>
+  </div>
+  <ol id="rr-list" class="mt-2 relative"></ol>
 
   <p class="mt-3 text-[12px] text-muted leading-relaxed">
     <span class="text-explore">Amber</span>: cosine similarity between the two separate vectors (all-MiniLM-L6-v2).{" "}
@@ -150,27 +157,77 @@ const examples = [
     el.innerHTML = `${mark}<span class="text-text">${esc(text)}</span>`;
   }
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const list = $("rr-list");
+  const toggle = $("rr-toggle") as HTMLButtonElement;
+  const stage = $("rr-stage");
+  let biOrder: number[] = [];
+  let ceOrder: number[] = [];
+  let reranked = false;
+
+  const orderBy = (a: number[]) => a.map((_, i) => i).sort((x, y) => a[y] - a[x]);
+
   function show(query: string, docs: string[], cos: number[], logits: number[], answer: number | null, note: string) {
     const rel = logits.map(sigmoid);
-    const bi = argmax(cos);
-    const ce = argmax(logits);
+    biOrder = orderBy(cos);
+    ceOrder = orderBy(logits);
     $("rr-query").textContent = query;
-    pick($("rr-pick-bi"), docs[bi], answer, bi);
-    pick($("rr-pick-ce"), docs[ce], answer, ce);
+    pick($("rr-pick-bi"), docs[biOrder[0]], answer, biOrder[0]);
+    pick($("rr-pick-ce"), docs[ceOrder[0]], answer, ceOrder[0]);
     $("rr-note").textContent = note;
-    $("rr-list").innerHTML = docs
+    list.innerHTML = biOrder
       .map(
-        (d, i) => `<li class="py-3">
-          <p class="text-[14px] ${i === answer ? "text-text" : ""}">${esc(d)}${
-            i === answer ? ` <span class="chip ml-1 align-middle">answers it</span>` : ""
-          }</p>
-          <div class="mt-2 space-y-1.5">
-            ${bar(cos[i], cos[i].toFixed(2), "bg-explore")}
-            ${bar(rel[i], `${Math.round(rel[i] * 100)}%`, "bg-exploit")}
+        (i) => `<li data-i="${i}" class="py-3 border-t border-grid first:border-t-0 bg-panel">
+          <div class="flex gap-3">
+            <span class="rr-rank font-mono text-[13px] text-muted w-5 shrink-0 pt-px"></span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] ${i === answer ? "text-text" : ""}">${esc(docs[i])}${
+                i === answer ? ` <span class="chip ml-1 align-middle">answers it</span>` : ""
+              } <span class="rr-delta font-mono text-[11px] ml-1 align-middle"></span></p>
+              <div class="mt-2 space-y-1.5">
+                ${bar(cos[i], cos[i].toFixed(2), "bg-explore")}
+                <div class="rr-green transition-opacity duration-500">${bar(rel[i], `${Math.round(rel[i] * 100)}%`, "bg-exploit")}</div>
+              </div>
+            </div>
           </div></li>`,
       )
       .join("");
+    reranked = false;
+    arrange(false);
   }
+
+  // reorder rows to the current stage; animate the move (FLIP) unless motion is reduced
+  function arrange(animate: boolean) {
+    const order = reranked ? ceOrder : biOrder;
+    const rows = new Map([...list.children].map((li) => [Number((li as HTMLElement).dataset.i), li as HTMLElement]));
+    const before = new Map([...rows].map(([i, li]) => [i, li.getBoundingClientRect().top]));
+    order.forEach((i) => list.appendChild(rows.get(i)!));
+    order.forEach((i, r) => {
+      const li = rows.get(i)!;
+      li.querySelector(".rr-rank")!.textContent = `${r + 1}`;
+      const delta = reranked ? biOrder.indexOf(i) - r : 0;
+      const d = li.querySelector(".rr-delta") as HTMLElement;
+      d.textContent = delta > 0 ? `▲ ${delta}` : delta < 0 ? `▼ ${-delta}` : "";
+      d.className = `rr-delta font-mono text-[11px] ml-1 align-middle ${delta > 0 ? "text-exploit" : "text-fail"}`;
+      (li.querySelector(".rr-green") as HTMLElement).style.opacity = reranked ? "1" : "0.25";
+      if (!animate || reduceMotion) return;
+      const dy = before.get(i)! - li.getBoundingClientRect().top;
+      if (!dy) return;
+      li.animate([{ transform: `translateY(${dy}px)` }, { transform: "translateY(0)" }], {
+        duration: 700,
+        easing: "cubic-bezier(.2,.8,.2,1)",
+      });
+    });
+    stage.textContent = reranked
+      ? "Step 2: reranked by the cross-encoder"
+      : "Step 1: retrieved by embedding search, best first";
+    toggle.textContent = reranked ? "Reset" : "Rerank ▸";
+  }
+
+  toggle.addEventListener("click", () => {
+    reranked = !reranked;
+    arrange(true);
+  });
 
   function select(i: number | null) {
     tabs.forEach((t, j) => {
