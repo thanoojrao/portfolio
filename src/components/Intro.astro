@@ -27,7 +27,7 @@ import { profile } from "../data/site";
     </div>
   </div>
   <div
-    class="hidden sm:block w-24 h-[126px] sm:w-[170px] sm:h-[223px] md:w-[290px] md:h-[381px] rounded-xl md:rounded-2xl overflow-hidden panel"
+    class="hidden sm:block w-24 h-[126px] sm:w-[170px] sm:h-[223px] md:w-[290px] md:h-[381px] rounded-xl md:rounded-2xl overflow-hidden border border-[#1c2420] bg-[#10151a]"
     aria-hidden="true"
   >
     <canvas id="portrait" width="580" height="762" class="block w-full h-full"></canvas>
@@ -35,19 +35,18 @@ import { profile } from "../data/site";
 </header>
 
 <script>
-  // the lattice portrait, drawn once: no image ships, only a brightness grid
+  // the lattice portrait (always on its dark card, in light mode too), drawn once: no image ships, only a brightness grid
   import data from "../data/portrait.json";
   const { cols, rows, v } = data as { cols: number; rows: number; v: number[] };
   const c = document.getElementById("portrait") as HTMLCanvasElement | null;
   const ctx = c?.getContext("2d");
   if (c && ctx) {
-    const rgb = getComputedStyle(document.documentElement).getPropertyValue("--accent-rgb").trim().split(/\s+/).join(",") || "61,220,132";
     const sx = c.width / cols, sy = c.height / rows;
     for (let r = 0; r < rows; r++)
       for (let q = 0; q < cols; q++) {
         const t = v[r * cols + q] / 99;
         if (!t) continue;
-        ctx.fillStyle = `rgba(${rgb},${0.15 + 0.85 * t})`;
+        ctx.fillStyle = `rgba(61,220,132,${0.15 + 0.85 * t})`;
         ctx.beginPath();
         ctx.arc(q * sx + sx / 2, r * sy + sy / 2, Math.max(0.4, t * sx * 0.48), 0, Math.PI * 2);
         ctx.fill();
