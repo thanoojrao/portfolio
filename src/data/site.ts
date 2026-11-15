@@ -9,9 +9,10 @@ export const profile = {
   seoTitle: "Thanooj Lingampally · Founding AI Engineer, LLM Agents · New York",
   /** the one sentence under the name: the core message of the site */
   pitch:
-    "I build production AI agents that actually work, and the unglamorous parts that keep them honest: guards, evals, and latency.",
+    "I'm the first engineer at Dottr. I built the Claude agent that runs its product in production for paying customers: 40+ tools, a guard that checks every action it claims, and replies that start in under 2 seconds instead of 23.",
+  /** the small status line under the role: what I am looking for */
+  status: "Open to AI, LLM agent and backend engineering roles. Open to relocating, San Francisco preferred.",
   location: "New York",
-  openTo: "SF",
   email: "thanoojlingampally@gmail.com",
   github: "https://github.com/thanoojrao",
   linkedin: "https://www.linkedin.com/in/thanooj-lingampally",
@@ -21,31 +22,34 @@ export const profile = {
 /** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
 export const brief = {
   paragraphs: [
-    "I'm the first engineer at Dottr, a contract-intelligence and e-signing startup. I own the Claude-on-Bedrock agent behind its chat and email, the AWS infrastructure under it, and the guard that checks every action the agent claims against real records before the user sees it.",
-    "Before that I spent two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used, then did an MS in AI at the University at Buffalo, where I spent my spare cycles on reinforcement learning and robotics.",
+    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude-on-Bedrock agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. I led engineering until our CTO joined, ran the hiring for our two technical hires, and sit in customer meetings, which is where the best features came from.",
+    "Before that I spent almost two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used. I then did an MS in AI at the University at Buffalo, where I was a teaching assistant for Introduction to Machine Learning (CSE 474/574) and spent my spare cycles on reinforcement learning and robotics.",
   ],
   stats: [
     { value: "23s → <2s", label: "time to first token on the production agent", slug: "dottr-agent" },
-    { value: "6,567 boxes", label: "across 793 documents in a human-reviewed eval set, built before the model", slug: "signature-field-detection" },
+    { value: "40+ tools", label: "in the production agent, every claimed action backed by a receipt", slug: "dottr-agent" },
     { value: "10K+ users", label: "on the RAG claims pre-audit tool I built at TCS", slug: "tcs-rag-platform" },
   ],
   /** one line for the recruiter keyword skim; the full list lives on the résumé */
   skills: [
-    // languages, then AI, then backend and infra
+    // agent and backend stack first, frontend last
     "Python",
-    "TypeScript / Next.js",
-    "LLM agents",
-    "Tool calling",
-    "LangGraph",
-    "RAG",
-    "Evals",
-    "Claude / Bedrock",
-    "PyTorch",
     "FastAPI",
+    "Claude / Amazon Bedrock",
+    "LLM agents and tool calling",
+    "Evals",
+    "Prompt caching",
+    "RAG (LangChain, LangGraph)",
+    "PyTorch",
+    "ONNX",
+    "MLflow",
     "Postgres + pgvector",
-    "AWS (ECS, SQS, DynamoDB)",
+    "DynamoDB",
+    "AWS (ECS Fargate, SQS, S3)",
     "Terraform",
+    "GitHub Actions",
     "Docker",
+    "TypeScript / Next.js",
   ],
 };
 
@@ -61,20 +65,21 @@ export const experience: Experience[] = [
   {
     org: "Dottr",
     role: "Founding AI Engineer",
-    period: "Jan 2026 — present",
+    period: "Jan 2026 to present",
     kind: "work",
     lines: [
-      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product, across several deployed services on AWS.",
-      "The Claude-on-Bedrock agent behind chat and email: tool calling at scale, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
+      "First engineer. Own the backend and the agent for a contract-intelligence and e-signing product in production with paying customers, across several deployed services on AWS.",
+      "Led engineering until our CTO joined, ran the hiring for our two technical hires, mentored the team, and sit in customer meetings.",
+      "The Claude-on-Bedrock agent behind chat and email: 40+ tools, prompt-cache-aware context assembly, a layered honesty guard that verifies every claimed action, and an eval harness that replays real flows against every prompt and model change.",
       "Took time to first token from tens of seconds to under two by streaming while the guard audits concurrently and retracts on failure.",
       "Signature-field detection as a propose-then-select pipeline: a small quantised detector proposes, Claude selects, with the eval set built before the model.",
-      "Multilingual document ingestion, log-fingerprinted alert triage, deploy gating on the test suite, and the infrastructure and cost hygiene that a one-engineer backend needs.",
+      "Company-specific contract review, an end-to-end audit of the e-signing pipeline, multilingual document ingestion, log-fingerprinted alert triage, and an AWS cost audit.",
     ],
   },
   {
     org: "Tata Consultancy Services",
     role: "ML Engineer",
-    period: "Dec 2022 — Aug 2024",
+    period: "Dec 2022 to Aug 2024",
     kind: "work",
     lines: [
       "Built a RAG claims pre-audit tool for insurance vendors used by 10K+ people: Amazon Textract for garage invoices and claim documents, LangChain for retrieval and summarisation, and a deterministic calculation engine for exact, auditable deductions.",
@@ -84,16 +89,23 @@ export const experience: Experience[] = [
     ],
   },
   {
+    org: "University at Buffalo",
+    role: "Graduate Teaching Assistant",
+    period: "Jan 2025 to Dec 2025",
+    kind: "work",
+    lines: ["Teaching assistant and grader for CSE 474/574, Introduction to Machine Learning."],
+  },
+  {
     org: "Counselit",
     role: "Software Engineering Intern",
-    period: "Apr 2021 — Aug 2021",
+    period: "Apr 2021 to Aug 2021",
     kind: "work",
     lines: ["Node.js and Express REST APIs and React interfaces for client pilots, with JWT auth and role-based access control."],
   },
   {
     org: "University at Buffalo",
     role: "MS Computer Science, Artificial Intelligence",
-    period: "Aug 2024 — Dec 2025",
+    period: "Aug 2024 to Dec 2025",
     kind: "school",
     lines: [
       "Reinforcement Learning · Machine Learning · Pattern Recognition · NLP · Computer Vision & Image Processing",
@@ -103,7 +115,7 @@ export const experience: Experience[] = [
   {
     org: "NIT Durgapur",
     role: "BTech",
-    period: "2019 — 2023",
+    period: "2019 to 2023",
     kind: "school",
     lines: ["Robocell, the robotics club."],
   },
@@ -138,13 +150,13 @@ export const projects: Project[] = [
     metaDescription: "The Claude-on-Bedrock agent I built at Dottr: tool calling, an honesty guard on claimed actions, replayed-flow evals, and TTFT cut from 23s to under 2s.",
     title: "An agent that has to be honest about what it did",
     org: "Dottr",
-    period: "2026 — present",
+    period: "2026 to present",
     demo: "honesty-guard",
     summary:
-      "The Claude-on-Bedrock agent behind Dottr's chat and email: dozens of tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
+      "The Claude-on-Bedrock agent behind Dottr's chat and email: 40+ tools, a layered honesty guard, an eval harness that replays real flows, and a streaming design that took time to first token from tens of seconds to under two.",
     track: "work",
-    card: "The Claude agent behind Dottr's chat and email: dozens of tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
-    chips: ["in production", "TTFT 23s → <2s"],
+    card: "The Claude agent behind Dottr's chat and email: 40+ tools, a guard that verifies every claimed action, and an eval harness that replays real customer flows.",
+    chips: ["in production", "40+ tools", "TTFT 23s → <2s"],
     tags: ["Claude on Bedrock", "tool calling", "evals", "prompt caching", "streaming"],
     links: [{ label: "dottr.ai", href: "https://dottr.ai" }],
     sections: [
@@ -157,10 +169,19 @@ export const projects: Project[] = [
       {
         heading: "How it is built",
         body: [
-          "Tool calling across dozens of tools, with context assembled to keep the prompt cache warm so long conversations stay fast and cheap.",
+          "Tool calling across 40+ tools, with context assembled to keep the prompt cache warm so long conversations stay fast and cheap.",
           "A layered honesty guard: before the user sees a claim like 'sent to the counterparty', the claim is checked against records the system actually owns. If the check fails, the claim is retracted.",
-          "An eval harness built from recorded real flows, replayed in CI against every prompt and model change, so a regression in planning or tool use fails a build instead of reaching an inbox.",
+          "An eval harness of about 150 cases across 8 behaviours, from tool selection to approval routing, many taken verbatim from production messages. Every pull request runs the critical cases three times against the real model with deterministic checks, and the full set runs nightly, so a regression in planning or tool use fails a build instead of reaching an inbox.",
           "Streaming with concurrent auditing: the reply starts immediately while the guard runs alongside it. Time to first token went from tens of seconds to under two, without giving up the guarantee.",
+        ],
+      },
+      {
+        heading: "How it works now",
+        body: [
+          "I later redesigned the agent loop so honesty is a property of the design, not something we detect afterwards. Every turn ends in a typed respond call, so the turn's status comes from an object, never from parsing prose.",
+          "Authority lives in tool preconditions: sending or cancelling needs a confirm that is only minted when the user says yes, and it is bound to one specific plan. Tools report what did not happen as clearly as what did. The honesty guard still runs alongside, checking each claim against the receipts from that turn.",
+          "During the rebuild a shrink-only expected-failures list meant the suite could only get stronger, and it caught a planning regression before cutover.",
+          "The rule underneath all of it: the agent can't claim a state change unless a typed receipt from a tool backs it.",
         ],
       },
       {
@@ -197,10 +218,10 @@ export const projects: Project[] = [
       {
         heading: "How it is built",
         body: [
-          "Propose: a small int8-quantised object detector, exported to ONNX, runs on CPU and returns candidate boxes for a page in well under a second.",
-          "Select: Claude sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
-          "Measure first: a human-reviewed evaluation set of 793 documents and 6,567 boxes existed before the pipeline did. On its first run it caught a coordinate-transform bug before it reached users, the kind of thing nobody spots by eyeballing outputs.",
-          "Every alternative got the same treatment: document parsers, detection vendors and placement models were benchmarked head to head on the same set before any of them was adopted.",
+          "Propose: a small int8-quantised object detector, 37 MB as ONNX (down from 774 MB in PyTorch), runs on CPU at ingest with no model call and returns candidate boxes.",
+          "Select: only when someone actually intends to sign or send, Claude sees the candidates together with the document's text and structure and decides which are real signature fields, whose they are, and what kind.",
+          "Measure first: a human-reviewed evaluation set of 793 documents and 6,567 boxes existed before the pipeline did. It exposed a coordinate-transform bug that had put 30% of candidates off the page, the kind of thing nobody spots by eyeballing outputs. On that set the detector reaches 86.4% recall at confidence 0.3 and 92.8% at 0.1.",
+          "Every alternative got the same treatment: document parsers, detection vendors and placement models were benchmarked head to head on the same set before any of them was adopted. Docling and Reducto parsed most of our documents about equally well, so we chose Docling for its lower median latency, 2.2s vs 3.4s.",
         ],
       },
       {
@@ -218,7 +239,7 @@ export const projects: Project[] = [
     metaDescription: "A RAG tool used by 10,000+ people to pre-audit insurance claims: Textract for invoices, LangChain for retrieval, a deterministic engine for the math.",
     title: "A claims pre-audit tool for insurers, used by 10,000+ people",
     org: "Tata Consultancy Services",
-    period: "2022 — 2024",
+    period: "2022 to 2024",
     summary:
       "A RAG tool that pre-audits insurance claims: Textract reads garage invoices and claim documents, LangChain handles retrieval and summarisation, and a deterministic engine calculates the deductions, so every number is exact and auditable. Claim processors get a filtered summary to decide each claim.",
     track: "work",
@@ -316,7 +337,7 @@ export const projects: Project[] = [
         body: [
           "A custom Gymnasium environment around the ANYbotics ANYmal C model from the MuJoCo Menagerie. Observations are joint positions and velocities, actions are the twelve actuator torques, and an episode ends when the body drops below 20 cm.",
           "Stage one: locomotion. A reward of forward velocity plus a posture bonus minus an action-cost penalty, trained with PPO from Stable-Baselines3, with video captured every ten thousand steps so the gait can be watched improving from falling over to an early walk.",
-          "Stage two: goal-conditioned navigation. The observation gains a target, and the policy becomes a Mixture-of-Experts network in PyTorch, with a gating network choosing among specialist experts per step. It reaches 92% success on target-reaching tasks within 200 timesteps.",
+          "Stage two: goal-conditioned navigation. The observation gains a target, and the policy becomes a Mixture-of-Experts network in PyTorch: five expert policies, each pre-trained for 2M steps, then a gating network that chooses among them per step. It reaches 92% success on target-reaching tasks within 200 timesteps.",
         ],
       },
       {
@@ -327,40 +348,46 @@ export const projects: Project[] = [
       },
     ],
   },
+];
+
+/** more shipped work at Dottr, one line each under the work cards */
+export const moreFromDottr: { title: string; text: string }[] = [
   {
-    slug: "warehouse-rl",
-    seoTitle: "Warehouse robot RL environment: Q-learning vs SARSA",
-    metaDescription: "A grid-world warehouse environment built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA.",
-    title: "A warehouse robot environment, solved with Q-learning and SARSA",
-    org: "University at Buffalo",
-    period: "Spring 2025",
-    summary:
-      "A 2D grid world I designed from scratch: a robot picks up objects and delivers them around obstacles, in deterministic and stochastic versions, then tabular RL learns to do it.",
-    track: "experiment",
-    card: "A grid world I designed from scratch, deterministic and stochastic, where tabular RL learns pickup and delivery.",
-    chips: ["RL from scratch"],
-    tags: ["RL", "Gymnasium", "Q-learning", "SARSA"],
-    links: [{ label: "github", href: "https://github.com/thanoojrao/rl_environment" }],
-    sections: [
-      {
-        heading: "What it is",
-        body: [
-          "Building the environment, not just the agent: observation and action spaces, reward shaping for pickup and delivery, obstacles, and a stochastic variant where actions sometimes slip.",
-          "Q-learning and SARSA with a sweep over discount factor and epsilon decay, so the difference between the two algorithms shows up in the plots rather than being asserted. A bonus multi-pickup version reaches about 215 average reward over a thousand episodes.",
-        ],
-      },
-      {
-        heading: "What it taught me",
-        body: [
-          "Watching epsilon decay change what the agent found was the first time the trade-off between exploring and exploiting felt like a real decision rather than a formula.",
-        ],
-      },
-    ],
+    title: "Company-specific contract review",
+    text: "Customer meetings showed every company reviews contracts against its own playbook, so I built a way to capture each customer's rules, compile them by contract type and flag every upload with sources. It replaced one customer's manual Excel checklist and spread across their team.",
+  },
+  {
+    title: "E-signing audit",
+    text: "Found 7 critical defects end to end, including one that could complete a contract without ever contacting a required signer, then gated deploys on the test suite so a red build can't ship.",
+  },
+  {
+    title: "Multilingual ingestion",
+    text: "Benchmarked four OCR vendors on scanned Indian legal filings, routed garbled Textract output to Sarvam, and moved embeddings to Cohere multilingual after measuring that Titan could not match English queries to Telugu text. Backfilled 11k chunks with zero downtime.",
+  },
+  {
+    title: "Alert triage and cost",
+    text: "Grouped errors by log signature, collapsing 222 open issues into 42 root causes and cutting noise by over 80%. Found $2.1k/month of AWS spend hidden behind credits and removed about $7k/year of orphaned resources.",
+  },
+];
+
+/** publications, shown as one small line near the bottom */
+export const publications: { authorship: string; title: string; venue: string; note: string; href: string }[] = [
+  {
+    authorship: "Co-author",
+    title: "Flow and Heat Transfer Study Past a Solid and Slotted Circular Cylinder: Effect of Blockage Ratio",
+    venue: "Recent Advances in Thermal Engineering (Springer, 2024)",
+    note: "A CFD study in ANSYS Fluent from my mechanical engineering degree.",
+    href: "https://link.springer.com/chapter/10.1007/978-981-97-3648-5_4",
   },
 ];
 
 /** smaller things, listed in one line each under the cards */
 export const alsoPulled: { title: string; note: string; href?: string }[] = [
+  {
+    title: "Warehouse robot RL environment",
+    note: "a grid world built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA",
+    href: "https://github.com/thanoojrao/rl_environment",
+  },
   {
     title: "NYC taxi demand pipeline",
     note: "the course template the Citi Bike project was adapted from; hourly demand, same stack, a map of predictions by zone",

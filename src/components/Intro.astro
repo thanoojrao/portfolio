@@ -10,7 +10,10 @@ import { profile } from "../data/site";
     <p class="mt-3 md:mt-4 text-[15px] md:text-[16px] text-muted">
       <span class="text-text font-medium">{profile.title}</span>{" at "}<a class="inline" href={profile.org.url}
         >{profile.org.name}</a
-      >{" · "}{profile.location} · open to {profile.openTo}
+      >{" · "}{profile.location}
+    </p>
+    <p class="mt-2 flex items-start gap-2 text-[14px] md:text-[15px] text-body">
+      <span class="mt-[7px] h-2 w-2 shrink-0 rounded-full bg-exploit" aria-hidden="true"></span>{profile.status}
     </p>
     <p class="mt-5 md:mt-6 text-[17px] sm:text-[19px] md:text-[22px] leading-[1.5] text-text max-w-[560px]">{profile.pitch}</p>
     <div class="mt-7 md:mt-9 flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
@@ -18,7 +21,7 @@ import { profile } from "../data/site";
         class="inline-flex items-center gap-2 rounded-lg bg-exploit text-[#06120b] font-medium px-[18px] py-2.5 mr-2 hover:brightness-110"
         href={`mailto:${profile.email}`}>Email me <span aria-hidden="true">→</span></a
       >
-      {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Résumé</a>}
+      {profile.resume && <a class="px-3 py-2.5 text-body hover:text-text" href={profile.resume}>Resume (PDF)</a>}
       <a class="px-3 py-2.5 text-body hover:text-text" href={profile.github}>GitHub</a>
       <a class="px-3 py-2.5 text-body hover:text-text" href={profile.linkedin}>LinkedIn</a>
     </div>

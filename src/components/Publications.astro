@@ -1,0 +1,14 @@
+---
+import { publications } from "../data/site";
+---
+
+<section id="publications" class="measure py-10 border-t border-grid">
+  <h2 class="mb-3 font-mono text-xs font-medium tracking-wider uppercase text-muted">Publication</h2>
+  {
+    publications.map((p) => (
+      <p class="text-sm leading-relaxed text-muted">
+        {p.authorship}, "<a class="inline" href={p.href}>{p.title}</a>", {p.venue}. {p.note}
+      </p>
+    ))
+  }
+</section>
