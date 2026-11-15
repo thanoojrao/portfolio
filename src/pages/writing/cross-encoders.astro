@@ -130,34 +130,43 @@ const description =
 
       <section class="space-y-3">
         <h2 class="font-serif font-semibold text-text text-[22px]">Where it fits: retrieve, then rerank</h2>
-        <figure class="my-5 p-5 rounded-xl panel space-y-4" aria-label="Retrieve then rerank: 1,000,000 chunks, embedding search keeps the top 100, the cross-encoder keeps the top 5, and the LLM answers from those.">
-          <div>
-            <div class="flex items-baseline justify-between gap-3 text-[14px]">
-              <span><span class="font-mono text-[12px] text-muted mr-2">1</span><span class="text-text">All chunks</span> <span class="text-muted">everything in the index</span></span>
-              <span class="font-mono text-[12px] text-muted shrink-0">1,000,000</span>
-            </div>
-            <div class="mt-1.5 h-2 rounded-full bg-muted/40" style="width:100%"></div>
+        <figure
+          class="my-5 p-5 rounded-xl panel flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-0"
+          aria-label="Retrieve then rerank: 1,000,000 chunks, embedding search keeps 100 candidates, the cross-encoder keeps the best 5, and the LLM writes one answer from those."
+        >
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-text">1,000,000</div>
+            <div class="text-[12px] text-muted">chunks</div>
           </div>
-          <div>
-            <div class="flex items-baseline justify-between gap-3 text-[14px]">
-              <span><span class="font-mono text-[12px] text-muted mr-2">2</span><span class="text-text">Embedding search</span> <span class="text-muted">cheap, casts a wide net</span></span>
-              <span class="font-mono text-[12px] text-muted shrink-0">top 100</span>
-            </div>
-            <div class="mt-1.5 h-2 rounded-full bg-explore" style="width:45%"></div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-explore">embedding search</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">fast, wide net</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
           </div>
-          <div>
-            <div class="flex items-baseline justify-between gap-3 text-[14px]">
-              <span><span class="font-mono text-[12px] text-muted mr-2">3</span><span class="text-text">Cross-encoder</span> <span class="text-muted">reads each pair, keeps the best</span></span>
-              <span class="font-mono text-[12px] text-muted shrink-0">top 5</span>
-            </div>
-            <div class="mt-1.5 h-2 rounded-full bg-exploit" style="width:16%"></div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-explore">100</div>
+            <div class="text-[12px] text-muted">candidates</div>
           </div>
-          <div>
-            <div class="flex items-baseline justify-between gap-3 text-[14px]">
-              <span><span class="font-mono text-[12px] text-muted mr-2">4</span><span class="text-text">LLM</span> <span class="text-muted">answers from those few chunks</span></span>
-              <span class="font-mono text-[12px] text-muted shrink-0">answer</span>
-            </div>
-            <div class="mt-1.5 h-2 rounded-full bg-text" style="width:6%"></div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-exploit">cross-encoder</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">reads each pair</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
+          </div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-exploit">5</div>
+            <div class="text-[12px] text-muted">best chunks</div>
+          </div>
+          <div class="flex md:flex-1 flex-row md:flex-col items-center justify-center gap-2 md:gap-0.5 py-1.5 md:py-0 md:px-1 text-center">
+            <span class="text-muted md:hidden" aria-hidden="true">↓</span>
+            <span class="whitespace-nowrap font-mono text-[11px] text-muted">LLM</span>
+            <span class="whitespace-nowrap text-[11px] text-muted">writes it</span>
+            <span class="hidden md:block text-muted leading-none" aria-hidden="true">→</span>
+          </div>
+          <div class="flex-1 md:flex-none md:w-[96px] text-center rounded-lg bg-ink border border-grid px-2 py-2.5">
+            <div class="font-mono text-[15px] md:text-[15px] text-text">1</div>
+            <div class="text-[12px] text-muted">answer</div>
           </div>
         </figure>
         <p>Each stage costs more per item than the one before it, so each one sees fewer items.</p>
