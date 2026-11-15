@@ -349,6 +349,37 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "super-resolution",
+    seoTitle: "Image super-resolution with SRCNN, SRResNet and a perceptual loss",
+    metaDescription: "2x image super-resolution on DIV2K in PyTorch: SRCNN, then SRResNet with an LPIPS perceptual loss that cut LPIPS from 0.24 to 0.103.",
+    title: "Sharper upscaling: SRCNN, SRResNet and a perceptual loss",
+    org: "University at Buffalo",
+    period: "MS coursework",
+    summary:
+      "2x image super-resolution on DIV2K in PyTorch, from a three-layer SRCNN to an SRResNet trained with an LPIPS perceptual loss, which cut LPIPS from 0.24 to 0.103 while keeping PSNR strong.",
+    track: "experiment",
+    card: "2x super-resolution on DIV2K in PyTorch: SRCNN first, then SRResNet with a perceptual loss that made the outputs look sharper, not just score higher.",
+    chips: ["LPIPS 0.24 → 0.103"],
+    tags: ["PyTorch", "computer vision", "SRResNet", "LPIPS", "DIV2K"],
+    links: [],
+    sections: [
+      {
+        heading: "What it is",
+        body: [
+          "The final project for my computer vision course: turn low-resolution images into 2x higher-resolution ones, trained on DIV2K high and low resolution pairs.",
+          "Baseline: SRCNN, three convolutional layers with a 9x9 first kernel and 64 filters, trained on random 64 px patches with an MSE loss, tracking PSNR, SSIM and LPIPS every epoch.",
+          "Then an SRResNet variant with an LPIPS perceptual loss added to training. LPIPS went from 0.24 to 0.103 while PSNR stayed strong.",
+        ],
+      },
+      {
+        heading: "What it taught me",
+        body: [
+          "The metric you optimise is the output you get. MSE alone rewards safe, blurry averages; adding a loss that measures what people perceive changed what the model produced.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "warehouse-rl",
     seoTitle: "Warehouse robot RL environment: Q-learning vs SARSA",
     metaDescription: "A grid-world warehouse environment built from scratch, deterministic and stochastic, solved with tabular Q-learning and SARSA.",
