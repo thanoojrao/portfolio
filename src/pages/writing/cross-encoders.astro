@@ -28,8 +28,8 @@ const description =
       <section class="space-y-3">
         <h2 class="font-serif font-semibold text-text text-[22px]">Where I started</h2>
         <p>
-          Most RAG systems start the same way. Embed every chunk, embed the query, return the nearest neighbors. At Dottr
-          that's pgvector with Cohere multilingual embeddings. It's fast and it works.
+          Most RAG systems start the same way. Embed every chunk, embed the query, return the nearest neighbors. In
+          practice that's often pgvector with an embedding model like Cohere's. It's fast and it works.
         </p>
         <p>
           But nearest is not the same as relevant. A chunk can sit right next to the query in vector space and still
@@ -172,8 +172,8 @@ top = [doc for _, doc in sorted(zip(scores, candidates), reverse=True)[:5]]</cod
         </p>
         <p>
           The first thing I'd measure is whether the right chunk shows up in the top 50 at all. If it doesn't, a
-          reranker can't save it. At Dottr, English queries were missing Telugu text, and the fix was a better
-          multilingual embedding model, not reranking. Reranking only helps once retrieval finds the right
+          reranker can't save it. I've seen English queries miss Telugu documents entirely, and the fix there was a
+          better multilingual embedding model, not reranking. Reranking only helps once retrieval finds the right
           neighborhood.
         </p>
       </section>
