@@ -22,7 +22,7 @@ export const profile = {
 /** the 30-second read: who I am, in two paragraphs, plus the numbers that matter */
 export const brief = {
   paragraphs: [
-    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. Before our CTO joined I also helped hire the team, and I sit in customer meetings, which is where the best features came from.",
+    "I joined Dottr, a VC-backed contract-intelligence and e-signing startup, as its first engineer. I designed and built the Claude agent behind its chat and email, the Python backend and AWS infrastructure under it, and the guards that stop the agent from claiming anything a tool did not actually do. I also sit in customer meetings, which is where the best features came from.",
     "Before that I spent almost two years at Tata Consultancy Services building a RAG claims pre-audit tool for insurers that more than ten thousand people used. I then did an MS in AI at the University at Buffalo, where I was a teaching assistant for Introduction to Machine Learning (CSE 474/574) and spent my spare cycles on reinforcement learning and robotics.",
   ],
   stats: [
