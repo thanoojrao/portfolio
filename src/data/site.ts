@@ -273,6 +273,53 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "voice-agent",
+    seoTitle: "Voice AI agent on Twilio: streaming speech, barge-in, evals",
+    metaDescription: "A phone agent that answers calls as an AI version of me: streaming speech to text, LLM and voice over Twilio, no framework, about a second to reply.",
+    title: "A phone agent that answers calls as an AI version of me",
+    org: "Personal",
+    period: "2026",
+    summary:
+      "Call it and an AI version of me picks up. It tells you up front that it's an AI, answers questions about my work, and takes a message that reaches me by email. Under it is a streaming speech pipeline I built without a voice framework: speech to text, an LLM and a cloned voice over Twilio, replying about a second after the caller stops talking.",
+    track: "experiment",
+    card: "An AI version of me that answers my phone: streaming speech to text, an LLM and a cloned voice over Twilio, built without a voice framework, and it stops talking when you cut in.",
+    chips: ["takes real calls", "0.9 to 2s to reply", "326 tests"],
+    tags: ["Twilio Media Streams", "Deepgram Flux", "Claude", "Cartesia", "asyncio", "FastAPI", "evals"],
+    links: [{ label: "github", href: "https://github.com/thanoojrao/voice-agent" }],
+    sections: [
+      {
+        heading: "Problem",
+        body: [
+          "A voice agent lives or dies on two things a chat agent can get away with ignoring: how long the silence is after you stop talking, and what happens when you talk over it. A reply that is right but arrives three seconds late feels broken, and an agent that keeps talking through 'wait, no' feels worse.",
+        ],
+      },
+      {
+        heading: "How it is built",
+        body: [
+          "A cascaded pipeline, written by hand in Python asyncio: Twilio streams the call audio to a FastAPI server, Deepgram Flux turns it into text and decides when the caller's turn has ended, the LLM writes the reply, and Cartesia speaks it back in a cloned voice.",
+          "Streaming end to end. The reply is spoken sentence by sentence while the model is still writing it. The knowledge base about me is plain Markdown that sits in a cached prompt prefix rather than a retrieval index, and the cache is warmed while the greeting plays. Warm turns start replying 0.9 to 2 seconds after the caller stops, before the phone network adds its share. If nothing is ready after 2.5 seconds, a short filler clip plays.",
+          "Interruptions that understand listening noises. Real words from the caller stop the agent mid-sentence and clear the queued audio; 'mm-hm', 'yeah' and 'right' don't. Twilio echoes a mark back as each chunk of audio actually plays, so the transcript keeps only the words the caller heard, and the model knows where it was cut off.",
+          "Three tools: take a message (emailed to me when the call ends), save who the caller is, and hang up once the goodbye has been said. Every tool input is checked against its schema before it runs, and a bad one goes back to the model as an error it can recover from in conversation.",
+        ],
+      },
+      {
+        heading: "Built to be changed",
+        body: [
+          "The conversation engine only talks to small interfaces. Twilio is one adapter behind them, and a website voice widget can be another; the speech and model vendors sit behind interfaces too. A test parses every import in the core and fails the build if it reaches outside itself or the standard library.",
+          "That is what makes it testable: 326 tests run whole calls on fakes for every outside service, from greeting to barge-in to a provider failing mid-call. On top of that, 24 behaviour evals, many taken from real calls, send a conversation to the real model and grade the next reply with checks and a second model as judge: does it answer in the first person, avoid re-introducing itself, take the message and spell back an email address.",
+        ],
+      },
+      {
+        heading: "Decisions I would defend",
+        body: [
+          "No voice framework. The hard parts, turn-taking, barge-in and knowing what was actually heard, are exactly what a framework hides. Writing them myself meant I could measure and tune each one.",
+          "The whole knowledge base in a cached prompt, not RAG. It is small enough to fit, a cache hit is faster than a retrieval round trip, and the agent can never miss a fact because a search did not find it.",
+          "Safe by default on a public phone number. It says it's an AI in the first sentence, verifies Twilio's signature on the webhook and the audio stream, caps concurrent and per-caller calls, refuses topics I listed, and a fallback route plays an apology clip even when everything behind it is broken.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "citi-bike-mlops",
     seoTitle: "Citi Bike demand forecasting: an end-to-end MLOps pipeline",
     metaDescription: "Station-level Citi Bike demand as a scheduled pipeline: Hopsworks feature store, LightGBM, MLflow and a monitoring dashboard. MAE from 139 to 34.4.",
