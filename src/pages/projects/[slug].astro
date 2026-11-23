@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { projects, profile } from "../../data/site";
 import HonestyGuard from "../../components/HonestyGuard";
+import CallReplay from "../../components/CallReplay";
 
 export function getStaticPaths() {
   return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
@@ -77,6 +78,23 @@ const schema = {
             <HonestyGuard client:visible />
           </div>
           <p class="mt-2 text-[13px] text-muted">Simulated: names and data are invented and the timing is slowed so it can be read.</p>
+        </section>
+      )
+    }
+
+    {
+      project.demo === "call-replay" && (
+        <section class="mt-10">
+          <h2 class="font-serif font-semibold text-text text-[22px]">Replay: one call, with an interruption</h2>
+          <p class="mt-2 text-[15px] text-muted">
+            Each sentence goes to the voice as soon as the model finishes writing it, and a word only counts as heard once its
+            audio has played. "Mm-hm" lets the agent keep talking. Real words cut it off, the queued audio is cleared, and the
+            transcript keeps only what the caller heard.
+          </p>
+          <div class="mt-4">
+            <CallReplay client:visible />
+          </div>
+          <p class="mt-2 text-[13px] text-muted">Simulated: the caller is invented and the timing is slowed so it can be read. The latencies are from real runs.</p>
         </section>
       )
     }

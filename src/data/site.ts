@@ -139,7 +139,7 @@ export type Project = {
   links: { label: string; href: string }[];
   sections: { heading: string; body: string[] }[];
   /** an interactive replay shown above the write-up */
-  demo?: "honesty-guard";
+  demo?: "honesty-guard" | "call-replay";
 };
 
 export const projects: Project[] = [
@@ -282,6 +282,7 @@ export const projects: Project[] = [
     summary:
       "Call it and an AI version of me picks up. It tells you up front that it's an AI, answers questions about my work, and takes a message that reaches me by email. Under it is a streaming speech pipeline I built without a voice framework: speech to text, an LLM and a cloned voice over Twilio, replying about a second after the caller stops talking.",
     track: "experiment",
+    demo: "call-replay",
     card: "An AI version of me that answers my phone: streaming speech to text, an LLM and a cloned voice over Twilio, built without a voice framework, and it stops talking when you cut in.",
     chips: ["takes real calls", "0.9 to 2s to reply", "326 tests"],
     tags: ["Twilio Media Streams", "Deepgram Flux", "Claude", "Cartesia", "asyncio", "FastAPI", "evals"],
