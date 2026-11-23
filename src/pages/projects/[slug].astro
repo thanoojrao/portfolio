@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { projects, profile } from "../../data/site";
 import HonestyGuard from "../../components/HonestyGuard";
+import CallReplay from "../../components/CallReplay";
 
 export function getStaticPaths() {
   return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
@@ -12,9 +13,23 @@ const { project } = Astro.props;
 const siblings = projects.filter((p) => p.track === project.track);
 const idx = siblings.findIndex((p) => p.slug === project.slug);
 const next = siblings[(idx + 1) % siblings.length];
+// tells search engines this page is a write-up by Thanooj, with its topics and code
+const origin = Astro.site ?? Astro.url.origin;
+const repo = project.links.find((l) => l.href.startsWith("https://github.com/"));
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: project.title,
+  description: project.metaDescription,
+  url: new URL(`/projects/${project.slug}/`, origin).href,
+  image: new URL("/og.png", origin).href,
+  keywords: project.tags.join(", "),
+  author: { "@type": "Person", name: profile.name, url: new URL("/", origin).href, sameAs: [profile.linkedin, profile.github] },
+  ...(repo && { about: { "@type": "SoftwareSourceCode", codeRepository: repo.href } }),
+};
 ---
 
-<Layout title={project.seoTitle} description={project.metaDescription} ogType="article">
+<Layout title={project.seoTitle} description={project.metaDescription} ogType="article" schema={schema}>
   <main id="main" class="mx-auto max-w-3xl px-5 pt-10 md:pt-14 pb-10">
     <nav class="text-sm text-muted">
       <a class="hover:text-text" href="/#projects">← All projects</a>
@@ -63,6 +78,23 @@ const next = siblings[(idx + 1) % siblings.length];
             <HonestyGuard client:visible />
           </div>
           <p class="mt-2 text-[13px] text-muted">Simulated: names and data are invented and the timing is slowed so it can be read.</p>
+        </section>
+      )
+    }
+
+    {
+      project.demo === "call-replay" && (
+        <section class="mt-10">
+          <h2 class="font-serif font-semibold text-text text-[22px]">Replay: one call, with an interruption</h2>
+          <p class="mt-2 text-[15px] text-muted">
+            Each sentence goes to the voice as soon as the model finishes writing it, and a word only counts as heard once its
+            audio has played. "Mm-hm" lets the agent keep talking. Real words cut it off, the queued audio is cleared, and the
+            transcript keeps only what the caller heard.
+          </p>
+          <div class="mt-4">
+            <CallReplay client:visible />
+          </div>
+          <p class="mt-2 text-[13px] text-muted">Simulated: the caller is invented and the timing is slowed so it can be read. The latencies are from real runs.</p>
         </section>
       )
     }

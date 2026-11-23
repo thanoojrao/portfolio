@@ -14,8 +14,10 @@ interface Props {
   noindex?: boolean;
   /** emit Person structured data (home page only) */
   person?: boolean;
+  /** extra structured data for this page, e.g. an Article for a case study */
+  schema?: Record<string, unknown>;
 }
-const { title, description = profile.description, wide = false, ogType = "website", noindex = false, person = false } =
+const { title, description = profile.description, wide = false, ogType = "website", noindex = false, person = false, schema } =
   Astro.props;
 const container = wide ? "max-w-5xl" : "max-w-3xl";
 const fullTitle = title ? `${title} · ${profile.name}` : profile.seoTitle;
@@ -39,7 +41,7 @@ const jsonLd = person && {
       { "@type": "CollegeOrUniversity", name: "University at Buffalo" },
       { "@type": "CollegeOrUniversity", name: "National Institute of Technology Durgapur" },
     ],
-    knowsAbout: ["LLM agents", "AI engineering", "Retrieval-augmented generation", "LLM evaluation", "Tool calling", "Claude", "Amazon Bedrock", "Python", "AWS", "Reinforcement learning"],
+    knowsAbout: ["LLM agents", "AI engineering", "Retrieval-augmented generation", "LLM evaluation", "Tool calling", "Voice AI agents", "Claude", "Amazon Bedrock", "Python", "AWS", "Reinforcement learning"],
     sameAs: [profile.linkedin, profile.github],
   },
 };
@@ -65,6 +67,7 @@ const jsonLd = person && {
     <meta name="twitter:image" content={ogImage} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={Astro.url.href} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
     <meta name="theme-color" content="#0a0e0c" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f7f7f4" media="(prefers-color-scheme: light)" />
     <script is:inline>
