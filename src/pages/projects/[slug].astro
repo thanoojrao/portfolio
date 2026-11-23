@@ -12,9 +12,23 @@ const { project } = Astro.props;
 const siblings = projects.filter((p) => p.track === project.track);
 const idx = siblings.findIndex((p) => p.slug === project.slug);
 const next = siblings[(idx + 1) % siblings.length];
+// tells search engines this page is a write-up by Thanooj, with its topics and code
+const origin = Astro.site ?? Astro.url.origin;
+const repo = project.links.find((l) => l.href.startsWith("https://github.com/"));
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: project.title,
+  description: project.metaDescription,
+  url: new URL(`/projects/${project.slug}/`, origin).href,
+  image: new URL("/og.png", origin).href,
+  keywords: project.tags.join(", "),
+  author: { "@type": "Person", name: profile.name, url: new URL("/", origin).href, sameAs: [profile.linkedin, profile.github] },
+  ...(repo && { about: { "@type": "SoftwareSourceCode", codeRepository: repo.href } }),
+};
 ---
 
-<Layout title={project.seoTitle} description={project.metaDescription} ogType="article">
+<Layout title={project.seoTitle} description={project.metaDescription} ogType="article" schema={schema}>
   <main id="main" class="mx-auto max-w-3xl px-5 pt-10 md:pt-14 pb-10">
     <nav class="text-sm text-muted">
       <a class="hover:text-text" href="/#projects">← All projects</a>

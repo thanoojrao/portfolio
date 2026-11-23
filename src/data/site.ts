@@ -275,7 +275,7 @@ export const projects: Project[] = [
   {
     slug: "voice-agent",
     seoTitle: "Voice AI agent on Twilio: streaming speech, barge-in, evals",
-    metaDescription: "A phone agent that answers calls as an AI version of me: streaming speech to text, LLM and voice over Twilio, no framework, about a second to reply.",
+    metaDescription: "A voice AI agent that answers my phone over Twilio: streaming speech to text, an LLM and a cloned voice, no framework, replying in about a second.",
     title: "A phone agent that answers calls as an AI version of me",
     org: "Personal",
     period: "2026",
