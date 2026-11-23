@@ -75,7 +75,40 @@ function build() {
     q2,
     { kind: "agent", words: b.words },
   ];
-  return { turns, logs: logs.sort((x, y) => x.t - y.t), end: b.end + 700 };
+  // when the caller is talking, for the waveform: the question, the "mm-hm", the interruption
+  const callerTalk: [number, number][] = [[200, 900], [noiseAt - 80, noiseAt + 320], [cutAt - 150, q2End]];
+  return { turns, logs: logs.sort((x, y) => x.t - y.t), end: b.end + 700, callerTalk };
+}
+
+const BARS = 56;
+
+/** a strip of bars that moves like a voice while `active`, and lies flat otherwise */
+function Wave({ label, active, el, seed, color }: { label: string; active: boolean; el: number; seed: number; color: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className={`w-11 shrink-0 text-[11px] ${active ? "text-text" : "text-muted"}`}>{label}</span>
+      <div className="flex-1 flex items-center justify-between h-9 overflow-hidden" aria-hidden="true">
+        {Array.from({ length: BARS }, (_, i) => {
+          // a few sines at different speeds, shaped by an envelope, read like speech rather than a metronome
+          const x = i / BARS;
+          const env = Math.sin(Math.PI * x) ** 0.6;
+          const v =
+            0.5 +
+            0.25 * Math.sin(el / 90 + i * 0.9 + seed) +
+            0.15 * Math.sin(el / 47 + i * 2.3 + seed * 2) +
+            0.1 * Math.sin(el / 210 + i * 0.4);
+          const h = active && Number.isFinite(el) ? Math.min(1, Math.max(0.1, env * v * 1.35)) : 0.07;
+          return (
+            <span
+              key={i}
+              className={`w-[3px] shrink-0 rounded-full transition-[height,opacity] duration-100 ${color}`}
+              style={{ height: `${h * 100}%`, opacity: active ? 0.9 : 0.35 }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default function CallReplay() {
@@ -104,6 +137,7 @@ export default function CallReplay() {
   const speaking = tl.turns.some(
     (t) => t.kind === "agent" && t.words.some((w) => w.playAt <= el && el < w.playAt + WORD) && !(t.cutAt !== undefined && el >= t.cutAt),
   );
+  const callerTalking = tl.callerTalk.some(([a, b]) => el >= a && el < b);
   const status = done ? "call done" : speaking ? "speaking" : el < 200 ? "ringing" : "listening";
 
   return (
@@ -125,6 +159,11 @@ export default function CallReplay() {
         <button onClick={() => setRun((r) => r + 1)} className="text-muted hover:text-text transition-colors">
           ↻ replay
         </button>
+      </div>
+
+      <div className="px-4 md:px-5 py-3 border-b border-grid space-y-1.5 bg-ink/30">
+        <Wave label="caller" active={callerTalking} el={el} seed={1.7} color="bg-explore" />
+        <Wave label="agent" active={speaking} el={el} seed={4.1} color="bg-[rgb(var(--accent-rgb))]" />
       </div>
 
       <div className="grid md:grid-cols-[1.35fr_1fr]">
